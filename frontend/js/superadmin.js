@@ -25,9 +25,13 @@ async function loadUsers(page = 1) {
     currentPage = page;
 
     // Get config for API endpoints
-    const config = await import('./config.js').then(module => module.getConfig());
+    const config = await import("./config.js").then((module) =>
+      module.getConfig()
+    );
 
-    const response = await fetch(`${config.api.baseUrl}${config.api.users.getUsers}?page=${page}&limit=${limit}`);
+    const response = await fetch(
+      `${config.api.baseUrl}${config.api.users.getUsers}?page=${page}&limit=${limit}`
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -125,13 +129,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       // Get config for API endpoints
-      const config = await import('./config.js').then(module => module.getConfig());
+      const config = await import("./config.js").then((module) =>
+        module.getConfig()
+      );
 
-      const res = await fetch(`${config.api.baseUrl}${config.api.endpoints.issueAdminCode}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code }),
-      });
+      const res = await fetch(
+        `${config.api.baseUrl}${config.api.endpoints.issueAdminCode}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code }),
+        }
+      );
 
       const data = await res.json();
       if (!res.ok) {
@@ -147,7 +156,6 @@ document.addEventListener("DOMContentLoaded", () => {
       alert("Network error while issuing code.");
     }
   });
-  
 
   const searchInput = document.getElementById("user-search");
   if (searchInput) {
