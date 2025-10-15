@@ -285,3 +285,34 @@ export async function verifyAdminCode(code) {
   if (!data.success) throw new Error("Invalid or expired admin code");
   return true;
 }
+
+//BOOKS RELATED
+
+export async function fetchBooks(params = {}) {
+  if (!config) config = await getConfig();
+  const query = new URLSearchParams(params).toString();
+  const endpoint = config.api.endpoints.books + (query ? `?${query}` : "");
+  const response = await fetch(`${config.api.baseUrl}${endpoint}`, {
+    method: "GET",
+    credentials: "include",
+  });
+  return handleResponse(response);
+}
+
+export async function createBook(bookData) {
+  if (!config) config = await getConfig();
+  return apiRequest(config.api.endpoints.books, bookData);
+}
+
+// In api.js
+export async function updateBook(bookId, bookData) {
+  if (!config) config = await getConfig();
+  const endpoint = `${config.api.endpoints.books}?id=${bookId}`;
+  return apiRequest(endpoint, bookData, { method: "PUT" });
+}
+
+export async function deleteBook(bookId) {
+  if (!config) config = await getConfig();
+  const endpoint = `${config.api.endpoints.books}?id=${bookId}`;
+  return apiRequest(endpoint, {}, { method: "DELETE" });
+}

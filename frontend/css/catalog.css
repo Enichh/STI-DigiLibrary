@@ -217,7 +217,7 @@ main {
 #book-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 20px;
   justify-content: flex-start;
 }
 
@@ -227,12 +227,25 @@ main {
   border: 1px solid #ddd;
   border-radius: 8px;
   text-align: left;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  max-width: 230px;
+  min-width: 190px;
+  flex: 1 0 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .book h3 {
-  color: #00315f;
+  font-size: 1rem;
+  font-weight: bold;
+  margin-bottom: 3px;
+  text-align: center;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  max-width: 90%;
 }
-
 .book button {
   margin-top: 10px;
   padding: 6px 12px;
@@ -243,6 +256,14 @@ main {
   font-weight: bold;
 }
 
+.book p {
+  font-size: 0.98rem;
+  margin-bottom: 4px;
+  text-align: center;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  max-width: 95%;
+}
 .book button:hover {
   background: #e6c200;
 }
@@ -304,16 +325,12 @@ main {
   margin: 10px 0;
 }
 
-.book-image {
-  width: 200px;
-  height: 190px;
-  margin-bottom: 10px;
-  overflow: hidden;
-  border-radius: 4px;
-  background-color: #f0f0f0;
-  display: flex;
-  justify-content: center;
+.book-image img {
+  width: 180px;
+  height: 160px;
   object-fit: contain;
+  border-radius: 4px;
+  background: #fff;
 }
 
 /* === Modals (Shared) === */
@@ -412,18 +429,18 @@ main {
   background-color: #95a5a6;
 }
 footer {
-  background-color: #00315f;   
-  color: #f3f3f3;           
-  text-align: center;       
+  background-color: #00315f;
+  color: #f3f3f3;
+  text-align: center;
   padding: 10px 0;
-  width: 100%;              
+  width: 100%;
   font-size: 14px;
   margin: 0;
   position: block;
   bottom: 0;
   left: 0;
   right: 0;
-  box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
   line-height: 1.2;
 }
 
@@ -449,7 +466,6 @@ footer {
   cursor: pointer;
   transition: color 0.3s ease;
 }
-
 
 .togglePassword:hover {
   color: #00315f;

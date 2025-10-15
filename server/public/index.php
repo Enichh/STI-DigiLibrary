@@ -38,6 +38,8 @@ $matched = false;
 require __DIR__ . '/../routes/authRoutes.php';
 require __DIR__ . '/../routes/userRoutes.php';
 require __DIR__ . '/../routes/configRoutes.php';
+require __DIR__ . '/../routes/booksRoutes.php'; // <--- ADD THIS!
+
 
 error_log("DEBUG: Calling handleUserRoutes with path: '$requestPath', method: '$method'");
 handleUserRoutes($requestPath, $method);
