@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Library Catalog - STI DigiLibrary</title>
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="../assets/owlie_icn_transparent.png"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="../css/catalog.css" />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="catalogHeader">
+      <div class="header-left">
+        <img
+          src="../assets/owlie_icn_transparent.png"
+          alt="STI DigiLibrary Logo"
+          class="logo"
+        />
+        <div class="app-text">
+          <h1>STI DigiLibrary</h1>
+          <p>A Library Management System</p>
+        </div>
+      </div>
+
+      <div class="header-center">
+        <form id="search-form">
+          <input
+            type="text"
+            id="search-input"
+            placeholder="Search by title, author, or ISBN"
+          />
+          <button type="submit">Search</button>
+        </form>
+      </div>
+
+      <div class="header-right">
+        <img
+          src="../assets/owlie_icn_transparent.png"
+          alt="User Profile"
+          class="profile-icon"
+          id="openSidebarBtn"
+        />
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="hero-overlay">
+        <h2>STI's Library at the palm of your hands!</h2>
+      </div>
+    </section>
+
+    <!-- Main Container -->
+    <div class="container">
+      <!-- Filter Box -->
+      <div class="filter-box">
+        <h3>Library books have total of (<span id="bookCount">3</span>)</h3>
+        <hr />
+
+        <label for="genreSelect">Genres:</label>
+        <select id="genreSelect">
+          <option value="all">All genres</option>
+          <option value="csharp">C# Books</option>
+          <option value="js">JavaScript Books</option>
+          <option value="research">
+            Research Papers of Information Student
+          </option>
+          <option value="research">
+            Research Papers of Computer Engineering Student
+          </option>
+          <option value="research">
+            Research Papers of Senior High Student
+          </option>
+        </select>
+
+        <label for="titleSelect">Titles:</label>
+        <select id="titleSelect">
+          <option value="all">All Titles</option>
+          <option value="title1">Sir Tapos Na</option>
+          <option value="title2">Ayyy Kaya Ko Pa To</option>
+        </select>
+
+        <label for="availableCheck">Available Only</label>
+        <input
+          type="checkbox"
+          id="availableCheck"
+          class="availability-checkbox"
+        />
+      </div>
+
+      <!-- Book Catalog -->
+      <section id="book-catalog">
+        <h2>Available Books</h2>
+        <div id="book-list">
+          <article class="book">
+            <div class="book-image">
+              <img
+                src="../assets/owlie_icn_transparent.png"
+                alt="Book 1 Cover"
+              />
+            </div>
+            <h3>Book Title 1</h3>
+            <p>Author: Author Name</p>
+            <p>ISBN: 1234567890</p>
+            <p>Status: Available</p>
+            <button>Borrow</button>
+          </article>
+
+          <article class="book">
+            <div class="book-image">
+              <img
+                src="../assets/owlie_icn_transparent.png"
+                alt="Book 2 Cover"
+              />
+            </div>
+            <h3>Book Title 2</h3>
+            <p>Author: Author Name</p>
+            <p>ISBN: 1234567890</p>
+            <p>Status: Available</p>
+            <button>Borrow</button>
+          </article>
+
+          <article class="book">
+            <div class="book-image">
+              <img
+                src="../assets/owlie_icn_transparent.png"
+                alt="Book 3 Cover"
+              />
+            </div>
+            <h3>Book Title 3</h3>
+            <p>Author: Author Name</p>
+            <p>ISBN: 1234567890</p>
+            <p>Status: Available</p>
+            <button>Borrow</button>
+          </article>
+        </div>
+      </section>
+    </div>
+
+    <!-- Profile Sidebar -->
+    <div id="profileSidebar" class="profile-sidebar">
+      <div class="sidebar-content">
+        <span class="close-btn" id="closeSidebarBtn">&times;</span>
+        <img
+          src="../assets/owlie_icn_transparent.png"
+          alt="User Icon"
+          class="sidebar-user-icon"
+        />
+        <p>John Doe</p>
+        <p>john@example.com</p>
+        <hr />
+        <a href="#">View Profile</a>
+        <a href="#" id="changePasswordLink">Change Password</a>
+        <a href="#" id="logoutLink">Logout</a>
+      </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="changePasswordModal" class="modal" style="display: none">
+      <div class="modal-content">
+        <span class="close-btn" id="closeChangeModalBtn">&times;</span>
+        <h2>Change Password</h2>
+        <div class="password-container">
+          <input
+            type="password"
+            id="oldPasswordInput"
+            placeholder="Current password"
+          />
+          <i class="fa-solid fa-eye-slash togglePassword"></i>
+        </div>
+        <div class="password-container">
+          <input
+            type="password"
+            id="newPasswordInputChange"
+            placeholder="New password"
+          />
+          <i class="fa-solid fa-eye-slash togglePassword"></i>
+        </div>
+        <div class="password-container">
+          <input
+            type="password"
+            id="confirmNewPasswordInputChange"
+            placeholder="Confirm new password"
+          />
+          <i class="fa-solid fa-eye-slash togglePassword"></i>
+        </div>
+        <button id="submitPasswordChangeBtn">Update Password</button>
+      </div>
+    </div>
+    <div id="logoutModal" class="modal">
+      <div class="modal-content">
+        <p>Are you sure you want to log out?</p>
+        <div class="modal-buttons">
+          <button id="confirmLogout">Log Out</button>
+          <button id="cancelLogout">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <p>2025 STI DigiLibrary. All Rights Reserved.</p>
+    </footer>
+
+    <script type="module" src="../js/catalog.js"></script>
+  </body>
+</html>

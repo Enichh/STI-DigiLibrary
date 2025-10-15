@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard - STI DigiLibrary</title>
+  <link rel="stylesheet" href="../css/adminDashboard.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="icon" type="image/x-icon" href="../assets/owlie_icn_transparent.png" />
+</head>
+<body>
+  <!-- Header -->
+  <header class="AdminDashboardHeader">
+    <img src="../assets/owlie_icn_transparent.png" alt="STI DigiLibrary Logo" class="logo" />
+    <div class="app-text">
+      <h1>STI DigiLibrary</h1>
+      <p>Admin Dashboard</p>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="catalog.html">View Catalog</a></li>
+        <li><a href="#users">Manage Users</a></li>
+        <li><a href="#books">Manage Books</a></li>
+      </ul>
+    </nav>
+    <div class="header-right">
+      <img src="../assets/owlie_icn_transparent.png" alt="Admin Profile" class="profile-icon" onclick="openProfileSidebar()" />
+    </div>
+  </header>
+
+  <!-- Main Dashboard -->
+  <main class="dashboard-container">
+    <div class="dashboard-left">
+      <section id="quick-actions" class="dashboard-section">
+        <h2>Actions</h2>
+        <div class="action-buttons">
+          <button>Add New Book</button>
+          <button>Generate Reports</button>
+          <button>Approve Digital ID's</button>
+          <button>See Overdue Books</button>
+        </div>
+      </section>
+
+      <section id="dashboard-metrics" class="dashboard-section">
+        <h2>Library Statistics</h2>
+        <div class="metric-cards">
+          <div class="card"><h3>Total Books</h3><p class="count">1,250</p></div>
+          <div class="card"><h3>Total Books Borrowed</h3><p class="count">189</p></div>
+          <div class="card"><h3>Total Fines</h3><p class="count">₱5,420</p></div>
+          <div class="card"><h3>Pending Digital ID's</h3><p class="count">24</p></div>
+          <div class="card"><h3>Overdue Books</h3><p class="count">12</p></div>
+        </div>
+      </section>
+    </div>
+
+    <aside class="dashboard-right">
+      <section id="recent-activity" class="dashboard-section">
+        <h2>Recent Activity</h2>
+        <ul class="activity-list">
+          <li>saklap mag backend</li>
+          <li>Sir jonel nambawan</li>
+          <li>Sir tapos na po</li>
+          <li>Yung tax namen claudine co??</li>
+        </ul>
+      </section>
+    </aside>
+  </main>
+
+  <!-- Profile Sidebar -->
+  <div id="profileSidebar" class="profile-sidebar">
+    <div class="sidebar-content">
+      <span class="close-btn" onclick="closeProfileSidebar()">&times;</span>
+      <img src="../assets/owlie_icn_transparent.png" alt="User Icon" class="sidebar-user-icon" />
+      <p id="adminName">Admin Name</p>
+      <p id="adminEmail">admin@example.com</p>
+      <hr />
+      <a href="#">View Profile</a>
+      <a href="#" id="changePasswordLink">Change Password</a>
+      <a href="#" onclick="openLogoutModal()">Logout</a>
+    </div>
+  </div>
+
+  <!-- Change Password Modal -->
+  <div id="changePasswordModal" class="modal" style="display: none">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeChangeModal()">&times;</span>
+      <h2>Change Password</h2>
+      <div class="password-container">
+        <input type="password" id="oldPasswordInput" placeholder="Current password" />
+        <i class="fa-solid fa-eye-slash togglePassword"></i>
+      </div>
+      
+      <div class="password-container">
+        <input type="password" id="newPasswordInputChange" placeholder="New password" />
+        <i class="fa-solid fa-eye-slash togglePassword"></i>
+      </div>
+      
+      <div class="password-container">
+        <input type="password" id="confirmNewPasswordInputChange" placeholder="Confirm new password" />
+        <i class="fa-solid fa-eye-slash togglePassword"></i>
+      </div>
+      
+      <button onclick="submitPasswordChange()">Update Password</button>
+    </div>
+  </div>
+
+  <!-- Logout Modal -->
+  <div id="logoutModal" class="modal">
+    <div class="modal-content">
+      <p>Are you sure you want to log out?</p>
+      <div class="modal-buttons">
+        <button id="confirmLogout">Log Out</button>
+        <button id="cancelLogout">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>© 2025 STI DigiLibrary - Admin Dashboard</p>
+  </footer>
+
+  <!-- Script -->
+  <script src="../js/adminDashboard.js"></script>
+</body>
+</html>

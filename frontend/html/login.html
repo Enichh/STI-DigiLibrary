@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>STI DigiLibrary - Login Page</title>
+    <link rel="stylesheet" href="../css/main.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="../assets/owlie_icn_transparent.png"
+    />
+    <script src="https://www.google.com/recaptcha/api.js?render=6Ldr480rAAAAAFzjsARYcwQUgmlLcJ6SR1clGOsL"></script>
+  </head>
+  <body>
+    <header class="LogInaAngSignUpHeader">
+      <img
+        src="../assets/owlie_icn_transparent.png"
+        alt="STI DigiLibrary Logo"
+        class="logo"
+      />
+      <div class="app-text">
+        <h1>STI DigiLibrary</h1>
+        <p>A Library Management System</p>
+      </div>
+    </header>
+
+    <section class="tabbed_form">
+      <div class="form_titles">
+        <h2 class="active_tab" id="stuLoginTitle">User</h2>
+        <h2 id="adminLoginTitle">Admin</h2>
+      </div>
+
+      <form class="loginForm" id="user_login">
+        <div class="form_fields">
+          <div class="username-wrapper">
+            <label for="user_username">Username:</label>
+            <input
+              type="text"
+              id="user_username"
+              placeholder="Enter Username"
+              required
+            />
+          </div>
+
+          <label for="user_password">Password:</label>
+          <div class="password-container">
+            <input
+              type="password"
+              id="user_password"
+              placeholder="Enter Password"
+              required
+            />
+            <i class="fa-solid fa-eye-slash togglePassword"></i>
+          </div>
+
+          <p class="forgot-password">
+            <a href="#" id="forgotPasswordLink">Forgot Password?</a>
+          </p>
+
+          <div
+            id="recaptcha-error"
+            class="error-message"
+            style="color: red; display: none"
+          >
+            reCAPTCHA verification failed. Please try again.
+          </div>
+
+          <input type="hidden" id="user_captcha_token" name="captchaToken" />
+          <label class="signup-prompt">Don't have an account yet?</label>
+          <button type="button" id="user_signup">Sign up Here!</button>
+        </div>
+
+        <div class="signup_fields" style="display: none">
+          <label for="new_user_username">Username:</label>
+          <input
+            type="text"
+            id="new_user_username"
+            placeholder="Choose Username"
+            required
+          />
+          <small id="user_username_hint" class="validation-hint"></small>
+
+          <label for="new_user_email">Email:</label>
+          <input
+            type="email"
+            id="new_user_email"
+            placeholder="Enter Email"
+            required
+          />
+          <small id="user_email_hint" class="validation-hint"></small>
+
+          <label for="new_user_password">Password:</label>
+          <div class="password-container">
+            <input
+              type="password"
+              id="new_user_password"
+              placeholder="Create Password"
+              required
+            />
+            <i class="fa-solid fa-eye-slash togglePassword"></i>
+          </div>
+          <div id="strength-bar"></div>
+          <small id="user_password_hint" class="validation-hint"></small>
+
+          <label for="new_user_confirm">Confirm Password:</label>
+          <div class="password-container">
+            <input
+              type="password"
+              id="new_user_confirm"
+              placeholder="Confirm Password"
+              required
+            />
+            <i class="fa-solid fa-eye-slash togglePassword"></i>
+          </div>
+          <small id="user_confirm_hint" class="validation-hint"></small>
+
+          <button type="button" id="user_back">Back to Login</button>
+        </div>
+      </form>
+
+      <!-- Admin Login -->
+      <form class="loginForm" id="admin_login">
+        <div class="form_fields">
+          <label for="admin_username">Username:</label>
+          <input
+            type="text"
+            id="admin_username"
+            placeholder="Enter Username"
+            required
+          />
+
+          <label for="admin_password">Password:</label>
+          <div class="password-container">
+            <input
+              type="password"
+              id="admin_password"
+              placeholder="Enter Password"
+              required
+            />
+            <i class="fa-solid fa-eye-slash togglePassword"></i>
+          </div>
+
+          <!-- reCAPTCHA v3 (invisible) -->
+          <div
+            id="recaptcha-error"
+            class="error-message"
+            style="color: red; display: none"
+          >
+            reCAPTCHA verification failed. Please try again.
+          </div>
+
+          <input type="hidden" id="admin_captcha_token" name="captchaToken" />
+          <label class="signup-prompt">Don't have an account yet?</label>
+          <button type="button" id="admin_signup">Sign up Here!</button>
+        </div>
+
+        <div class="signup_fields" style="display: none">
+          <label for="new_admin_username">Username:</label>
+          <input
+            type="text"
+            id="new_admin_username"
+            placeholder="Choose Username"
+            required
+          />
+          <small id="admin_username_hint" class="validation-hint"></small>
+
+          <label for="new_admin_email">Email:</label>
+          <input
+            type="email"
+            id="new_admin_email"
+            placeholder="Enter Email"
+            required
+          />
+          <small id="admin_email_hint" class="validation-hint"></small>
+
+          <label for="new_admin_password">Password:</label>
+          <div class="password-container">
+            <input
+              type="password"
+              id="new_admin_password"
+              placeholder="Create Password"
+              required
+            />
+            <i class="fa-solid fa-eye-slash togglePassword"></i>
+          </div>
+          <div id="admin_strength-bar"></div>
+          <small id="admin_password_hint" class="validation-hint"></small>
+
+          <label for="new_admin_confirm">Confirm Password:</label>
+          <div class="password-container">
+            <input
+              type="password"
+              id="new_admin_confirm"
+              placeholder="Confirm Password"
+              required
+            />
+            <i class="fa-solid fa-eye-slash togglePassword"></i>
+          </div>
+          <small id="admin_confirm_hint" class="validation-hint"></small>
+
+          <button type="button" id="admin_back">Back to Login</button>
+        </div>
+      </form>
+
+      <!-- Login Button -->
+      <div class="loginbtn_section">
+        <button type="submit" id="login_signup_submitter">Login</button>
+      </div>
+    </section>
+
+    <div id="verifyModal" class="modal">
+      <div class="modal-content">
+        <h3>Verification Required</h3>
+        <p>
+          A verification code has been sent to your email. Please enter it
+          below:
+        </p>
+        <div class="pin-inputs">
+          <input type="text" maxlength="1" class="pin" />
+          <input type="text" maxlength="1" class="pin" />
+          <input type="text" maxlength="1" class="pin" />
+          <input type="text" maxlength="1" class="pin" />
+          <input type="text" maxlength="1" class="pin" />
+          <input type="text" maxlength="1" class="pin" />
+        </div>
+        <div class="modal-buttons">
+          <button id="verifyBtn">Verify</button>
+          <button id="verifyCloseBtn">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="forgotPasswordModal" class="modal" style="display: none">
+      <div class="modal-content">
+        <span class="close-btn" onclick="closeForgotModal()">&times;</span>
+        <h2>Reset Your Password</h2>
+        <p>Enter your email to receive a reset code:</p>
+        <input
+          type="email"
+          id="forgotEmailInput"
+          placeholder="Enter your email"
+        />
+        <button id="forgotSubmitButton">Send Reset Code</button>
+      </div>
+    </div>
+
+    <div id="confirmResetModal" class="modal" style="display: none">
+      <div class="modal-content">
+        <h2>Enter Reset Code & New Password</h2>
+        <input
+          type="text"
+          id="resetCodeInput"
+          maxlength="6"
+          placeholder="6-digit code"
+        />
+        <div class="password-container">
+          <input
+            type="password"
+            id="newPasswordInput"
+            placeholder="New password"
+          />
+          <i class="fa-solid fa-eye-slash togglePassword"></i>
+        </div>
+        <div class="password-container">
+          <input
+            type="password"
+            id="confirmNewPasswordInput"
+            placeholder="Confirm new password"
+          />
+          <i class="fa-solid fa-eye-slash togglePassword"></i>
+        </div>
+        <button id="submitPasswordReset">Reset Password</button>
+        <button id="closeConfirmResetModal">Cancel</button>
+      </div>
+    </div>
+
+    <div id="confirmLockModal" class="modal" style="display: none">
+      <div class="modal-content">
+        <h2>Account Locked</h2>
+        <p>
+          Your account has been locked due to multiple failed login attempts.
+        </p>
+        <p>
+          Please enter the 6-digit code sent to your email to unlock your
+          account:
+        </p>
+        <input
+          type="text"
+          id="lockedCodeInput"
+          maxlength="6"
+          placeholder="Enter 6-digit code"
+          style="margin-top: 1rem; text-align: center"
+        />
+        <button id="submitLockedCode">Unlock Account</button>
+        <button id="closeConfirmLockModal">Cancel</button>
+      </div>
+    </div>
+
+    <script type="module" src="../js/main.js"></script>
+
+    <footer class="LogInaAngSignUpFooter">
+      <p>STI DigiLibrary 2025</p>
+    </footer>
+  </body>
+</html>

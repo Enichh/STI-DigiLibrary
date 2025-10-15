@@ -1,0 +1,456 @@
+/* === Global Reset === */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "DM Sans", sans-serif;
+  background-color: #f3f0e4;
+  color: #1b1b1b;
+  padding: 0;
+}
+
+/* === Header === */
+.catalogHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 40px;
+  background-color: #00315f;
+  color: #feeea2;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  gap: 15px;
+}
+
+.header-left,
+.header-center,
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  object-fit: contain;
+}
+
+.app-text h1 {
+  font-size: 22px;
+  font-weight: bold;
+  color: #ffe25c;
+}
+
+.app-text p {
+  font-size: 14px;
+  color: #ccc;
+}
+
+.header-center {
+  flex: 1;
+  justify-content: center;
+}
+
+.profile-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+  border: 2px solid #ffe25c;
+}
+
+/* === Sidebar === */
+.profile-sidebar {
+  position: fixed;
+  top: 0;
+  right: -300px;
+  width: 200px;
+  height: 100%;
+  background-color: #fff;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
+  transition: right 0.3s ease;
+  z-index: 3000;
+}
+
+.profile-sidebar.open {
+  right: 0;
+}
+
+.sidebar-user-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 10px auto 20px 40px;
+  display: block;
+  border: 2px solid #00315f;
+}
+
+.sidebar-content {
+  padding: 20px;
+}
+
+.sidebar-content p {
+  text-align: center;
+  font-size: 18px;
+  line-height: 1.2;
+  margin-bottom: 10px;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+.sidebar-content a {
+  display: block;
+  margin: 10px 0;
+  color: #00315f;
+  text-decoration: none;
+  font-weight: bold;
+  line-height: 0.7;
+}
+
+.sidebar-content a:hover {
+  text-decoration: underline;
+}
+
+.close-btn {
+  font-size: 24px;
+  color: #00315f;
+  cursor: pointer;
+  float: right;
+}
+
+/* === Hero Section === */
+.hero-section {
+  margin-top: 70px;
+  height: 200px;
+  width: 100%;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+}
+
+.hero-overlay h2 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+/* === Main Layout === */
+main {
+  padding-top: 80px;
+}
+
+.container {
+  margin-top: 0;
+  padding: 20px;
+}
+
+/* === Search Section === */
+#search-form {
+  display: flex;
+  width: 50%;
+  max-width: 900px;
+  gap: 5px;
+}
+
+#search-input {
+  flex: 1;
+  padding: 9px 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+#search-form button {
+  padding: 8px 16px;
+  background-color: #ffcc00;
+  color: #000;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#search-form button:hover {
+  background-color: #e6b800;
+}
+
+/* === Book Catalog === */
+#book-catalog {
+  margin-top: 20px;
+  padding: 15px;
+  background: #fff;
+  border: 1px solid #ccc;
+}
+
+#book-catalog h2 {
+  font-size: 20px;
+  color: #00315f;
+  margin-bottom: 15px;
+}
+
+#book-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-start;
+}
+
+.book {
+  background: #f9f9f9;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  text-align: left;
+}
+
+.book h3 {
+  color: #00315f;
+}
+
+.book button {
+  margin-top: 10px;
+  padding: 6px 12px;
+  background: #ffd700;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.book button:hover {
+  background: #e6c200;
+}
+
+/* === Filter Box === */
+.filter-box {
+  background: #fff;
+  padding: 15px;
+  border: 1px solid #ccc;
+  margin-bottom: 20px;
+}
+
+.filter-box h3 {
+  font-size: 16px;
+  font-weight: bold;
+  color: #00315f;
+  margin-bottom: 10px;
+}
+
+.filter-box hr {
+  height: 2px;
+  background: #ffd700;
+  border: none;
+  margin-bottom: 10px;
+}
+
+.filter-box label {
+  font-weight: bold;
+  color: #00315f;
+  margin-right: 5px;
+}
+
+.filter-box select {
+  padding: 8px;
+  margin: 5px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.availability-checkbox {
+  margin-left: 6px;
+  transform: scale(1.2);
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+/* === Book Info === */
+.book-info {
+  background: #fff;
+  padding: 15px;
+  border: 1px solid #ccc;
+}
+
+.book-info hr {
+  height: 2px;
+  background: #ffd700;
+  border: none;
+  margin: 10px 0;
+}
+
+.book-image {
+  width: 200px;
+  height: 190px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  border-radius: 4px;
+  background-color: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  object-fit: contain;
+}
+
+/* === Modals (Shared) === */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 5000;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 25px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 400px;
+  position: relative;
+}
+
+.modal-content h2 {
+  margin-bottom: 20px;
+  color: #00315f;
+  font-size: 22px;
+}
+
+.modal-content input[type="password"],
+.modal-content input[type="text"],
+.modal-content input[type="email"] {
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.modal-content button {
+  padding: 10px 20px;
+  background-color: #ffd700;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.modal-content button:hover {
+  background-color: #e6c200;
+}
+
+.modal-content .close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 24px;
+  color: #00315f;
+  cursor: pointer;
+}
+
+/* === Logout Modal Buttons === */
+.modal-buttons {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-around;
+}
+
+.modal-buttons button {
+  padding: 10px 20px;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#confirmLogout {
+  background-color: #c0392b;
+  color: white;
+}
+
+#cancelLogout {
+  background-color: #bdc3c7;
+  color: black;
+}
+
+#confirmLogout:hover {
+  background-color: #a93226;
+}
+
+#cancelLogout:hover {
+  background-color: #95a5a6;
+}
+footer {
+  background-color: #00315f;   
+  color: #f3f3f3;           
+  text-align: center;       
+  padding: 10px 0;
+  width: 100%;              
+  font-size: 14px;
+  margin: 0;
+  position: block;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+  line-height: 1.2;
+}
+
+/* === Password Visibility Toggle === */
+.password-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-container input[type="password"],
+.password-container input[type="text"] {
+  flex: 1;
+  padding-right: 40px; /* space for eye icon */
+}
+
+.togglePassword {
+  position: absolute;
+  right: 12px;
+  bottom: 30px;
+  font-size: 11px;
+  color: #666;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+
+.togglePassword:hover {
+  color: #00315f;
+}

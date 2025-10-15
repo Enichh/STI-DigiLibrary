@@ -1,0 +1,558 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap");
+
+:root {
+  /*Color Scheme po natin please wag niyo burahin thx*/
+  --yellow: #ffc200;
+  --lightyellow: #ffe25c;
+  --darkyellow: #d19d00;
+  --blue: #00315f;
+  --lightblue: #376691;
+  --darkblue: #012244;
+  --mayonnaise: #f3f0e4;
+  --black: #1b1b1b;
+  --palebrown: #271c089c;
+  --lightgray: #dbdbdb;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+body {
+  font-family: "DM Sans", sans-serif;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--mayonnaise);
+  background-image: url("../assets/draft_bg_stidigilib.png");
+}
+
+/*dagdag css  header and footer */
+.LogInaAngSignUpHeader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: var(--blue);
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.LogInaAngSignUpHeader .logo {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  margin-right: 15px;
+}
+
+.LogInaAngSignUpHeader .app-text h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: bold;
+  color: var(--yellow);
+}
+
+.LogInaAngSignUpHeader .app-text p {
+  margin: 2px 0 0;
+  font-size: 14px;
+  color: var(--yellow);
+}
+
+.LogInaAngSignUpFooter {
+  background-color: var(--darkblue);
+  color: var(--yellow);
+  text-align: center;
+  padding: 15px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  font-size: 14px;
+  box-shadow: 0 -2px 5px var(--black);
+
+}
+/* End here */
+
+.tabbed_form {
+  margin-top: 100px;
+  margin-bottom: 80px;
+  width: 460px;
+  background-color: var(--mayonnaise);
+  box-shadow: 0px 50px 6px -49px rgb(60, 60, 60);
+}
+.form_titles {
+  display: flex;
+  justify-content: space-around;
+  background-color: var(--mayonnaise);
+  font-size: 14px;
+}
+.form_titles h2 {
+  background-color: var(--yellow);
+  background: linear-gradient(0deg, var(--lightyellow), var(--darkyellow) 100%);
+  width: 100%;
+  text-align: center;
+  padding: 10px 0;
+  color: var(--palebrown);
+  cursor: pointer;
+}
+.active_tab {
+  background: var(--mayonnaise) !important;
+}
+
+form {
+  width: 85%;
+  margin: 0 auto;
+  padding: 30px 10px;
+}
+form input,
+form select {
+  display: block;
+  width: 100%;
+  margin: 4px 0;
+  padding: 8px 15px;
+  font-size: 15px;
+  font-family: "DM Sans", sans-serif;
+  border: 1px solid var(--lightgray);
+  outline: none;
+}
+select {
+  color: var(--lightgray);
+}
+
+form input:focus,
+form select:focus {
+  border-color: var(--lightyellow);
+  box-shadow: 0 0 2px var(--darkyellow);
+}
+
+.password-container {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.password-container input {
+  width: 100%;
+  padding-right: 35px;
+  box-sizing: border-box;
+}
+
+.togglePassword {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #666;
+}
+
+.loginbtn_section {
+  background-color: var(--yellow);
+  padding: 20px;
+}
+.loginbtn_section button {
+  background-color: var(--mayonnaise);
+  color: var(--palebrown);
+  box-shadow: 0 0 1px rgb(0, 0, 0);
+  border: none;
+  outline: none;
+  font-size: 16px;
+  font-weight: bold;
+  font-family: "DM Sans", sans-serif;
+  text-transform: uppercase;
+  padding: 10px 40px;
+  display: block;
+  margin: 0 auto;
+}
+.loginbtn_section button:hover {
+  background-color: var(--lightgray);
+}
+#admin_login {
+  display: none;
+}
+
+#admin_signup {
+  background-color: var(--yellow);
+  color: var(--blue);
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 6px 15px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  font-family: "DM Sans", sans-serif;
+  font-weight: bolder;
+  width: 100%;
+}
+
+#admin_signup:hover {
+  background-color: var(--lightyellow);
+  border-color: #bbb;
+}
+
+/* Admin back button in the signup form */
+#admin_back {
+  background-color: var(--yellow);
+  color: var(--blue);
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 6px 15px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  font-family: "DM Sans", sans-serif;
+  font-weight: bolder;
+  width: 100%;
+}
+
+#admin_back:hover {
+  background-color: var(--lightyellow);
+  border-color: #bbb;
+}
+
+#user_signup {
+  background-color: var(--yellow);
+  color: var(--blue);
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 6px 15px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  font-family: "DM Sans", sans-serif;
+  font-weight: bolder;
+  width: 100%;
+}
+
+#user_signup:hover {
+  background-color: var(--lightyellow);
+  border-color: #bbb;
+}
+
+#user_back {
+  background-color: var(--yellow);
+  color: var(--blue);
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 6px 15px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  font-family: "DM Sans", sans-serif;
+  font-weight: bolder;
+  width: 100%;
+}
+
+#user_back:hover {
+  background-color: var(--lightyellow);
+  border-color: #bbb;
+}
+
+/*DITO MODALS :3 PAKI AYOS NALANG NUNG ALIGNMENT NIYA*/
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: var(--mayonnaise);
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 350px;
+  width: 90%;
+  text-align: center;
+  font-family: "DM Sans", sans-serif;
+  color: var(--palebrown);
+}
+
+.pin-inputs {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.pin {
+  width: 40px;
+  height: 40px;
+  text-align: center;
+  font-size: 20px;
+}
+
+.modal button {
+  background-color: var(--yellow);
+  color: var(--palebrown);
+  box-shadow: 0 0 1px rgb(0, 0, 0);
+  border: none;
+  outline: none;
+  font-size: 16px;
+  font-weight: bold;
+  font-family: "DM Sans", sans-serif;
+  text-transform: uppercase;
+  padding: 10px 40px;
+  margin: 0 auto;
+}
+.modal button:hover {
+  background-color: var(--lightyellow);
+}
+.validation-hint {
+  color: #e74c3c;
+  font-size: 0.8rem;
+  margin-top: 4px;
+  display: block;
+}
+
+/* Forgot Password Modal */
+#forgotPasswordModal .modal-content {
+  max-width: 400px;
+  padding: 25px 20px;
+  position: relative;
+}
+
+#forgotPasswordModal h2 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+#forgotPasswordModal p {
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+/* Locked Account Modal */
+#confirmLockModal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 2000;
+}
+
+#confirmLockModal .modal-content {
+  background-color: var(--mayonnaise);
+  border-radius: 8px;
+  padding: 25px 30px;
+  width: 90%;
+  max-width: 450px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  position: relative;
+}
+
+#confirmLockModal h2 {
+  color: var(--blue);
+  margin-bottom: 15px;
+  font-size: 1.5rem;
+}
+
+#confirmLockModal p {
+  color: var(--black);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+#lockedCodeInput {
+  width: 100%;
+  padding: 12px 15px;
+  margin: 10px 0 20px;
+  border: 1px solid var(--lightgray);
+  border-radius: 4px;
+  font-size: 16px;
+  text-align: center;
+  letter-spacing: 2px;
+  font-family: 'DM Sans', monospace;
+}
+
+#lockedCodeInput:focus {
+  border-color: var(--lightyellow);
+  box-shadow: 0 0 5px var(--darkyellow);
+  outline: none;
+}
+
+#submitLockedCode,
+#closeConfirmLockModal {
+  padding: 10px 20px;
+  margin: 5px;
+  border: none;
+  border-radius: 4px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#submitLockedCode {
+  background-color: var(--yellow);
+  color: var(--darkblue);
+}
+
+#submitLockedCode:hover {
+  background-color: var(--lightyellow);
+}
+
+#closeConfirmLockModal {
+  background-color: #e0e0e0;
+  color: #555;
+}
+
+#closeConfirmLockModal:hover {
+  background-color: #d0d0d0;
+}
+
+#forgotPasswordModal input[type="email"] {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid var(--lightgray);
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+#forgotPasswordModal input:focus {
+  border-color: var(--lightyellow);
+  box-shadow: 0 0 2px var(--darkyellow);
+}
+
+/* Confirm Reset Modal */
+#confirmResetModal .modal-content {
+  max-width: 420px;
+  padding: 25px 20px;
+}
+
+#confirmResetModal h2 {
+  font-size: 20px;
+  margin-bottom: 15px;
+}
+
+#confirmResetModal input[type="text"],
+#confirmResetModal input[type="password"] {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid var(--lightgray);
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+#confirmResetModal input:focus {
+  border-color: var(--lightyellow);
+  box-shadow: 0 0 2px var(--darkyellow);
+}
+
+#confirmResetModal button {
+  margin-top: 10px;
+  width: 100%;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--palebrown);
+  cursor: pointer;
+}
+
+.password-wrapper {
+  position: relative;
+}
+#toggle {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  color: #808080;
+  cursor: pointer;
+}
+
+/* Strength Bar */
+#strength-bar {
+  background-color: #dcdcdc;
+  height: 10px;
+  margin-top: 8px;
+  border-radius: 5px;
+  display: flex;
+}
+.strength {
+  width: 25%;
+  height: 100%;
+  border-radius: 5px;
+}
+
+/* Hints */
+.validation-hint {
+  display: block;
+  margin-top: 5px;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+#admin_strength-bar {
+  background-color: #dcdcdc;
+  height: 10px;
+  margin-top: 8px;
+  border-radius: 5px;
+  display: flex;
+}
+
+/* Container for the dropdown */
+.suggestions {
+  position: absolute;
+  top: 100%;              /* directly below the input */
+  left: 0;
+  width: 100%;            /* match input width */
+  border-top: none;       /* seamless with input border */
+  background: #fff;
+  max-height: 150px;      /* scroll if too many results */
+  overflow-y: auto;
+  z-index: 2000;          /* above buttons and other UI */
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  border-radius: 0 0 4px 4px;
+  font-size: 0.9rem;
+ 
+}
+
+/* Each suggestion item */
+.suggestion {
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  line-height: 1.4;
+  white-space: nowrap;     /* prevent wrapping */
+  overflow: hidden;
+  text-overflow: ellipsis; /* truncate long names */
+}
+
+/* Hover effect */
+.suggestion:hover {
+  background: #f5f5f5;
+}
+
+.suggestion.active {
+  background: #e0e0e0;
+}
+.username-wrapper {
+  position: relative; /* anchor point for .suggestions */
+}
+

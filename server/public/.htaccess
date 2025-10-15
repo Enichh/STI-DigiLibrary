@@ -1,0 +1,27 @@
+RewriteEngine On
+
+# Handle PHP files - simpler approach
+<Files "*.php">
+    SetHandler application/x-httpd-php
+</Files>
+
+# Prevent access to sensitive files
+<Files "*.env">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+<Files "*.log">
+    Order Allow,Deny
+    Deny from all
+</Files>
+# Enable URL rewriting
+RewriteEngine On
+
+# Don’t rewrite existing files or directories
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Send everything else to index.php
+RewriteRule ^ index.php [QSA,L]
+

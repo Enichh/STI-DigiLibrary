@@ -1,0 +1,94 @@
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>SuperAdmin Dashboard</title>
+        <link rel="stylesheet" href="../css/superadmin.css" />
+        <link
+        rel="icon"
+        type="image/x-icon"
+        href="../assets/owlie_icn_transparent.png"
+        />
+        <link rel="stylesheet" href="../css/modalAdmin.css" />
+    </head>
+
+    <body>
+        <header class="LogInaAngSignUpHeader">
+        <img
+            src="../assets/owlie_icn_transparent.png"
+            alt="STI DigiLibrary Logo"
+            class="logo"
+        />
+
+        <div class="app-text">
+            <h1>STI DigiLibrary</h1>
+            <p>Super Admin Dashboard</p>
+        </div>
+        <nav class="admin-nav">
+            <ul>
+            <li><a href="#dashboard">Dashboard</a></li>
+            <li><a href="#users">Users</a></li>
+            <li><a href="#generate-code">Generate Code</a></li>
+            <li><a href="login.html">Logout</a></li>
+            </ul>
+        </nav>
+        </header>
+
+        <section id="dashboard" class="dashboard-section">
+        <h2>DASHBOARD</h2>
+
+        <div class="metrics">
+            <div class="metric-card">
+            <h3>Total Students</h3>
+            <p id="total-students">Loading...</p>
+            </div>
+            <div class="metric-card">
+            <h3>Total Admins</h3>
+            <p id="total-admins">Loading...</p>
+            </div>
+        </div>
+
+        <div class="activity-log">
+            <h3>Latest Admin Activity</h3>
+            <ul>
+            <li>⚠️ Namatay na yung admin</li>
+            <li>😩 Hindi ko na kaya</li>
+            <li>💀 Backpain abot ko dito</li>
+            </ul>
+        </div>
+        </section>
+
+        <section id="users" class="user-list">
+          <h2>USERS</h2>
+          <input type="text" id="user-search" placeholder="Search users..." />
+          <ul class="user-items" id="user-list"></ul>
+          
+          <div class="pagination-controls">
+            <button id="prev-page">Previous</button>
+            <span id="page-info">Page 1</span>
+            <button id="next-page">Next</button>
+          </div>
+        </section>
+
+        <div id="user-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">×</span>
+            <h3 id="modal-name">User Info</h3>
+            <p id="modal-status"><strong>Status:</strong></p>
+            <p id="modal-login"><strong>Last Login:</strong></p>
+            <p id="modal-role"><strong>Role:</strong></p>
+        </div>
+        </div>
+
+        <section id="generate-code" class="verification-panel">
+        <h2>Generate Admin Verification Code</h2>
+        <button class="generate-button" type="button">Generate Code</button>
+        <p class="code-display">
+            Code: <span id="verification-code">------</span>
+        </p>
+        </section>
+
+        <script src="../js/superadmin.js" defer></script>
+    </body>
+    </html>

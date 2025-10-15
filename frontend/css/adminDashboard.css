@@ -1,0 +1,433 @@
+/* === Import Font === */
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,100..1000;1,100..1000&display=swap");
+
+/* === Global Reset === */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "DM Sans", sans-serif;
+  background-color: #f5f7fa;
+  color: #333;
+  padding: 100px 20px 40px;
+  margin: 0;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* === Header === */
+.AdminDashboardHeader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #00315f;
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  gap: 10px;
+}
+
+.AdminDashboardHeader .logo {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+}
+
+.AdminDashboardHeader .app-text h1,
+.AdminDashboardHeader .app-text p {
+  color: #ffd700;
+  line-height: 1.2;
+}
+
+.AdminDashboardHeader .app-text h1 {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.AdminDashboardHeader .app-text p {
+  font-size: 13px;
+}
+
+.header-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+.profile-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+  border: 2px solid #ffd700;
+}
+
+/* === Navigation === */
+nav ul {
+  display: flex;
+  list-style: none;
+  gap: 15px;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+nav a:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* === Main Layout === */
+main.dashboard-container {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  margin-top: 20px;
+  min-height: calc(100vh - 160px);
+}
+
+.dashboard-left {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dashboard-right {
+  flex: 1;
+  min-width: 300px;
+}
+
+.dashboard-section {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+h2 {
+  color: #00315f;
+  margin-bottom: 15px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #ffd700;
+  font-size: 1.25rem;
+}
+
+/* === Metric Cards === */
+.metric-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  min-height: 120px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.card h3 {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.card .count {
+  font-size: 24px;
+  font-weight: bold;
+  color: #00315f;
+  margin-top: auto;
+}
+
+/* === Activity List === */
+.activity-list {
+  list-style: none;
+  max-height: 500px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.activity-list li {
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.activity-list li:last-child {
+  border-bottom: none;
+}
+
+.activity-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.activity-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.activity-list::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.activity-list::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* === Action Buttons === */
+.action-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+button {
+  background-color: #ffd700;
+  color: #00315f;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  width: 100%;
+  text-align: center;
+}
+
+button:hover {
+  background-color: #e6c200;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* === Sidebar === */
+.profile-sidebar {
+  position: fixed;
+  top: 0;
+  right: -300px;
+  width: 200px;
+  height: 100%;
+  background-color: #fff;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
+  transition: right 0.3s ease;
+  z-index: 3000;
+}
+
+.profile-sidebar.open {
+  right: 0;
+}
+
+.sidebar-user-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 10px auto 20px 40px;
+  display: block;
+  border: 2px solid #00315f;
+}
+
+.sidebar-content {
+  padding: 20px;
+}
+
+.sidebar-content p {
+  text-align: center;
+  font-size: 18px;
+  line-height: 1.2;
+  margin-bottom: 10px;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+.sidebar-content a {
+  display: block;
+  margin: 10px 0;
+  color: #00315f;
+  text-decoration: none;
+  font-weight: bold;
+  line-height: 0.7;
+}
+
+.sidebar-content a:hover {
+  text-decoration: underline;
+}
+
+.close-btn {
+  font-size: 24px;
+  color: #00315f;
+  cursor: pointer;
+  float: right;
+}
+
+/* === Modals === */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 5000;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 25px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 400px;
+  position: relative;
+}
+
+.modal-content h2 {
+  margin-bottom: 20px;
+  color: #00315f;
+  font-size: 22px;
+}
+
+.modal-content input[type="password"],
+.modal-content input[type="text"],
+.modal-content input[type="email"] {
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+.modal-content button {
+  padding: 10px 20px;
+  background-color: #ffd700;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin: 5px;
+}
+
+.modal-content button:hover {
+  background-color: #e6c200;
+}
+
+.modal-content .close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 24px;
+  color: #00315f;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 5px;
+}
+
+/* === Logout Modal Buttons === */
+.modal-buttons {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-around;
+}
+
+.modal-buttons button {
+  padding: 10px 20px;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#confirmLogout {
+  background-color: #c0392b;
+  color: white;
+}
+
+#cancelLogout {
+  background-color: #bdc3c7;
+  color: black;
+}
+
+#confirmLogout:hover {
+  background-color: #a93226;
+}
+
+#cancelLogout:hover {
+  background-color: #95a5a6;
+}
+
+/* === Password Visibility Toggle === */
+.password-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-container input[type="password"],
+.password-container input[type="text"] {
+  flex: 1;
+  padding-right: 40px; /* space for eye icon */
+}
+
+.togglePassword {
+  position: absolute;
+  right: 12px;
+  bottom: 30px;
+  font-size: 11px;
+  color: #666;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.togglePassword:hover {
+  color: #00315f;
+}
+
+
+/* === Footer === */
+footer {
+  background-color: #00315f;
+  color: #f3f3f3;
+  text-align: center;
+  padding: 10px 0;
+  width: 100%;
+  font-size: 14px;
+  margin: 0;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+  line-height: 1.2;
+}
