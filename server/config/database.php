@@ -1,6 +1,6 @@
 <?php
 // Load Composer autoloader (required for dependencies like vlucas/phpdotenv)
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 // Load environment variables from .env file in the parent directory
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
