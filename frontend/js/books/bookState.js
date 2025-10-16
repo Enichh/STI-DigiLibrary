@@ -28,14 +28,16 @@ export function setBooks(data) {
   }
 }
 
-// Update the current search query
+// Update the current search query and clear precise fields in filters to avoid conflicts
 export function setSearchQuery(query) {
   catalogState.searchQuery = query;
 }
 
-// Update applied filters
+// Update applied filters and clear the main search box to avoid dual queries
 export function setFilters(filters) {
-  catalogState.filters = filters;
+  catalogState.filters = { ...filters };
+  // If filters change (genre/title dropdowns), clear search to prevent ambiguity
+  catalogState.searchQuery = "";
 }
 
 // Set pagination state

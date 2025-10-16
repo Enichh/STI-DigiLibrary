@@ -64,18 +64,52 @@ export function setupSearchAndFilter() {
 }
 
 // Fetch books using API for current filters/paging, then render
+// Fetch books using API for current filters/paging, then render
 export async function applyFilters() {
   try {
     const { searchQuery, filters, pagination } = catalogState;
+
     const params = {
       page: pagination.page,
       pageSize: pagination.pageSize,
       ...filters,
     };
-    if (searchQuery) {
-      params.search = searchQuery;
+
+    // Map single search box to precise backend fields
+    if (searchQuery && searchQuery.trim() !== "") {
+      const q = searchQuery.trim();
+      const looksLikeIsbn = /^[0-9Xx-]{9,17}$/.test(q);
+      const looksLikeAuthor = /\s/.test(q) && !looksLikeIsbn; // simple heuristic
+
+      // Remove generic search if present to avoid ambiguity
+      delete params.search;
+
+      if (looksLikeIsbn) {
+        params.isbn = q;
+        delete params.title;
+        delete params.author;
+      } else if (looksLikeAuthor) {
+        params.author = q;
+        delete params.title;
+        delete params.isbn;
+      } else {
+        params.title = q;
+        delete params.author;
+        delete params.isbn;
+      }
+    } else {
+      // Fallback to generic search only if you still want it
+      if (catalogState.searchQuery) {
+        params.search = catalogState.searchQuery;
+      }
+      // Ensure precise fields are cleared when no query
+      delete params.title;
+      delete params.author;
+      delete params.isbn;
     }
+
     const data = await fetchBooks(params);
+
     setBooks(data);
     updatePaginationUI();
     renderBooks(data.data);

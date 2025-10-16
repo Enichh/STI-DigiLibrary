@@ -219,31 +219,47 @@ class BooksModel
         $this->pdo = getPDO();
     }
 
-    // Fetch all books with pagination
-    public function fetchAllBooks($filters = [], int $page = 1, int $pageSize = 20): array
+    // Helper: consistent author name expression
+    private function authorExpr(string $alias = 'a'): string
     {
+        return "
+            TRIM(
+                CONCAT(
+                    IF($alias.first_name IS NULL OR $alias.first_name = 'No First Name', '', CONCAT($alias.first_name, ' ')),
+                    IF($alias.middle_name IS NULL OR $alias.middle_name = 'No Middle Name', '', CONCAT($alias.middle_name, ' ')),
+                    IF($alias.last_name IS NULL OR $alias.last_name = 'No Last Name', '', $alias.last_name)
+                )
+            )
+        ";
+    }
+
+    // Helper: normalize ISBN (digits/X + optional hyphens)
+    private function normalizeIsbn(?string $raw): string
+    {
+        if ($raw === null) return '';
+        return preg_replace('/[^0-9Xx-]/', '', trim($raw));
+    }
+
+    // Fetch all books with pagination
+    public function fetchAllBooks(array $filters = [], int $page = 1, int $pageSize = 20): array
+    {
+        $page = max(1, (int)$page);
+        $pageSize = max(1, min(100, (int)$pageSize));
         $offset = ($page - 1) * $pageSize;
+
         $isbnList = "'" . implode("','", $this->availableCovers) . "'";
+        $authorExpr = $this->authorExpr('a');
 
         $sql = "
-        SELECT b.*,
-            GROUP_CONCAT(
-                TRIM(
-                    CONCAT(
-                        IF(a.first_name IS NULL OR a.first_name = 'No First Name', '', CONCAT(a.first_name, ' ')),
-                        IF(a.middle_name IS NULL OR a.middle_name = 'No Middle Name', '', CONCAT(a.middle_name, ' ')),
-                        IF(a.last_name IS NULL OR a.last_name = 'No Last Name', '', a.last_name)
-                    )
-                )
-                SEPARATOR ', '
-            ) AS author,
-            (b.isbn IN ($isbnList)) AS has_cover
-        FROM tbl_books b
-        LEFT JOIN tbl_book_authors ba ON ba.book_id = b.book_id
-        LEFT JOIN tbl_authors a ON a.author_id = ba.author_id
-        WHERE 1=1";
+            SELECT b.*,
+                GROUP_CONCAT($authorExpr SEPARATOR ', ') AS author,
+                (b.isbn IN ($isbnList)) AS has_cover
+            FROM tbl_books b
+            LEFT JOIN tbl_book_authors ba ON ba.book_id = b.book_id
+            LEFT JOIN tbl_authors a ON a.author_id = ba.author_id
+            WHERE 1=1
+        ";
 
-        // Filters (unchanged)
         $params = [];
         if (!empty($filters)) {
             if (!empty($filters['search'])) {
@@ -254,7 +270,7 @@ class BooksModel
         }
 
         $sql .= " GROUP BY b.book_id";
-        $sql .= " ORDER BY has_cover DESC, b.title ASC"; // Prioritize covers, then by title (or any secondary sort you prefer)
+        $sql .= " ORDER BY has_cover DESC, b.title ASC";
         $sql .= " LIMIT ? OFFSET ?";
 
         $stmt = $this->pdo->prepare($sql);
@@ -262,14 +278,12 @@ class BooksModel
         return $stmt->fetchAll() ?: [];
     }
 
-
     // Count total number of books (for pagination)
-    public function countBooks($filters = []): int
+    public function countBooks(array $filters = []): int
     {
         $sql = "SELECT COUNT(DISTINCT b.book_id) as total FROM tbl_books b WHERE 1=1";
         $params = [];
 
-        // Add the same filters as in fetchAllBooks
         if (!empty($filters)) {
             if (!empty($filters['search'])) {
                 $sql .= " AND (b.title LIKE ? OR b.isbn LIKE ? OR b.publisher LIKE ?)";
@@ -282,6 +296,112 @@ class BooksModel
         $stmt->execute($params);
         $result = $stmt->fetch();
         return (int)($result['total'] ?? 0);
+    }
+
+    // Exact search by title, author, or ISBN with pagination
+    public function searchBooks(array $filters = [], int $page = 1, int $pageSize = 20): array
+    {
+        $page = max(1, (int)$page);
+        $pageSize = max(1, min(100, (int)$pageSize));
+        $offset = ($page - 1) * $pageSize;
+
+        $title = isset($filters['title']) ? trim((string)$filters['title']) : '';
+        $author = isset($filters['author']) ? trim((string)$filters['author']) : '';
+        $isbn = $this->normalizeIsbn($filters['isbn'] ?? null);
+
+        $authorExpr = $this->authorExpr('a');
+        $isbnList = "'" . implode("','", $this->availableCovers) . "'";
+
+        $sql = "
+            SELECT b.*,
+                GROUP_CONCAT($authorExpr SEPARATOR ', ') AS author,
+                (b.isbn IN ($isbnList)) AS has_cover
+            FROM tbl_books b
+            LEFT JOIN tbl_book_authors ba ON ba.book_id = b.book_id
+            LEFT JOIN tbl_authors a ON a.author_id = ba.author_id
+            WHERE 1=1
+        ";
+
+        $params = [];
+
+        if ($title !== '') {
+            $sql .= " AND b.title LIKE ?";
+            $params[] = '%' . $title . '%';
+        }
+
+        if ($isbn !== '') {
+            $sql .= " AND (REPLACE(b.isbn, '-', '') = REPLACE(?, '-', '') OR REPLACE(b.isbn13, '-', '') = REPLACE(?, '-', ''))";
+            $params[] = $isbn;
+            $params[] = $isbn;
+        }
+
+        if ($author !== '') {
+            $sql .= "
+                AND EXISTS (
+                    SELECT 1
+                    FROM tbl_book_authors sba
+                    JOIN tbl_authors sa ON sa.author_id = sba.author_id
+                    WHERE sba.book_id = b.book_id
+                    AND " . $this->authorExpr('sa') . " LIKE ?
+                )
+            ";
+            $params[] = '%' . $author . '%';
+        }
+
+        $sql .= " GROUP BY b.book_id";
+        $sql .= " ORDER BY has_cover DESC, b.title ASC";
+        $sql .= " LIMIT ? OFFSET ?";
+
+        $params[] = $pageSize;
+        $params[] = $offset;
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll() ?: [];
+    }
+
+    public function countSearchBooks(array $filters = []): int
+    {
+        $title = isset($filters['title']) ? trim((string)$filters['title']) : '';
+        $author = isset($filters['author']) ? trim((string)$filters['author']) : '';
+        $isbn = $this->normalizeIsbn($filters['isbn'] ?? null);
+
+        $params = [];
+
+        $sql = "
+            SELECT COUNT(DISTINCT b.book_id) AS total
+            FROM tbl_books b
+            WHERE 1=1
+        ";
+
+        if ($title !== '') {
+            $sql .= " AND b.title LIKE ?";
+            $params[] = '%' . $title . '%';
+        }
+
+        if ($isbn !== '') {
+            $sql .= " AND (REPLACE(b.isbn, '-', '') = REPLACE(?, '-', '') OR REPLACE(b.isbn13, '-', '') = REPLACE(?, '-', ''))";
+            $params[] = $isbn;
+            $params[] = $isbn;
+        }
+
+        if ($author !== '') {
+            $sql .= "
+                AND EXISTS (
+                    SELECT 1
+                    FROM tbl_book_authors sba
+                    JOIN tbl_authors sa ON sa.author_id = sba.author_id
+                    WHERE sba.book_id = b.book_id
+                    AND " . $this->authorExpr('sa') . " LIKE ?
+                )
+            ";
+            $params[] = '%' . $author . '%';
+        }
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        $row = $stmt->fetch();
+        return (int)($row['total'] ?? 0);
     }
 
     // Fetch a book by ID

@@ -12,55 +12,89 @@ class BooksService
         $this->model = new BooksModel();
     }
 
-    // Fetch all books with pagination and optional filters
-    public function getAllBooks($filters = [])
+    // Fetch all books with pagination and optional generic search
+    // filters may include:
+    // - search: generic search string (title/isbn/publisher)
+    // - page, pageSize: pagination controls
+    public function getAllBooks(array $filters = []): array
     {
-        $page = $filters['page'] ?? 1;
-        $pageSize = $filters['pageSize'] ?? 20;
-        
-        // Remove pagination params from filters before passing to model
+        $page = isset($filters['page']) ? max(1, (int)$filters['page']) : 1;
+        $pageSize = isset($filters['pageSize']) ? max(1, min(100, (int)$filters['pageSize'])) : 20;
+
         unset($filters['page'], $filters['pageSize']);
-        
-        // Get paginated results and total count
+
         $books = $this->model->fetchAllBooks($filters, $page, $pageSize);
         $total = $this->model->countBooks($filters);
-        
+
         return [
             'data' => $books,
             'pagination' => [
                 'page' => (int)$page,
                 'pageSize' => (int)$pageSize,
                 'totalItems' => (int)$total,
-                'totalPages' => ceil($total / $pageSize)
-            ]
+                'totalPages' => (int)ceil($total / $pageSize),
+            ],
+        ];
+    }
+
+    // Precise search by title, author, or isbn with pagination
+    // filters should include any of: title, author, isbn
+    // plus page, pageSize
+    public function searchBooks(array $filters = []): array
+    {
+        $page = isset($filters['page']) ? max(1, (int)$filters['page']) : 1;
+        $pageSize = isset($filters['pageSize']) ? max(1, min(100, (int)$filters['pageSize'])) : 20;
+
+        unset($filters['page'], $filters['pageSize']);
+
+        $items = $this->model->searchBooks($filters, $page, $pageSize);
+        $total = $this->model->countSearchBooks($filters);
+
+        return [
+            'data' => $items,
+            'pagination' => [
+                'page' => (int)$page,
+                'pageSize' => (int)$pageSize,
+                'totalItems' => (int)$total,
+                'totalPages' => (int)ceil($total / $pageSize),
+            ],
         ];
     }
 
     // Fetch a single book by ID
-    public function getBookById($id)
+    public function getBookById($id): ?array
     {
-        if (!$id) return null;
-        return $this->model->fetchBookById($id);
+        $bookId = (int)$id;
+        if ($bookId <= 0) {
+            return null;
+        }
+        return $this->model->fetchBookById($bookId);
     }
 
     // Create a new book
-    public function createBook($data)
+    public function createBook(array $data)
     {
-        // Validate and encode fields as needed before passing to model
+        // Minimal validation; extend as needed
         return $this->model->insertBook($data);
     }
 
     // Update an existing book
-    public function updateBook($id, $data)
+    public function updateBook($id, array $data)
     {
-        if (!$id) return null;
-        return $this->model->updateBook($id, $data);
+        $bookId = (int)$id;
+        if ($bookId <= 0) {
+            return null;
+        }
+        return $this->model->updateBook($bookId, $data);
     }
 
     // Delete a book
-    public function deleteBook($id)
+    public function deleteBook($id): ?bool
     {
-        if (!$id) return null;
-        return $this->model->deleteBook($id);
+        $bookId = (int)$id;
+        if ($bookId <= 0) {
+            return null;
+        }
+        return $this->model->deleteBook($bookId);
     }
 }
