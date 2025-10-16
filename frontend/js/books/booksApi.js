@@ -1,11 +1,10 @@
 import { getConfig } from "../config.js";
 
-// Fetch all books, optionally with filters
+// Fetch all books with pagination/filters
 export async function fetchBooks(params = {}) {
   const config = await getConfig();
   const query = new URLSearchParams(params).toString();
   const endpoint = config.api.endpoints.books + (query ? `?${query}` : "");
-  console.log("books endpoint:", config.api.endpoints.books);
   const res = await fetch(config.api.baseUrl + endpoint, {
     method: "GET",
     credentials: "include",
@@ -28,7 +27,6 @@ export async function fetchBookById(bookId) {
 export async function createBook(bookData) {
   const config = await getConfig();
   const endpoint = config.api.endpoints.books;
-
   const res = await fetch(config.api.baseUrl + endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

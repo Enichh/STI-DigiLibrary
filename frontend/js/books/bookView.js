@@ -213,14 +213,8 @@ export function renderBooks(books, containerId = "book-list") {
     return;
   }
 
-  // Prioritize books with real covers (ISBN is in availableCovers Set)
-  const sortedBooks = books.slice().sort((a, b) => {
-    const aHasCover = availableCovers.has(a.isbn);
-    const bHasCover = availableCovers.has(b.isbn);
-    return Number(bHasCover) - Number(aHasCover); // true→1, false→0; sorts covers first!
-  });
-
-  sortedBooks.forEach((book) => {
+  // No sorting! Just display in backend order.
+  books.forEach((book) => {
     const coverSrc = availableCovers.has(book.isbn)
       ? `/STI-DigiLibrary/covers/${book.isbn}.webp`
       : "/STI-DigiLibrary/frontend/assets/owlie_icn_transparent.png";
@@ -242,7 +236,6 @@ export function renderBooks(books, containerId = "book-list") {
   });
 }
 
-// Renders detailed view of a single book
 export function renderBookDetails(book, containerId = "bookDetails") {
   const container = document.getElementById(containerId);
   if (!book) {

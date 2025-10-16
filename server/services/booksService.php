@@ -12,10 +12,28 @@ class BooksService
         $this->model = new BooksModel();
     }
 
-    // Fetch all books (optionally with filters)
+    // Fetch all books with pagination and optional filters
     public function getAllBooks($filters = [])
     {
-        return $this->model->fetchAllBooks($filters);
+        $page = $filters['page'] ?? 1;
+        $pageSize = $filters['pageSize'] ?? 20;
+        
+        // Remove pagination params from filters before passing to model
+        unset($filters['page'], $filters['pageSize']);
+        
+        // Get paginated results and total count
+        $books = $this->model->fetchAllBooks($filters, $page, $pageSize);
+        $total = $this->model->countBooks($filters);
+        
+        return [
+            'data' => $books,
+            'pagination' => [
+                'page' => (int)$page,
+                'pageSize' => (int)$pageSize,
+                'totalItems' => (int)$total,
+                'totalPages' => ceil($total / $pageSize)
+            ]
+        ];
     }
 
     // Fetch a single book by ID

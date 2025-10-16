@@ -1,21 +1,31 @@
 // State holder for catalog
 export const catalogState = {
-  books: [],
-  filteredBooks: [],
+  books: [], // List of books on current page
+  filteredBooks: [], // (not used in server-side pagination, kept for compatibility)
   filters: {},
   searchQuery: "",
   pagination: {
     page: 1,
     pageSize: 10,
-    total: 0,
+    totalItems: 0,
+    totalPages: 1,
   },
+  loading: false,
 };
 
-// Set entire book list and update count
-export function setBooks(books) {
-  catalogState.books = books;
-  catalogState.filteredBooks = books; // replace with filtering later
-  catalogState.pagination.total = books.length;
+// Set books and update pagination from API response
+export function setBooks(data) {
+  // data: { data: [...], pagination: { page, pageSize, totalItems, totalPages } }
+  catalogState.books = data.data || [];
+  catalogState.filteredBooks = data.data || [];
+  if (data.pagination) {
+    catalogState.pagination = {
+      page: data.pagination.page,
+      pageSize: data.pagination.pageSize,
+      totalItems: data.pagination.totalItems,
+      totalPages: data.pagination.totalPages,
+    };
+  }
 }
 
 // Update the current search query
@@ -35,8 +45,5 @@ export function setPagination(page, pageSize) {
 }
 
 export function getPagedBooks() {
-  const { page, pageSize } = catalogState.pagination;
-  const start = (page - 1) * pageSize;
-  const end = start + pageSize;
-  return catalogState.filteredBooks.slice(start, end);
+  return catalogState.books;
 }

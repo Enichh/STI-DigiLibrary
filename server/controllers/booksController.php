@@ -16,7 +16,20 @@ class BooksController
     public function getBooks()
     {
         $id = isset($_GET['id']) ? intval($_GET['id']) : null;
-        $result = $id ? $this->service->getBookById($id) : $this->service->getAllBooks();
+        
+        if ($id) {
+            $result = $this->service->getBookById($id);
+        } else {
+            // Get pagination parameters with defaults
+            $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+            $pageSize = isset($_GET['pageSize']) ? max(1, min(100, intval($_GET['pageSize']))) : 20;
+            
+            $result = $this->service->getAllBooks([
+                'page' => $page,
+                'pageSize' => $pageSize
+            ]);
+        }
+        
         header('Content-Type: application/json');
         echo json_encode($result);
     }
