@@ -86,7 +86,7 @@ class ThesisModel
             $where[] = "t.title LIKE ?";
             $params[] = $titleSearch . '%'; // uses BTREE on title efficiently for prefix searches
         }
-        if ($year !== null) {
+        if ($year !== null && $year !== '') {
             $where[] = "t.pub_year = ?";
             $params[] = $year;
         }
@@ -124,7 +124,7 @@ class ThesisModel
             $where[] = "title LIKE ?";
             $params[] = $titleSearch . '%';
         }
-        if ($year !== null) {
+        if ($year !== null && $year !== '') {
             $where[] = "pub_year = ?";
             $params[] = $year;
         }

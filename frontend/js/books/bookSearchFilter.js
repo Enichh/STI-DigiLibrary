@@ -118,7 +118,6 @@ export async function applyFilters() {
   }
 }
 
-// Update paging UI with current page info and disable/enable buttons
 export function updatePaginationUI() {
   const { page, totalPages } = catalogState.pagination;
   const pageInfo = document.getElementById("pageInfo");

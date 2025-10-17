@@ -1,91 +1,148 @@
-// Toggle password visibility
+// Toggle password visibility and other UI hooks
 import { initPasswordToggles, disablePasswordClipboardActions } from "./ui.js";
 import { changePassword } from "./api.js";
 import { isValidPassword } from "./ui.js";
 import { openModal, closeModal } from "./modal.js";
 import { initSessionTimer } from "./session.js";
 
+const tabListeners = { books: [], theses: [] };
+export function onTabActivated(tab, fn) {
+  if (!tabListeners[tab]) tabListeners[tab] = [];
+  tabListeners[tab].push(fn);
+}
+function notifyTab(tab) {
+  (tabListeners[tab] || []).forEach((fn) => {
+    try {
+      fn();
+    } catch (e) {
+      /* no-op */
+    }
+  });
+}
+
+// Sidebar open/close
 function openProfileSidebar() {
   const sidebar = document.getElementById("profileSidebar");
   if (sidebar) sidebar.classList.add("open");
 }
-
 function closeProfileSidebar() {
   const sidebar = document.getElementById("profileSidebar");
   if (sidebar) sidebar.classList.remove("open");
 }
 
+// Tabs behavior: Books | Theses
+function initCatalogTabs() {
+  const tabsBar = document.querySelector(".catalog-tabs");
+  const btnBooks = document.querySelector(
+    '.catalog-tabs .tab[data-tab="booksTab"]'
+  );
+  const btnTheses = document.querySelector(
+    '.catalog-tabs .tab[data-tab="thesesTab"]'
+  );
+  const booksPanel = document.getElementById("book-catalog");
+  const thesesPanel = document.getElementById("thesesTab");
+  const booksFilters = document.getElementById("booksFilters"); // optional, hide on theses
+  const searchInput = document.getElementById("search-input");
+
+  const setActive = (tabId) => {
+    const isBooks = tabId === "booksTab";
+
+    // button active states
+    if (btnBooks) btnBooks.classList.toggle("active", isBooks);
+    if (btnTheses) btnTheses.classList.toggle("active", !isBooks);
+
+    // panel visibility
+    if (booksPanel) {
+      booksPanel.classList.toggle("active", isBooks);
+      booksPanel.style.display = isBooks ? "" : "none";
+    }
+    if (thesesPanel) {
+      thesesPanel.classList.toggle("active", !isBooks);
+      thesesPanel.style.display = !isBooks ? "" : "none";
+    }
+
+    // show/hide books-only filters
+    if (booksFilters) booksFilters.style.display = isBooks ? "" : "none";
+
+    // search placeholder
+    if (searchInput) {
+      searchInput.placeholder = isBooks
+        ? "Search by title, author, or ISBN"
+        : "Search thesis title...";
+      searchInput.value = ""; // clear cross-context query
+    }
+
+    // notify listeners
+    notifyTab(isBooks ? "books" : "theses");
+  };
+
+  // Attach events
+  btnBooks?.addEventListener("click", () => setActive("booksTab"));
+  btnTheses?.addEventListener("click", () => setActive("thesesTab"));
+
+  // Default active tab
+  setActive("booksTab");
+}
+
 window.addEventListener("DOMContentLoaded", () => {
+  // Profile details
   const name = sessionStorage.getItem("userName");
   const email = sessionStorage.getItem("email");
-
   if (name && email) {
-    document.querySelector("#profileSidebar p:nth-of-type(1)").textContent =
-      name;
-    document.querySelector("#profileSidebar p:nth-of-type(2)").textContent =
-      email;
+    const p1 = document.querySelector("#profileSidebar p:nth-of-type(1)");
+    const p2 = document.querySelector("#profileSidebar p:nth-of-type(2)");
+    if (p1) p1.textContent = name;
+    if (p2) p2.textContent = email;
   }
 
-  const openSidebarBtn = document.getElementById("openSidebarBtn");
-  if (openSidebarBtn) {
-    openSidebarBtn.addEventListener("click", openProfileSidebar);
-  }
+  // Sidebar buttons
+  document
+    .getElementById("openSidebarBtn")
+    ?.addEventListener("click", openProfileSidebar);
+  document
+    .getElementById("closeSidebarBtn")
+    ?.addEventListener("click", closeProfileSidebar);
 
-  const closeSidebarBtn = document.getElementById("closeSidebarBtn");
-  if (closeSidebarBtn) {
-    closeSidebarBtn.addEventListener("click", closeProfileSidebar);
-  }
-
-  const closeChangeModalBtn = document.getElementById("closeChangeModalBtn");
-  if (closeChangeModalBtn) {
-    closeChangeModalBtn.addEventListener("click", closeChangeModal);
-  }
-
-  const submitPasswordChangeBtn = document.getElementById(
-    "submitPasswordChangeBtn"
-  );
-  if (submitPasswordChangeBtn) {
-    submitPasswordChangeBtn.addEventListener("click", submitPasswordChange);
-  }
-
-  const changePasswordLink = document.getElementById("changePasswordLink");
-  if (changePasswordLink) {
-    changePasswordLink.addEventListener("click", (e) => {
+  // Change password modal
+  document
+    .getElementById("closeChangeModalBtn")
+    ?.addEventListener("click", closeChangeModal);
+  document
+    .getElementById("submitPasswordChangeBtn")
+    ?.addEventListener("click", submitPasswordChange);
+  document
+    .getElementById("changePasswordLink")
+    ?.addEventListener("click", (e) => {
       e.preventDefault();
       openModal(
         document.getElementById("changePasswordModal"),
         document.getElementById("oldPasswordInput")
       );
     });
-  }
 
-  const logoutLink = document.getElementById("logoutLink");
-  if (logoutLink) {
-    logoutLink.addEventListener("click", (e) => {
-      e.preventDefault();
-      openLogoutModal();
-    });
-  }
+  // Logout modal
+  document.getElementById("logoutLink")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    openLogoutModal();
+  });
+  document
+    .getElementById("cancelLogout")
+    ?.addEventListener("click", closeLogoutModal);
+  document.getElementById("confirmLogout")?.addEventListener("click", () => {
+    sessionStorage.clear();
+    window.location.href = "./login.html";
+  });
 
-  const cancelLogout = document.getElementById("cancelLogout");
-  const confirmLogout = document.getElementById("confirmLogout");
-
-  if (cancelLogout) {
-    cancelLogout.addEventListener("click", closeLogoutModal);
-  }
-
-  if (confirmLogout) {
-    confirmLogout.addEventListener("click", () => {
-      sessionStorage.clear();
-      window.location.href = "./login.html";
-    });
-  }
-
+  // Init UI helpers and session
   initPasswordToggles();
   disablePasswordClipboardActions();
   initSessionTimer();
+
+  // Init Books | Theses tabs
+  initCatalogTabs();
 });
 
+// Change Password Handlers
 function closeChangeModal() {
   closeModal(document.getElementById("changePasswordModal"));
   document.getElementById("oldPasswordInput").value = "";
@@ -103,21 +160,12 @@ async function submitPasswordChange() {
     .getElementById("confirmNewPasswordInputChange")
     .value.trim();
 
-  // Check if user is logged in (has email in session)
-  if (!email) {
-    return alert("Please log in to change your password.");
-  }
-
-  // Client-side validation
-  if (!oldPassword || !newPassword || !confirmPassword) {
+  if (!email) return alert("Please log in to change your password.");
+  if (!oldPassword || !newPassword || !confirmPassword)
     return alert("All fields are required.");
-  }
-  if (oldPassword === newPassword) {
+  if (oldPassword === newPassword)
     return alert("New password must be different from the old password.");
-  }
-  if (newPassword !== confirmPassword) {
-    return alert("Passwords do not match.");
-  }
+  if (newPassword !== confirmPassword) return alert("Passwords do not match.");
   if (!isValidPassword(newPassword)) {
     return alert(
       "Password must be at least 8 characters long and include uppercase, lowercase, number, and special character."
@@ -125,15 +173,11 @@ async function submitPasswordChange() {
   }
 
   try {
-    // Call changePassword with email, oldPassword, and newPassword
     const data = await changePassword(email, oldPassword, newPassword);
-
-    // FIX: Handle backend errors
     if (data.error) {
-      alert(data.error); // Show the error from backend
-      return; // Do NOT proceed or close modal
+      alert(data.error);
+      return;
     }
-
     alert(data.message || "Password changed successfully.");
     closeChangeModal();
   } catch (err) {
@@ -141,7 +185,7 @@ async function submitPasswordChange() {
   }
 }
 
-//  Logout Modal Controls
+// Logout Modal Controls
 function openLogoutModal() {
   openModal(
     document.getElementById("logoutModal"),
@@ -149,7 +193,6 @@ function openLogoutModal() {
   );
   document.body.style.overflow = "hidden";
 }
-
 function closeLogoutModal() {
   closeModal(document.getElementById("logoutModal"));
   document.body.style.overflow = "";

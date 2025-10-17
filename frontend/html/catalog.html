@@ -58,6 +58,20 @@
       </div>
     </section>
 
+    <!-- Tabs -->
+    <nav
+      class="catalog-tabs"
+      style="
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+        margin: 1rem 0;
+      "
+    >
+      <button class="tab active" data-tab="booksTab">Books</button>
+      <button class="tab" data-tab="thesesTab">Theses</button>
+    </nav>
+
     <!-- Main Container -->
     <div class="container">
       <!-- Filter Box -->
@@ -149,6 +163,27 @@
           <button id="nextPage">Next</button>
         </div>
       </section>
+
+      <!-- Theses Section -->
+      <section id="thesesTab" class="tab-panel" style="display: none">
+        <h2>Available Theses</h2>
+        <div class="toolbar" style="margin: 0.5rem 0">
+          <input id="thesisSearch" placeholder="Search thesis title..." />
+          <select id="thesisYear">
+            <option value="">All years</option>
+            <option>2019</option>
+            <option>2020</option>
+            <option>2021</option>
+            <!-- optionally populate dynamically -->
+          </select>
+        </div>
+        <div id="thesisList" class="grid"></div>
+        <div id="thesisPager" class="pagination-controls">
+          <button data-act="prev">Previous</button>
+          <span id="thesisPageInfo">Page 1 of 1</span>
+          <button data-act="next">Next</button>
+        </div>
+      </section>
     </div>
 
     <!-- Profile Sidebar -->
@@ -218,5 +253,6 @@
 
     <script type="module" src="../js/catalog.js"></script>
     <script type="module" src="../js/books.js"></script>
+    <script type="module" src="../js/theses.js"></script>
   </body>
 </html>

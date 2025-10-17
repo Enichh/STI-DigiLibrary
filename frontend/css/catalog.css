@@ -616,3 +616,130 @@ footer {
     padding: 7px 5px;
   }
 }
+
+/* === Catalog Tabs === */
+.catalog-tabs {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  align-items: center;
+  margin: 12px auto 0;
+  padding: 6px;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  max-width: 720px;
+}
+
+.catalog-tabs .tab {
+  appearance: none;
+  border: 1px solid #ccc;
+  background: #f7f7f7;
+  color: #00315f;
+  font-weight: 700;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s,
+    box-shadow 0.15s;
+}
+
+.catalog-tabs .tab:hover {
+  background: #eef5ff;
+  border-color: #99c2ff;
+}
+
+.catalog-tabs .tab.active,
+.catalog-tabs .tab[aria-selected="true"] {
+  background: #00315f;
+  color: #feeea2;
+  border-color: #00315f;
+  box-shadow: 0 0 0 2px rgba(0, 49, 95, 0.15) inset;
+}
+
+.catalog-tabs .tab:focus {
+  outline: none;
+}
+
+.catalog-tabs .tab:focus-visible {
+  box-shadow: 0 0 0 3px #ffcc00, 0 0 0 6px rgba(0, 0, 0, 0.15);
+}
+
+/* === Tab Panels === */
+.tab-panel {
+  margin-top: 14px;
+}
+
+.tab-panel:not(.active) {
+  display: none;
+}
+
+#thesisList.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+.thesis {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 3px 18px rgba(0, 0, 0, 0.13);
+  padding: 1.25rem 1.4rem 1rem 1.4rem;
+  border: 1px solid #cadefc;
+  display: flex;
+  flex-direction: column;
+  min-height: 195px;
+  transition: box-shadow 0.15s, border-color 0.2s;
+}
+
+.thesis:hover {
+  box-shadow: 0 8px 22px rgba(90, 142, 225, 0.08),
+    0 2px 4px rgba(28, 52, 161, 0.09);
+  border-color: #7fbfff;
+}
+
+.thesis-title {
+  font-size: 1.13rem;
+  font-weight: bold;
+  color: #174486;
+  margin: 0 0 0.45rem 0;
+  line-height: 1.32;
+  letter-spacing: 0.02em;
+}
+
+.thesis-meta {
+  font-size: 0.96rem;
+  color: #555;
+  margin-bottom: 0.28rem;
+}
+
+.thesis-call,
+.thesis-accession,
+.thesis-pages {
+  font-size: 0.98rem;
+  margin: 0.11rem 0;
+  word-break: break-word;
+}
+
+.thesis-call strong,
+.thesis-accession strong,
+.thesis-pages strong {
+  color: #3257a8;
+  font-weight: 600;
+}
+
+@media (max-width: 700px) {
+  #thesisList.grid {
+    grid-template-columns: 1fr;
+    gap: 0.7rem;
+  }
+  .thesis {
+    min-width: 0;
+    padding: 13px 6px 11px 10px;
+    border-radius: 9px;
+  }
+  .thesis-title {
+    font-size: 1.07rem;
+  }
+}

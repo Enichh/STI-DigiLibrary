@@ -34,7 +34,7 @@ class ThesisService
                 'page' => (int)$page,
                 'pageSize' => (int)$pageSize,
                 'totalItems' => (int)$total,
-                'totalPages' => (int)ceil($total / $pageSize),
+                'totalPages' => max(1, (int)ceil($total / $pageSize)),
             ],
         ];
     }
