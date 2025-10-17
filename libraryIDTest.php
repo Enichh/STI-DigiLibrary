@@ -1,4 +1,21 @@
 <?php
+/**
+ * Library ID Card Generation and Emailing Test Script
+ *
+ * This script is a standalone utility for generating a PDF library ID card and,
+ * optionally, emailing it as an attachment. It uses Dompdf to create the PDF
+ * from HTML and PHPMailer to send the email.
+ *
+ * To use this script:
+ * 1. Ensure all dependencies are installed via `composer install`.
+ * 2. Make sure the `.env` file is correctly configured with SMTP credentials
+ *    in the `server` directory.
+ * 3. Access this script directly in a browser (e.g., http://localhost/path/to/libraryIDTest.php).
+ *
+ * The script will generate an `idCard.pdf` file in the root directory.
+ * The email sending functionality is commented out by default to prevent
+ * accidental sending. Uncomment the PHPMailer section to test email functionality.
+ */
 require 'vendor/autoload.php';
 
 use Dotenv\Dotenv;

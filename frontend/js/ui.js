@@ -1,4 +1,6 @@
-// Clear all admin signup fields and return to login panel
+/**
+ * Clears all admin signup fields and returns to the login panel.
+ */
 function resetAdminForm() {
   document.getElementById("new_admin_username").value = "";
   document.getElementById("new_admin_email").value = "";
@@ -7,7 +9,11 @@ function resetAdminForm() {
   document.getElementById("admin_back").click();
 }
 
-// Clear student signup fields, store username/email in session, go to catalog
+/**
+ * Clears student signup fields, stores username and email in session storage, and redirects to the catalog.
+ * @param {string} userName - The user's username.
+ * @param {string} email - The user's email address.
+ */
 function resetStudentForm(userName, email) {
   document.getElementById("new_user_username").value = "";
   document.getElementById("new_user_email").value = "";
@@ -18,7 +24,9 @@ function resetStudentForm(userName, email) {
   window.location.href = "./catalog.html";
 }
 
-// Toggle password visibility for password fields
+/**
+ * Toggles password visibility for password fields.
+ */
 function initPasswordToggles() {
   const togglePasswords = document.querySelectorAll(".togglePassword");
   togglePasswords.forEach((toggle) => {
@@ -33,7 +41,9 @@ function initPasswordToggles() {
   });
 }
 
-// Handle transitions between login and signup forms for users/admins
+/**
+ * Handles transitions between login and signup forms for users and admins.
+ */
 function initFormToggles() {
   const mainBtn = document.getElementById("login_signup_submitter");
 
@@ -72,7 +82,9 @@ function initFormToggles() {
   });
 }
 
-// Switch between Student and Admin login tab, set current mode
+/**
+ * Switches between Student and Admin login tabs and sets the current mode.
+ */
 function initLoginTabs() {
   const btnUserLoginTab = document.getElementById("stuLoginTitle");
   const btnAdminLoginTab = document.getElementById("adminLoginTitle");
@@ -102,7 +114,9 @@ function initLoginTabs() {
   });
 }
 
-// Prevent copy, cut, paste, and context menu on password fields for security
+/**
+ * Prevents copy, cut, paste, and context menu on password fields for security.
+ */
 function disablePasswordClipboardActions() {
   const passwordFields = document.querySelectorAll('input[type="password"]');
   passwordFields.forEach((field) => {
@@ -113,7 +127,10 @@ function disablePasswordClipboardActions() {
   });
 }
 
-// Show username suggestions from localStorage during input
+/**
+ * Shows username suggestions from local storage during input.
+ * @param {string} inputId - The ID of the input field.
+ */
 function attachUsernameSuggestions(inputId) {
   const input = document.getElementById(inputId);
   if (!input) {
@@ -158,7 +175,10 @@ function attachUsernameSuggestions(inputId) {
   });
 }
 
-// Save username to localStorage, keep last 5 for suggestions
+/**
+ * Saves a username to local storage, keeping the last 5 for suggestions.
+ * @param {string} username - The username to save.
+ */
 function saveUsername(username) {
   if (!username) return;
   const normalized = username.trim();
@@ -170,24 +190,44 @@ function saveUsername(username) {
   }
 }
 
-// Check if email address is valid format
+/**
+ * Checks if an email address has a valid format.
+ * @param {string} email - The email address to check.
+ * @returns {boolean} True if the email is valid, false otherwise.
+ */
 function isValidEmail(email) {
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return regex.test(email);
 }
 
-// Check if password is valid (length, upper/lowercase, number, special char)
+/**
+ * Checks if a password is valid (length, upper/lowercase, number, special character).
+ * @param {string} password - The password to check.
+ * @returns {boolean} True if the password is valid, false otherwise.
+ */
 function isValidPassword(password) {
   const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
   return regex.test(password);
 }
 
-// Clear all signup hint messages (errors/tips)
+/**
+ * Clears all signup hint messages (errors/tips).
+ * @param {object} hints - An object containing the hint elements.
+ */
 function clearHints(hints) {
   Object.values(hints).forEach((hint) => (hint.textContent = ""));
 }
 
-// Validate all signup fields and show hint messages if invalid
+/**
+ * Validates all signup fields and shows hint messages if invalid.
+ * @param {object} options - The signup fields and hint elements.
+ * @param {string} options.userName - The username.
+ * @param {string} options.email - The email address.
+ * @param {string} options.password - The password.
+ * @param {string} options.confirmPassword - The confirmed password.
+ * @param {object} options.hints - An object containing the hint elements.
+ * @returns {boolean} True if all fields are valid, false otherwise.
+ */
 function validateSignupFields({
   userName,
   email,
@@ -215,7 +255,9 @@ function validateSignupFields({
   return true;
 }
 
-// Provide live password strength feedback in signup form
+/**
+ * Provides live password strength feedback in the signup form.
+ */
 function initPasswordStrengthMeter() {
   function getActiveElements() {
     const isAdmin =
@@ -316,7 +358,9 @@ function initPasswordStrengthMeter() {
   });
 }
 
-// Initialize all UI functionality for login/signup view
+/**
+ * Initializes all UI functionality for the login/signup view.
+ */
 function initUI() {
   initFormToggles();
   initLoginTabs();

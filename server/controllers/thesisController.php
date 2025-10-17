@@ -5,22 +5,32 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../services/thesisService.php';
 
+/**
+ * Controller for handling thesis-related API requests.
+ *
+ * This class manages CRUD operations for theses, including fetching, creating, updating, and deleting theses.
+ * It interacts with the ThesisService to perform business logic and returns JSON responses.
+ */
 class ThesisController
 {
     private ThesisService $service;
 
+    /**
+     * Creates an instance of ThesisService.
+     */
     public function __construct()
     {
         $this->service = new ThesisService();
     }
 
-    // GET /api/theses
-    // Parameters:
-    // - thesis_id (optional): fetch single thesis by id
-    // - accession_no (optional): fetch single thesis by accession
-    // - page, pageSize (optional): pagination for list
-    // - title (optional): prefix search by title
-    // - year (optional): filter by pub_year
+    /**
+     * Handles GET requests for theses.
+     *
+     * Fetches a single thesis by ID or accession number, or a paginated list of theses.
+     * Supports searching by title and filtering by publication year.
+     *
+     * @return void
+     */
     public function getTheses(): void
     {
         header('Content-Type: application/json');
@@ -76,8 +86,11 @@ class ThesisController
         }
     }
 
-    // POST /api/theses
-    // Body: { accession_no, call_no, title, pages?, pages_note?, pub_year }
+    /**
+     * Handles POST requests to create a new thesis.
+     *
+     * @return void
+     */
     public function createThesis(): void
     {
         header('Content-Type: application/json');
@@ -113,8 +126,11 @@ class ThesisController
         }
     }
 
-    // PUT /api/theses
-    // Body: { thesis_id, ...fields to update... }
+    /**
+     * Handles PUT requests to update an existing thesis.
+     *
+     * @return void
+     */
     public function updateThesis(): void
     {
         header('Content-Type: application/json');
@@ -152,8 +168,11 @@ class ThesisController
         }
     }
 
-    // DELETE /api/theses
-    // Body: { thesis_id }
+    /**
+     * Handles DELETE requests to remove a thesis.
+     *
+     * @return void
+     */
     public function deleteThesis(): void
     {
         header('Content-Type: application/json');

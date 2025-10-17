@@ -6,15 +6,33 @@ require_once __DIR__ . '/../models/userModel.php';
 require_once __DIR__ . '/emailService.php';
 require_once __DIR__ . '/../utils/generatePassword.php';
 
+/**
+ * Service for handling authentication logic.
+ *
+ * This class provides methods for user login, signup, password management, and verification.
+ * It interacts with the UserModel and EmailService to perform its tasks.
+ */
 class AuthService
 {
     private $userModel;
 
+    /**
+     * Creates an instance of AuthService and initializes the UserModel.
+     */
     public function __construct()
     {
         $this->userModel = new UserModel();
     }
 
+    /**
+     * Handles user login.
+     *
+     * @param string $userName The user's username.
+     * @param string $password The user's password.
+     * @param string $expectedRole The expected role of the user.
+     * @param string $captchaToken The reCAPTCHA token.
+     * @return array An array containing the result of the login attempt.
+     */
     public function login($userName, $password, $expectedRole, $captchaToken)
     {
         if (!$userName || !$password || !$captchaToken) {
@@ -125,6 +143,12 @@ class AuthService
         return $response;
     }
 
+    /**
+     * Handles user signup.
+     *
+     * @param array $data An associative array of signup data.
+     * @return array An array containing the result of the signup attempt.
+     */
     public function signup($data)
     {
         $userName        = $data['userName'] ?? null;
@@ -204,6 +228,12 @@ class AuthService
         }
     }
 
+    /**
+     * Sends a verification email.
+     *
+     * @param string $email The email address to send the verification code to.
+     * @return array An array containing the result of the operation.
+     */
     public function sendVerificationEmail($email): array
     {
         if (!$email) {
@@ -235,6 +265,12 @@ class AuthService
         }
     }
 
+    /**
+     * Verifies a user-submitted code.
+     *
+     * @param string|null $pin The 6-digit PIN submitted by the user.
+     * @return array An array containing the result of the verification.
+     */
     public function verifyCode(?string $pin): array
     {
         Logger::debug("Starting verification attempt", [
@@ -310,6 +346,12 @@ class AuthService
         return ["message" => "Signup verification successful"];
     }
 
+    /**
+     * Verifies an admin-specific code.
+     *
+     * @param string|null $code The admin code to verify.
+     * @return array An array containing the result of the verification.
+     */
     public function verifyAdminCode(?string $code): array
     {
         if (!$code) {
@@ -325,6 +367,12 @@ class AuthService
         return ["success" => true];
     }
 
+    /**
+     * Issues a new admin verification code.
+     *
+     * @param string|null $code The code to issue.
+     * @return array An array containing the result of the operation.
+     */
     public function issueAdminCode(?string $code = null): array
     {
         if (!$code) {
@@ -344,6 +392,12 @@ class AuthService
         }
     }
 
+    /**
+     * Sends a code to unlock a locked account.
+     *
+     * @param string|null $email The email address of the locked account.
+     * @return array An array containing the result of the operation.
+     */
     public function sendLockedCode(?string $email): array
     {
         if (!$email) {
@@ -375,6 +429,12 @@ class AuthService
         }
     }
 
+    /**
+     * Verifies a code to unlock a locked account.
+     *
+     * @param string|null $code The code to verify.
+     * @return array An array containing the result of the verification.
+     */
     public function verifyLockedCode(?string $code): array
     {
         $storedCode   = $_SESSION['lockedCode'] ?? null;
@@ -411,6 +471,14 @@ class AuthService
         }
     }
 
+    /**
+     * Changes a user's password.
+     *
+     * @param string|null $email The user's email address.
+     * @param string|null $oldPassword The user's current password.
+     * @param string|null $newPassword The user's new password.
+     * @return array An array containing the result of the operation.
+     */
     public function changePassword(?string $email, ?string $oldPassword, ?string $newPassword): array
     {
         if (!$email || !$oldPassword || !$newPassword) {
@@ -454,6 +522,12 @@ class AuthService
         }
     }
 
+    /**
+     * Sends a password reset code to a user's email.
+     *
+     * @param string|null $email The user's email address.
+     * @return array An array containing the result of the operation.
+     */
     public function resetPassword(?string $email): array
     {
         if (!$email) {
@@ -487,6 +561,14 @@ class AuthService
         }
     }
 
+    /**
+     * Confirms a password reset using a code and sets a new password.
+     *
+     * @param string|null $email The user's email address.
+     * @param string|null $code The reset code.
+     * @param string|null $newPassword The new password.
+     * @return array An array containing the result of the operation.
+     */
     public function confirmResetPassword(?string $email, ?string $code, ?string $newPassword): array
     {
         $normalizedEmail = $email ? strtolower(trim($email)) : null;

@@ -1,53 +1,75 @@
-// modal.js - Modal management utilities
+/**
+ * @file Modal management utilities
+ */
 
-// Modal element references
 const verifyModal = document.getElementById("verifyModal");
 const lockedModal = document.getElementById("confirmLockModal");
 const forgotModal = document.getElementById("forgotPasswordModal");
 const confirmResetModal = document.getElementById("confirmResetModal");
 
-// Show a modal and optionally focus a given element
+/**
+ * Shows a modal and optionally focuses a given element.
+ * @param {HTMLElement} modal - The modal element to show.
+ * @param {HTMLElement} [focusElement] - The element to focus.
+ */
 function openModal(modal, focusElement) {
   if (!modal) return;
   modal.style.display = "flex";
   if (focusElement) setTimeout(() => focusElement.focus(), 300);
 }
 
-// Hide a modal and clear specified input elements
+/**
+ * Hides a modal and clears specified input elements.
+ * @param {HTMLElement} modal - The modal element to hide.
+ * @param {HTMLElement[]} [inputsToClear=[]] - An array of input elements to clear.
+ */
 function closeModal(modal, inputsToClear = []) {
   if (!modal) return;
   modal.style.display = "none";
   inputsToClear.forEach((input) => (input.value = ""));
 }
 
-// Show locked account modal (and focus code input)
+/**
+ * Shows the locked account modal and focuses the code input.
+ */
 function openLockedModal() {
   openModal(lockedModal, document.getElementById("lockedCodeInput"));
 }
 
-// Hide locked account modal and clear state/input
+/**
+ * Hides the locked account modal and clears its state and input.
+ */
 function closeLockedModal() {
   closeModal(lockedModal, [document.getElementById("lockedCodeInput")]);
   delete window.pendingLock;
 }
 
-// Show forgot password modal (and focus email input)
+/**
+ * Shows the forgot password modal and focuses the email input.
+ */
 function openForgotModal() {
   openModal(forgotModal, document.getElementById("forgotEmailInput"));
 }
 
-// Hide forgot password modal and clear email input
+/**
+ * Hides the forgot password modal and clears the email input.
+ */
 function closeForgotModal() {
   closeModal(forgotModal, [document.getElementById("forgotEmailInput")]);
 }
 
-// Show confirm password reset modal and set reset state/email
+/**
+ * Shows the confirm password reset modal and sets the reset state and email.
+ * @param {string} email - The user's email address.
+ */
 function openConfirmResetModal(email) {
   window.pendingReset = { email };
   openModal(confirmResetModal);
 }
 
-// Hide confirm password reset modal and clear all reset inputs/state
+/**
+ * Hides the confirm password reset modal and clears all reset inputs and state.
+ */
 function closeConfirmResetModal() {
   closeModal(confirmResetModal, [
     document.getElementById("resetCodeInput"),
@@ -57,19 +79,29 @@ function closeConfirmResetModal() {
   delete window.pendingReset;
 }
 
-// Manages binding/unbinding event listeners for modals
+/**
+ * Manages binding and unbinding event listeners for modals.
+ */
 class ModalEventManager {
   constructor() {
     this.cleanupFunctions = [];
   }
 
-  // Remove all event listeners bound through this manager
+  /**
+   * Removes all event listeners bound through this manager.
+   */
   cleanup() {
     this.cleanupFunctions.forEach((fn) => fn());
     this.cleanupFunctions = [];
   }
 
-  // Bind event and store undo function for cleanup
+  /**
+   * Binds an event and stores the undo function for cleanup.
+   * @param {HTMLElement} element - The element to bind the event to.
+   * @param {string} event - The name of the event.
+   * @param {function} handler - The event handler.
+   * @param {object} [options] - Additional options for the event listener.
+   */
   bind(element, event, handler, options) {
     if (!element) return;
     element.addEventListener(event, handler, options);
@@ -79,7 +111,11 @@ class ModalEventManager {
   }
 }
 
-// Bind verification modal events for PIN input, submission, close, keyboard and outside click
+/**
+ * Binds verification modal events for PIN input, submission, close, keyboard, and outside click.
+ * @param {string} roleFromLogin - The role of the user logging in.
+ * @param {function} verifyHandlerFn - The function to handle verification.
+ */
 function bindVerifyModalEvents(roleFromLogin, verifyHandlerFn) {
   const op = `verify-${Date.now()}`;
   console.log(`[${op}] Binding modal events with role: ${roleFromLogin}`);
@@ -95,7 +131,6 @@ function bindVerifyModalEvents(roleFromLogin, verifyHandlerFn) {
 
   const eventManager = new ModalEventManager();
 
-  // Function to submit and check PIN
   const runVerification = async () => {
     const code = Array.from(pins)
       .map((p) => p.value)
@@ -125,13 +160,11 @@ function bindVerifyModalEvents(roleFromLogin, verifyHandlerFn) {
     verifyBtn.disabled = false;
   };
 
-  // Bind close button
   eventManager.bind(closeModalBtn, "click", () => {
     closeModal(verifyModal, Array.from(pins));
     eventManager.cleanup();
   });
 
-  // PIN autofill and Enter key submission for each input
   pins.forEach((pin, idx) => {
     eventManager.bind(pin, "input", () => {
       if (pin.value && idx < pins.length - 1) {
@@ -147,10 +180,8 @@ function bindVerifyModalEvents(roleFromLogin, verifyHandlerFn) {
     });
   });
 
-  // Bind verify button click
   eventManager.bind(verifyBtn, "click", runVerification);
 
-  // Close modal when clicking outside modal element
   eventManager.bind(window, "click", (e) => {
     if (e.target === verifyModal) {
       closeModal(verifyModal, Array.from(pins));
@@ -158,7 +189,6 @@ function bindVerifyModalEvents(roleFromLogin, verifyHandlerFn) {
     }
   });
 
-  // Escape key to close modal
   eventManager.bind(document, "keydown", (e) => {
     if (e.key === "Escape" && verifyModal.style.display === "flex") {
       closeModal(verifyModal, Array.from(pins));
@@ -169,7 +199,12 @@ function bindVerifyModalEvents(roleFromLogin, verifyHandlerFn) {
   console.log(`[${op}] Modal events bound successfully`);
 }
 
-// Initialize a modal's verification event bindings as needed
+/**
+ * Initializes a modal's verification event bindings as needed.
+ * @param {string} roleFromLogin - The role of the user logging in.
+ * @param {function} verifyHandlerFn - The function to handle verification.
+ * @returns {function} A cleanup function.
+ */
 function initModal(roleFromLogin, verifyHandlerFn) {
   const modalInitializers = [];
 
@@ -194,7 +229,6 @@ function initModal(roleFromLogin, verifyHandlerFn) {
   };
 }
 
-// Exports: modal functions and element references
 export {
   openModal,
   closeModal,

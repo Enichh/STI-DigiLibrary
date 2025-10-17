@@ -4,16 +4,30 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../config/database.php';
 
+/**
+ * Model for handling thesis-related database operations.
+ *
+ * This class provides methods for fetching, creating, updating, and deleting thesis records,
+ * as well as managing author relationships.
+ */
 class ThesisModel
 {
     private PDO $pdo;
 
+    /**
+     * Creates an instance of ThesisModel and gets a PDO connection.
+     */
     public function __construct()
     {
         $this->pdo = getPDO();
     }
 
-    // Work-level lookups
+    /**
+     * Fetches a single thesis by its ID.
+     *
+     * @param int $thesisId The ID of the thesis to fetch.
+     * @return array|null The thesis record, or null if not found.
+     */
     public function getById(int $thesisId): ?array
     {
         $stmt = $this->pdo->prepare("
@@ -26,6 +40,12 @@ class ThesisModel
         return $row ?: null;
     }
 
+    /**
+     * Fetches a single thesis by its accession number.
+     *
+     * @param string $accessionNo The accession number of the thesis.
+     * @return array|null The thesis record, or null if not found.
+     */
     public function getByAccessionNo(string $accessionNo): ?array
     {
         $stmt = $this->pdo->prepare("
@@ -38,7 +58,17 @@ class ThesisModel
         return $row ?: null;
     }
 
-    // Creation and updates
+    /**
+     * Creates a new thesis record.
+     *
+     * @param string $accessionNo The accession number.
+     * @param string $callNo The call number.
+     * @param string $title The title of the thesis.
+     * @param int|null $pages The number of pages.
+     * @param string|null $pagesNote A note about the pages.
+     * @param int $pubYear The publication year.
+     * @return int The ID of the newly created thesis.
+     */
     public function createThesis(string $accessionNo, string $callNo, string $title, ?int $pages, ?string $pagesNote, int $pubYear): int
     {
         $stmt = $this->pdo->prepare("
@@ -51,6 +81,13 @@ class ThesisModel
         return (int)$this->pdo->lastInsertId();
     }
 
+    /**
+     * Updates an existing thesis record.
+     *
+     * @param int $thesisId The ID of the thesis to update.
+     * @param array $fields An associative array of fields to update.
+     * @return void
+     */
     public function updateThesis(int $thesisId, array $fields): void
     {
         // Allowed columns only
@@ -70,6 +107,12 @@ class ThesisModel
         $stmt->execute($params);
     }
 
+    /**
+     * Deletes a thesis record.
+     *
+     * @param int $thesisId The ID of the thesis to delete.
+     * @return void
+     */
     public function deleteThesis(int $thesisId): void
     {
         // tbl_thesis_authors has FK to tbl_theses with ON DELETE CASCADE (as defined when you created it)
@@ -77,7 +120,15 @@ class ThesisModel
         $stmt->execute([$thesisId]);
     }
 
-    // Listing and counts
+    /**
+     * Lists all theses with pagination and optional filters.
+     *
+     * @param int $limit The maximum number of records to return.
+     * @param int $offset The starting offset for pagination.
+     * @param string|null $titleSearch An optional title to search for.
+     * @param int|null $year An optional publication year to filter by.
+     * @return array An array of thesis records.
+     */
     public function listTheses(int $limit, int $offset, ?string $titleSearch = null, ?int $year = null): array
     {
         $where = [];
@@ -116,6 +167,13 @@ class ThesisModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
 
+    /**
+     * Counts the total number of theses matching optional filters.
+     *
+     * @param string|null $titleSearch An optional title to search for.
+     * @param int|null $year An optional publication year to filter by.
+     * @return int The total number of matching theses.
+     */
     public function countTheses(?string $titleSearch = null, ?int $year = null): int
     {
         $where = [];
@@ -136,7 +194,12 @@ class ThesisModel
         return $row ? (int)$row['total'] : 0;
     }
 
-    // Author links
+    /**
+     * Lists all authors for a given thesis.
+     *
+     * @param int $thesisId The ID of the thesis.
+     * @return array An array of author records.
+     */
     public function listAuthorsForThesis(int $thesisId): array
     {
         $stmt = $this->pdo->prepare("
@@ -150,6 +213,15 @@ class ThesisModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
 
+    /**
+     * Adds a link between a thesis and an author.
+     *
+     * @param int $thesisId The ID of the thesis.
+     * @param int $authorId The ID of the author.
+     * @param int $authorOrder The order of the author.
+     * @param string $role The role of the author.
+     * @return void
+     */
     public function addAuthorLink(int $thesisId, int $authorId, int $authorOrder = 1, string $role = 'Author'): void
     {
         // Prevent duplicates
@@ -166,6 +238,14 @@ class ThesisModel
         $stmt->execute([$thesisId, $authorId, $authorOrder, $role]);
     }
 
+    /**
+     * Updates the order of an author for a given thesis.
+     *
+     * @param int $thesisId The ID of the thesis.
+     * @param int $authorId The ID of the author.
+     * @param int $authorOrder The new order of the author.
+     * @return void
+     */
     public function updateAuthorOrder(int $thesisId, int $authorId, int $authorOrder): void
     {
         $stmt = $this->pdo->prepare("
@@ -176,6 +256,13 @@ class ThesisModel
         $stmt->execute([$authorOrder, $thesisId, $authorId]);
     }
 
+    /**
+     * Removes a link between a thesis and an author.
+     *
+     * @param int $thesisId The ID of the thesis.
+     * @param int $authorId The ID of the author.
+     * @return void
+     */
     public function removeAuthorLink(int $thesisId, int $authorId): void
     {
         $stmt = $this->pdo->prepare("

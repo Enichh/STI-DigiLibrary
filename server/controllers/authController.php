@@ -3,18 +3,29 @@
 
 require_once __DIR__ . '/../services/authService.php';
 
-// Controller for handling authentication API requests
+/**
+ * Controller for handling authentication API requests.
+ *
+ * This class manages user authentication, including login, signup, and password management.
+ * It interacts with the AuthService to perform business logic and returns JSON responses.
+ */
 class AuthController
 {
     private $service;
 
-    // Create an instance of AuthService for business logic
+    /**
+     * Creates an instance of AuthService.
+     */
     public function __construct()
     {
         $this->service = new AuthService();
     }
 
-    // Handle user login API request
+    /**
+     * Handles user login API request.
+     *
+     * @return void
+     */
     public function login()
     {
         $data = json_decode(file_get_contents("php://input"), true);
@@ -28,7 +39,11 @@ class AuthController
         echo json_encode($result);
     }
 
-    // Handle user/admin signup API request
+    /**
+     * Handles user/admin signup API request.
+     *
+     * @return void
+     */
     public function signup()
     {
         $data = json_decode(file_get_contents("php://input"), true);
@@ -37,7 +52,11 @@ class AuthController
         echo json_encode($result);
     }
 
-    // Send verification email for user signup or reset
+    /**
+     * Sends a verification email for user signup or reset.
+     *
+     * @return void
+     */
     public function sendVerificationEmail()
     {
         $data = json_decode(file_get_contents("php://input"), true);
@@ -49,7 +68,11 @@ class AuthController
         echo json_encode($result);
     }
 
-    // Verify 6-digit code for user (student/admin) signup/login
+    /**
+     * Verifies a 6-digit code for user (student/admin) signup/login.
+     *
+     * @return void
+     */
     public function verifyCode()
     {
         $data = json_decode(file_get_contents("php://input"), true);
@@ -59,7 +82,11 @@ class AuthController
         echo json_encode($result);
     }
 
-    // Verify admin-specific code for admin operations
+    /**
+     * Verifies an admin-specific code for admin operations.
+     *
+     * @return void
+     */
     public function verifyAdminCode()
     {
         $data = json_decode(file_get_contents("php://input"), true);
@@ -69,7 +96,11 @@ class AuthController
         echo json_encode($result);
     }
 
-    // Send unlock code by email for locked accounts
+    /**
+     * Sends an unlock code by email for locked accounts.
+     *
+     * @return void
+     */
     public function sendLockedCode()
     {
         $data = json_decode(file_get_contents("php://input"), true);
@@ -79,7 +110,11 @@ class AuthController
         echo json_encode($result);
     }
 
-    // Verify unlock code for locked account reactivation
+    /**
+     * Verifies an unlock code for locked account reactivation.
+     *
+     * @return void
+     */
     public function verifyLockedCode()
     {
         $data = json_decode(file_get_contents("php://input"), true);
@@ -89,7 +124,11 @@ class AuthController
         echo json_encode($result);
     }
 
-    // Issue a new admin verification code (for admin management)
+    /**
+     * Issues a new admin verification code for admin management.
+     *
+     * @return void
+     */
     public function issueAdminCode()
     {
         $data = json_decode(file_get_contents("php://input"), true);
@@ -99,7 +138,11 @@ class AuthController
         echo json_encode($result);
     }
 
-    // Handle change password request for any user/admin
+    /**
+     * Handles a change password request for any user/admin.
+     *
+     * @return void
+     */
     public function changePassword()
     {
         $data = json_decode(file_get_contents("php://input"), true);
@@ -113,7 +156,11 @@ class AuthController
         echo json_encode($result);
     }
 
-    // Send password reset code to user's email
+    /**
+     * Sends a password reset code to the user's email.
+     *
+     * @return void
+     */
     public function resetPassword()
     {
         error_log("AuthController::resetPassword called with input: " . file_get_contents("php://input"));
@@ -124,7 +171,11 @@ class AuthController
         echo json_encode($result);
     }
 
-    // Confirm password reset using code and set the new password
+    /**
+     * Confirms a password reset using a code and sets the new password.
+     *
+     * @return void
+     */
     public function confirmResetPassword()
     {
         error_log("AuthController::confirmResetPassword called with input: " . file_get_contents("php://input"));

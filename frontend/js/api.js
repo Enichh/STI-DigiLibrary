@@ -10,7 +10,12 @@ import { createLoginVerificationHandler } from "./authHandler.js";
 
 let config = null;
 
-// Handle response: parse JSON, throw error if response is not OK
+/**
+ * Handles the response from an API request.
+ * @param {Response} response - The response object from the fetch call.
+ * @returns {Promise<object>} The JSON data from the response.
+ * @throws {Error} If the response is not OK.
+ */
 export async function handleResponse(response) {
   const data = await response.json().catch(() => ({}));
 
@@ -24,7 +29,13 @@ export async function handleResponse(response) {
   return data;
 }
 
-// Make an API request with config and JSON body
+/**
+ * Makes an API request with a JSON body.
+ * @param {string} endpoint - The API endpoint to call.
+ * @param {object} body - The request body.
+ * @param {object} options - Additional options for the fetch call.
+ * @returns {Promise<object>} The response data.
+ */
 async function apiRequest(endpoint, body, options = {}) {
   if (!config) {
     try {
@@ -45,7 +56,14 @@ async function apiRequest(endpoint, body, options = {}) {
   return handleResponse(response);
 }
 
-// Verify admin code during signup or login
+/**
+ * Verifies an admin code during signup or login.
+ * @param {string} code - The admin verification code.
+ * @param {boolean} isSignup - Whether the verification is for a signup.
+ * @param {object} signupData - The signup data.
+ * @returns {Promise<boolean>} True if the verification is successful.
+ * @throws {Error} If the verification fails.
+ */
 export async function handleAdminVerification(code, isSignup, signupData) {
   try {
     if (isSignup) {
@@ -69,7 +87,14 @@ export async function handleAdminVerification(code, isSignup, signupData) {
   }
 }
 
-// Verify student code during signup or login
+/**
+ * Verifies a student code during signup or login.
+ * @param {string} code - The student verification code.
+ * @param {boolean} isSignup - Whether the verification is for a signup.
+ * @param {object} signupData - The signup data.
+ * @returns {Promise<boolean>} True if the verification is successful.
+ * @throws {Error} If the verification fails.
+ */
 export async function handleStudentVerification(code, isSignup, signupData) {
   try {
     if (!config) {
@@ -88,7 +113,13 @@ export async function handleStudentVerification(code, isSignup, signupData) {
   }
 }
 
-// Call backend endpoint to validate verification code
+/**
+ * Calls the backend endpoint to validate a verification code.
+ * @param {string} endpoint - The API endpoint to call.
+ * @param {object} requestBody - The request body.
+ * @returns {Promise<boolean>} True if the verification is successful.
+ * @throws {Error} If the verification fails.
+ */
 async function verifyCode(endpoint, requestBody) {
   try {
     const data = await apiRequest(endpoint, requestBody);
@@ -108,7 +139,11 @@ async function verifyCode(endpoint, requestBody) {
   }
 }
 
-// Convert backend error message into user-friendly text
+/**
+ * Converts a backend error message into user-friendly text.
+ * @param {string} error - The error message from the backend.
+ * @returns {string} The sanitized error message.
+ */
 function sanitizeErrorMessage(error) {
   if (typeof error !== "string")
     return "An unexpected error occurred. Please try again.";
@@ -126,7 +161,15 @@ function sanitizeErrorMessage(error) {
   );
 }
 
-// Handle login request, manage verification, locked accounts, or success
+/**
+ * Handles a login request, managing verification, locked accounts, or success.
+ * @param {string} userName - The user's username.
+ * @param {string} password - The user's password.
+ * @param {string} captchaToken - The reCAPTCHA token.
+ * @param {string} expectedRole - The expected role of the user.
+ * @returns {Promise<object>} An object containing the login result.
+ * @throws {Error} If the login fails.
+ */
 export async function loginUser(
   userName,
   password,
@@ -187,7 +230,12 @@ export async function loginUser(
   }
 }
 
-// Handle signup request for a new student/admin
+/**
+ * Handles a signup request for a new student or admin.
+ * @param {string} role - The role of the new user.
+ * @param {object} signupData - The signup data.
+ * @returns {Promise<object>} The response data.
+ */
 export async function handleSignupFlow(role, signupData) {
   const { userName, email, password, confirmPassword } = signupData;
 
@@ -204,7 +252,11 @@ export async function handleSignupFlow(role, signupData) {
   });
 }
 
-// Redirect user to page based on their role
+/**
+ * Redirects the user to a page based on their role.
+ * @param {string} roleFromLogin - The user's role.
+ * @throws {Error} If the role is unknown.
+ */
 export function handleLoginFlow(roleFromLogin) {
   const redirects = {
     student: "./catalog.html",
@@ -220,7 +272,11 @@ export function handleLoginFlow(roleFromLogin) {
   window.location.href = redirectUrl;
 }
 
-// Verify code used to unlock locked account
+/**
+ * Verifies a code used to unlock a locked account.
+ * @param {string} code - The unlock code.
+ * @returns {Promise<object>} The response data.
+ */
 export async function requestUnlock(code) {
   if (!config) {
     config = await getConfig();
@@ -228,7 +284,11 @@ export async function requestUnlock(code) {
   return apiRequest(config.api.endpoints.verifyLockedCode, { code });
 }
 
-// Request backend to send unlock code for locked accounts
+/**
+ * Requests the backend to send an unlock code for a locked account.
+ * @param {string} email - The user's email address.
+ * @returns {Promise<object>} The response data.
+ */
 export async function requestLockedCode(email) {
   if (!config) {
     config = await getConfig();
@@ -236,7 +296,11 @@ export async function requestLockedCode(email) {
   return apiRequest(config.api.endpoints.sendLockedCode, { email });
 }
 
-// Request backend to send verification email
+/**
+ * Requests the backend to send a verification email.
+ * @param {string} email - The user's email address.
+ * @returns {Promise<object>} The response data.
+ */
 export async function requestVerificationEmail(email) {
   if (!config) {
     config = await getConfig();
@@ -244,7 +308,11 @@ export async function requestVerificationEmail(email) {
   return apiRequest(config.api.endpoints.verify, { email });
 }
 
-// Request backend to start password reset process
+/**
+ * Requests the backend to start the password reset process.
+ * @param {string} email - The user's email address.
+ * @returns {Promise<object>} The response data.
+ */
 export async function requestPasswordReset(email) {
   if (!config) {
     config = await getConfig();
@@ -252,7 +320,13 @@ export async function requestPasswordReset(email) {
   return apiRequest(config.api.endpoints.resetPassword, { email });
 }
 
-// Confirm password reset with code and set new password
+/**
+ * Confirms a password reset with a code and sets a new password.
+ * @param {string} email - The user's email address.
+ * @param {string} code - The reset code.
+ * @param {string} newPassword - The new password.
+ * @returns {Promise<object>} The response data.
+ */
 export async function confirmPasswordReset(email, code, newPassword) {
   if (!config) {
     config = await getConfig();
@@ -264,7 +338,13 @@ export async function confirmPasswordReset(email, code, newPassword) {
   });
 }
 
-// Change user password with current and new password
+/**
+ * Changes a user's password using their current and new passwords.
+ * @param {string} email - The user's email address.
+ * @param {string} currentPassword - The user's current password.
+ * @param {string} newPassword - The user's new password.
+ * @returns {Promise<object>} The response data.
+ */
 export async function changePassword(email, currentPassword, newPassword) {
   if (!config) {
     config = await getConfig();
@@ -276,7 +356,12 @@ export async function changePassword(email, currentPassword, newPassword) {
   });
 }
 
-// Verify admin-specific code for signup or secure actions
+/**
+ * Verifies an admin-specific code for signup or secure actions.
+ * @param {string} code - The admin code.
+ * @returns {Promise<boolean>} True if the code is valid.
+ * @throws {Error} If the code is invalid.
+ */
 export async function verifyAdminCode(code) {
   if (!config) {
     config = await getConfig();
@@ -288,6 +373,11 @@ export async function verifyAdminCode(code) {
 
 //BOOKS RELATED
 
+/**
+ * Fetches books from the API.
+ * @param {object} params - The query parameters for the request.
+ * @returns {Promise<object>} The response data.
+ */
 export async function fetchBooks(params = {}) {
   if (!config) config = await getConfig();
   const query = new URLSearchParams(params).toString();
@@ -299,18 +389,33 @@ export async function fetchBooks(params = {}) {
   return handleResponse(response);
 }
 
+/**
+ * Creates a new book.
+ * @param {object} bookData - The data for the new book.
+ * @returns {Promise<object>} The response data.
+ */
 export async function createBook(bookData) {
   if (!config) config = await getConfig();
   return apiRequest(config.api.endpoints.books, bookData);
 }
 
-// In api.js
+/**
+ * Updates an existing book.
+ * @param {number} bookId - The ID of the book to update.
+ * @param {object} bookData - The new data for the book.
+ * @returns {Promise<object>} The response data.
+ */
 export async function updateBook(bookId, bookData) {
   if (!config) config = await getConfig();
   const endpoint = `${config.api.endpoints.books}?id=${bookId}`;
   return apiRequest(endpoint, bookData, { method: "PUT" });
 }
 
+/**
+ * Deletes a book.
+ * @param {number} bookId - The ID of the book to delete.
+ * @returns {Promise<object>} The response data.
+ */
 export async function deleteBook(bookId) {
   if (!config) config = await getConfig();
   const endpoint = `${config.api.endpoints.books}?id=${bookId}`;

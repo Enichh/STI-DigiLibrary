@@ -3,6 +3,11 @@
 
 require_once __DIR__ . '/../config/database.php';
 
+/**
+ * Model for handling book-related database operations.
+ *
+ * This class provides methods for fetching, creating, updating, and deleting book records.
+ */
 class BooksModel
 {
     private $pdo;
@@ -195,12 +200,20 @@ class BooksModel
         '9789688802052'
     ];
 
+    /**
+     * Creates an instance of BooksModel and gets a PDO connection.
+     */
     public function __construct()
     {
         $this->pdo = getPDO();
     }
 
-    // Helper: consistent author name expression
+    /**
+     * Helper function to create a consistent author name expression for SQL queries.
+     *
+     * @param string $alias The table alias for the authors table.
+     * @return string The SQL expression for the author's full name.
+     */
     private function authorExpr(string $alias = 'a'): string
     {
         return "
@@ -214,14 +227,26 @@ class BooksModel
         ";
     }
 
-    // Helper: normalize ISBN (digits/X + optional hyphens)
+    /**
+     * Helper function to normalize an ISBN string by removing invalid characters.
+     *
+     * @param string|null $raw The raw ISBN string.
+     * @return string The normalized ISBN string.
+     */
     private function normalizeIsbn(?string $raw): string
     {
         if ($raw === null) return '';
         return preg_replace('/[^0-9Xx-]/', '', trim($raw));
     }
 
-    // Fetch all books with pagination
+    /**
+     * Fetches all books with pagination.
+     *
+     * @param array $filters An associative array of filters.
+     * @param int $page The current page number.
+     * @param int $pageSize The number of items per page.
+     * @return array An array of book records.
+     */
     public function fetchAllBooks(array $filters = [], int $page = 1, int $pageSize = 20): array
     {
         $page = max(1, (int)$page);
@@ -259,7 +284,12 @@ class BooksModel
         return $stmt->fetchAll() ?: [];
     }
 
-    // Count total number of books (for pagination)
+    /**
+     * Counts the total number of books for pagination.
+     *
+     * @param array $filters An associative array of filters.
+     * @return int The total number of books.
+     */
     public function countBooks(array $filters = []): int
     {
         $sql = "SELECT COUNT(DISTINCT b.book_id) as total FROM tbl_books b WHERE 1=1";
@@ -279,7 +309,14 @@ class BooksModel
         return (int)($result['total'] ?? 0);
     }
 
-    // Exact search by title, author, or ISBN with pagination
+    /**
+     * Searches for books by title, author, or ISBN with pagination.
+     *
+     * @param array $filters An associative array of search filters.
+     * @param int $page The current page number.
+     * @param int $pageSize The number of items per page.
+     * @return array An array of book records.
+     */
     public function searchBooks(array $filters = [], int $page = 1, int $pageSize = 20): array
     {
         $page = max(1, (int)$page);
@@ -341,6 +378,12 @@ class BooksModel
         return $stmt->fetchAll() ?: [];
     }
 
+    /**
+     * Counts the total number of books matching search criteria.
+     *
+     * @param array $filters An associative array of search filters.
+     * @return int The total number of matching books.
+     */
     public function countSearchBooks(array $filters = []): int
     {
         $title = isset($filters['title']) ? trim((string)$filters['title']) : '';
@@ -385,7 +428,12 @@ class BooksModel
         return (int)($row['total'] ?? 0);
     }
 
-    // Fetch a book by ID
+    /**
+     * Fetches a book by its ID.
+     *
+     * @param int $id The ID of the book to fetch.
+     * @return array|null The book record, or null if not found.
+     */
     public function fetchBookById(int $id): ?array
     {
         $stmt = $this->pdo->prepare("SELECT * FROM tbl_books WHERE book_id = ?");
@@ -393,7 +441,12 @@ class BooksModel
         return $stmt->fetch() ?: null;
     }
 
-    // Insert a new book
+    /**
+     * Inserts a new book into the database.
+     *
+     * @param array $data An associative array of book data.
+     * @return int The ID of the newly inserted book.
+     */
     public function insertBook(array $data): int
     {
         $sql = "INSERT INTO tbl_books 
@@ -418,7 +471,13 @@ class BooksModel
         return (int) $this->pdo->lastInsertId();
     }
 
-    // Update a book
+    /**
+     * Updates a book in the database.
+     *
+     * @param int $id The ID of the book to update.
+     * @param array $data An associative array of book data.
+     * @return bool True on success, false on failure.
+     */
     public function updateBook(int $id, array $data): bool
     {
         $sql = "UPDATE tbl_books SET
@@ -454,7 +513,12 @@ class BooksModel
         ]);
     }
 
-    // Delete a book
+    /**
+     * Deletes a book from the database.
+     *
+     * @param int $id The ID of the book to delete.
+     * @return bool True on success, false on failure.
+     */
     public function deleteBook(int $id): bool
     {
         $stmt = $this->pdo->prepare("DELETE FROM tbl_books WHERE book_id = ?");

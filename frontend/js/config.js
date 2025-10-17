@@ -1,5 +1,10 @@
 let config = null;
 
+/**
+ * Loads the frontend configuration from the server.
+ * @returns {Promise<object>} The configuration object.
+ * @throws {Error} If the configuration fails to load.
+ */
 async function loadConfig() {
   if (config) return config;
 
@@ -18,8 +23,16 @@ async function loadConfig() {
   }
 }
 
+/**
+ * Gets the frontend configuration.
+ * @returns {Promise<object>} The configuration object.
+ */
 export async function getConfig() {
   return await loadConfig();
 }
 
+/**
+ * A promise that resolves with the frontend configuration.
+ * @type {Promise<object>}
+ */
 export const configPromise = loadConfig();

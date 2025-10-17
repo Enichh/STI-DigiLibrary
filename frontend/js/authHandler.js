@@ -28,13 +28,19 @@ import {
 } from "./api.js";
 import { getConfig } from "./config.js";
 
-// Create a single instance of the verification handler
+/**
+ * Creates a single instance of the verification handler.
+ * @type {function}
+ */
 export const handleVerification = (() => {
   console.log("[Auth] Initializing verification handler");
   const pendingSignupRef = { current: null };
   return createVerificationHandler(pendingSignupRef);
 })();
-// Attach all authentication-related event handlers for login, signup, unlock, forgot/reset, and change password
+
+/**
+ * Attaches all authentication-related event handlers for login, signup, unlock, forgot/reset, and change password.
+ */
 export function attachAuthHandlers() {
   console.log("[Auth] Attaching authentication handlers");
   const startTime = performance.now();
@@ -54,7 +60,11 @@ export function attachAuthHandlers() {
   }
 }
 
-// Execute Google reCAPTCHA and pass token to callback
+/**
+ * Executes Google reCAPTCHA and passes the token to a callback function.
+ * @param {string} action - The action to perform.
+ * @param {function} callback - The callback function to execute with the token.
+ */
 async function executeRecaptcha(action, callback) {
   const startTime = performance.now();
   console.log(`[reCAPTCHA] Executing for action: ${action}`);
@@ -84,7 +94,11 @@ async function executeRecaptcha(action, callback) {
   }
 }
 
-// Return handler for signup verification (student or admin registration)
+/**
+ * Creates a handler for signup verification (student or admin registration).
+ * @param {object} pendingSignupRef - A reference to the pending signup data.
+ * @returns {function} The verification handler.
+ */
 function createVerificationHandler(pendingSignupRef) {
   return async (code, role, op) => {
     const startTime = performance.now();
@@ -162,7 +176,9 @@ function createVerificationHandler(pendingSignupRef) {
   };
 }
 
-// Setup for login form (only handles non-main button events now)
+/**
+ * Sets up the login form handler.
+ */
 function setupLoginHandler() {
   document.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
@@ -177,6 +193,9 @@ function setupLoginHandler() {
   });
 }
 
+/**
+ * Sets up the signup form handler.
+ */
 function setupSignupHandler() {
   console.log("[Auth] Setting up signup handler");
 
@@ -198,7 +217,9 @@ function setupSignupHandler() {
   });
 }
 
-// Set up the main login/signup button handler
+/**
+ * Sets up the main login/signup button handler.
+ */
 function setupLoginAndSignup() {
   console.log("[Auth] Setting up main login/signup handler");
   const startTime = performance.now();
@@ -255,7 +276,10 @@ function setupLoginAndSignup() {
   }
 }
 
-// Return a handler for user verification during login (student/admin)
+/**
+ * Creates a handler for user verification during login (student/admin).
+ * @returns {function} The login verification handler.
+ */
 export function createLoginVerificationHandler() {
   console.log("[Auth] Creating login verification handler");
 
@@ -321,7 +345,10 @@ export function createLoginVerificationHandler() {
   };
 }
 
-// Handle login form logic, including reCAPTCHA and form validation (student or admin)
+/**
+ * Handles the login form logic, including reCAPTCHA and form validation.
+ * @param {boolean} isUserLogin - Whether the login is for a student or admin.
+ */
 function handleLogin(isUserLogin) {
   const op = `login-${Date.now()}`;
   const startTime = performance.now();
@@ -376,7 +403,10 @@ function handleLogin(isUserLogin) {
   });
 }
 
-// Handle signup form logic, validation, and verification email step (student or admin)
+/**
+ * Handles the signup form logic, validation, and verification email step.
+ * @param {boolean} isUserSignup - Whether the signup is for a student or admin.
+ */
 async function handleSignup(isUserSignup) {
   const op = `signup-${Date.now()}`;
   const role = isUserSignup ? "student" : "admin";
@@ -441,7 +471,9 @@ async function handleSignup(isUserSignup) {
   }
 }
 
-// Set up unlock modal for locked accounts and handle unlock code submission
+/**
+ * Sets up the unlock modal for locked accounts and handles unlock code submission.
+ */
 function setupUnlock() {
   const lockedCodeInput = document.getElementById("lockedCodeInput");
   const submitLockedCodeBtn = document.getElementById("submitLockedCode");
@@ -472,7 +504,9 @@ function setupUnlock() {
   closeLockModalBtn?.addEventListener("click", closeLockedModal);
 }
 
-// Set up forgot password and password reset process, including all UI and validation steps
+/**
+ * Sets up the forgot password and password reset process, including all UI and validation steps.
+ */
 function setupForgotAndReset() {
   const forgotLink = document.getElementById("forgotPasswordLink");
   const forgotEmailInput = document.getElementById("forgotEmailInput");
@@ -560,7 +594,13 @@ function setupForgotAndReset() {
   closeConfirmResetBtn?.addEventListener("click", closeConfirmResetModal);
 }
 
-// Return error string if change password input is invalid, or null if valid
+/**
+ * Validates the change password inputs.
+ * @param {string} currentPassword - The current password.
+ * @param {string} newPassword - The new password.
+ * @param {string} confirmPassword - The confirmed new password.
+ * @returns {string|null} An error message if validation fails, otherwise null.
+ */
 function validateChangePassword(currentPassword, newPassword, confirmPassword) {
   if (!currentPassword || !newPassword || !confirmPassword)
     return "Please fill out all fields.";
@@ -570,7 +610,13 @@ function validateChangePassword(currentPassword, newPassword, confirmPassword) {
   return null;
 }
 
-// Return error string if reset inputs are invalid, or null if valid
+/**
+ * Validates the password reset inputs.
+ * @param {string} code - The reset code.
+ * @param {string} newPassword - The new password.
+ * @param {string} confirmPassword - The confirmed new password.
+ * @returns {string|null} An error message if validation fails, otherwise null.
+ */
 function validateResetInputs(code, newPassword, confirmPassword) {
   if (!code || code.length !== 6) return "Please enter a valid 6-digit code.";
   if (!newPassword || !confirmPassword) return "Please fill out all fields.";
@@ -580,7 +626,9 @@ function validateResetInputs(code, newPassword, confirmPassword) {
   return null;
 }
 
-// Set up change password button and process, including input validation and feedback
+/**
+ * Sets up the change password button and process, including input validation and feedback.
+ */
 function setupChangePassword() {
   const changeBtn = document.getElementById("changePasswordButton");
   if (!changeBtn) return;

@@ -9,6 +9,13 @@ import { onTabActivated } from "./catalog.js";
 
 let booksInitialized = false;
 
+/**
+ * Initializes the books catalog.
+ *
+ * This function sets up the initial state for the books catalog,
+ * fetches the first page of books, and renders them.
+ * @returns {Promise<void>}
+ */
 export async function initBooksCatalog() {
   try {
     if (!booksInitialized) {

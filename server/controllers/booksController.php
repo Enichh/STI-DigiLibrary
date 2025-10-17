@@ -3,21 +3,32 @@
 
 require_once __DIR__ . '/../services/booksService.php';
 
+/**
+ * Controller for handling book-related API requests.
+ *
+ * This class manages CRUD operations for books, including fetching, creating, updating, and deleting books.
+ * It interacts with the BooksService to perform business logic and returns JSON responses.
+ */
 class BooksController
 {
     private $service;
 
+    /**
+     * Creates an instance of BooksService.
+     */
     public function __construct()
     {
         $this->service = new BooksService();
     }
 
-    // GET /api/books
-    // Parameters:
-    // - id (optional): fetch single book by id
-    // - page, pageSize (optional): pagination for list/search
-    // - q (optional): smart box, treated as ISBN if looks like ISBN, otherwise title
-    // - title, author, isbn (optional): precise search filters
+    /**
+     * Handles GET requests for books.
+     *
+     * Fetches a single book by ID or a paginated list of books.
+     * Supports searching by title, author, and ISBN.
+     *
+     * @return void
+     */
     public function getBooks(): void
     {
         header('Content-Type: application/json');
@@ -93,7 +104,11 @@ class BooksController
         }
     }
 
-    // POST /api/books
+    /**
+     * Handles POST requests to create a new book.
+     *
+     * @return void
+     */
     public function createBook(): void
     {
         header('Content-Type: application/json');
@@ -124,7 +139,11 @@ class BooksController
         }
     }
 
-    // PUT /api/books
+    /**
+     * Handles PUT requests to update an existing book.
+     *
+     * @return void
+     */
     public function updateBook(): void
     {
         header('Content-Type: application/json');
@@ -162,7 +181,11 @@ class BooksController
         }
     }
 
-    // DELETE /api/books
+    /**
+     * Handles DELETE requests to remove a book.
+     *
+     * @return void
+     */
     public function deleteBook(): void
     {
         header('Content-Type: application/json');

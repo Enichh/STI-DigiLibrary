@@ -6,10 +6,21 @@ import { openModal, closeModal } from "./modal.js";
 import { initSessionTimer } from "./session.js";
 
 const tabListeners = { books: [], theses: [] };
+
+/**
+ * Registers a callback function to be called when a specific tab is activated.
+ * @param {string} tab - The name of the tab ('books' or 'theses').
+ * @param {function} fn - The callback function to execute.
+ */
 export function onTabActivated(tab, fn) {
   if (!tabListeners[tab]) tabListeners[tab] = [];
   tabListeners[tab].push(fn);
 }
+
+/**
+ * Notifies all registered listeners for a given tab.
+ * @param {string} tab - The name of the tab to notify.
+ */
 function notifyTab(tab) {
   (tabListeners[tab] || []).forEach((fn) => {
     try {
@@ -20,17 +31,25 @@ function notifyTab(tab) {
   });
 }
 
-// Sidebar open/close
+/**
+ * Opens the profile sidebar.
+ */
 function openProfileSidebar() {
   const sidebar = document.getElementById("profileSidebar");
   if (sidebar) sidebar.classList.add("open");
 }
+
+/**
+ * Closes the profile sidebar.
+ */
 function closeProfileSidebar() {
   const sidebar = document.getElementById("profileSidebar");
   if (sidebar) sidebar.classList.remove("open");
 }
 
-// Tabs behavior: Books | Theses
+/**
+ * Initializes the behavior of the catalog tabs (Books and Theses).
+ */
 function initCatalogTabs() {
   const tabsBar = document.querySelector(".catalog-tabs");
   const btnBooks = document.querySelector(
@@ -142,7 +161,9 @@ window.addEventListener("DOMContentLoaded", () => {
   initCatalogTabs();
 });
 
-// Change Password Handlers
+/**
+ * Closes the change password modal and clears the input fields.
+ */
 function closeChangeModal() {
   closeModal(document.getElementById("changePasswordModal"));
   document.getElementById("oldPasswordInput").value = "";
@@ -150,6 +171,9 @@ function closeChangeModal() {
   document.getElementById("confirmNewPasswordInputChange").value = "";
 }
 
+/**
+ * Submits the password change request to the API.
+ */
 async function submitPasswordChange() {
   const email = sessionStorage.getItem("email");
   const oldPassword = document.getElementById("oldPasswordInput").value.trim();
@@ -185,7 +209,9 @@ async function submitPasswordChange() {
   }
 }
 
-// Logout Modal Controls
+/**
+ * Opens the logout confirmation modal.
+ */
 function openLogoutModal() {
   openModal(
     document.getElementById("logoutModal"),
@@ -193,6 +219,10 @@ function openLogoutModal() {
   );
   document.body.style.overflow = "hidden";
 }
+
+/**
+ * Closes the logout confirmation modal.
+ */
 function closeLogoutModal() {
   closeModal(document.getElementById("logoutModal"));
   document.body.style.overflow = "";

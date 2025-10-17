@@ -14,6 +14,13 @@ import { onTabActivated } from "./catalog.js";
 
 let thesesInitialized = false;
 
+/**
+ * Initializes the thesis catalog.
+ *
+ * This function sets up the initial state for the thesis catalog,
+ * fetches the first page of theses, and renders them along with pagination.
+ * @returns {Promise<void>}
+ */
 export async function initThesisCatalog() {
   try {
     if (!thesesInitialized) {

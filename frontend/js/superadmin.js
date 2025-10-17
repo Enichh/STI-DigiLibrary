@@ -1,4 +1,7 @@
-// Modal controls
+/**
+ * Opens the user details modal.
+ * @param {object} user - The user object containing details to display.
+ */
 function openModal(user) {
   document.getElementById("modal-name").textContent = user.userName;
   document.getElementById(
@@ -13,6 +16,9 @@ function openModal(user) {
   document.getElementById("user-modal").style.display = "flex";
 }
 
+/**
+ * Closes the user details modal.
+ */
 function closeModal() {
   document.getElementById("user-modal").style.display = "none";
 }
@@ -20,6 +26,10 @@ function closeModal() {
 let currentPage = 1;
 const limit = 10;
 
+/**
+ * Loads a paginated list of users from the API and renders them.
+ * @param {number} [page=1] - The page number to load.
+ */
 async function loadUsers(page = 1) {
   try {
     currentPage = page;

@@ -4,10 +4,19 @@
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
+/**
+ * Service for sending emails.
+ *
+ * This class uses PHPMailer to send various types of emails, such as verification codes,
+ * locked account notifications, and password reset instructions.
+ */
 class EmailService
 {
     private $mailer;
 
+    /**
+     * Creates an instance of EmailService and configures PHPMailer with SMTP settings.
+     */
     public function __construct()
     {
         $this->mailer = new PHPMailer(true);
@@ -24,6 +33,13 @@ class EmailService
         $this->mailer->setFrom('noreply@digilib.sti.edu.ph', 'STI DigiLibrary');
     }
 
+    /**
+     * Sends a 6-digit verification email.
+     *
+     * @param string $to The recipient's email address.
+     * @return int The verification code.
+     * @throws Exception If the email fails to send.
+     */
     public function sendVerificationEmail(string $to): int
     {
         $code = random_int(100000, 999999);
@@ -47,6 +63,15 @@ class EmailService
         }
     }
 
+    /**
+     * Sends an email with a passcode and temporary password to unlock a locked account.
+     *
+     * @param string $to The recipient's email address.
+     * @param string $code The verification code.
+     * @param string $tempPassword The temporary password.
+     * @return void
+     * @throws Exception If the email fails to send.
+     */
     public function sendLockedPasscode(string $to, string $code, string $tempPassword): void
     {
         try {
@@ -74,6 +99,14 @@ class EmailService
         }
     }
 
+    /**
+     * Sends a password reset email with a verification code.
+     *
+     * @param string $to The recipient's email address.
+     * @param string $code The verification code.
+     * @return void
+     * @throws Exception If the email fails to send.
+     */
     public function sendPasswordResetEmail(string $to, string $code): void
     {
         try {
