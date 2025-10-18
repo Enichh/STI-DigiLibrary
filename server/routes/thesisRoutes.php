@@ -19,35 +19,52 @@ function handleThesisRoutes(string $requestPath, string $method): void
             header('Access-Control-Allow-Headers: Content-Type, Authorization');
             http_response_code(204);
             $matched = true;
-            return;
+            exit;
         }
 
-        switch ($method) {
-            case 'GET':
-                $controller->getTheses();
-                $matched = true;
-                return;
-            case 'POST':
-                header('Content-Type: application/json');
-                $controller->createThesis();
-                $matched = true;
-                return;
-            case 'PUT':
-                header('Content-Type: application/json');
-                $controller->updateThesis();
-                $matched = true;
-                return;
-            case 'DELETE':
-                header('Content-Type: application/json');
-                $controller->deleteThesis();
-                $matched = true;
-                return;
-            default:
-                header('Content-Type: application/json');
-                http_response_code(405);
-                echo json_encode(['error' => 'Method Not Allowed']);
-                $matched = true;
-                return;
+        try {
+            switch ($method) {
+                case 'GET':
+                    $controller->getTheses();
+                    $matched = true;
+                    exit;
+                case 'POST':
+                    header('Content-Type: application/json');
+                    if ($requestPath === '/theses.php/callnumber') {
+                        $controller->addThesisCallNumber();
+                    } elseif ($requestPath === '/theses.php') {
+                        $controller->createThesis();
+                    } else {
+                        http_response_code(404);
+                        echo json_encode(['error' => 'Endpoint not found']);
+                    }
+                    $matched = true;
+                    exit;
+
+                case 'PUT':
+                    header('Content-Type: application/json');
+                    $controller->updateThesis();
+                    $matched = true;
+                    exit;
+                case 'DELETE':
+                    header('Content-Type: application/json');
+                    $controller->deleteThesis();
+                    $matched = true;
+                    exit;
+                default:
+                    header('Content-Type: application/json');
+                    http_response_code(405);
+                    echo json_encode(['error' => 'Method Not Allowed']);
+                    $matched = true;
+                    exit;
+            }
+        } catch (Throwable $e) {
+            error_log("Thesis route error: " . $e->getMessage());
+            header('Content-Type: application/json');
+            http_response_code(500);
+            echo json_encode(['error' => 'Internal server error: ' . $e->getMessage()]);
+            $matched = true;
+            exit;
         }
     }
 }

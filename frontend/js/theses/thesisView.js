@@ -1,4 +1,4 @@
-// Render a list of theses without images
+// Render a list of theses with cover images
 export function renderTheses(theses, containerId = "thesisList") {
   const container = document.getElementById(containerId);
   container.innerHTML = "";
@@ -9,42 +9,40 @@ export function renderTheses(theses, containerId = "thesisList") {
 
   theses.forEach((t) => {
     const title = t.title || "";
-    const authorParts = [t.first_name, t.middle_name, t.last_name]
-      .filter(Boolean)
-      .join(" ")
-      .replace(/\s+/g, " ")
-      .trim();
-    const author = authorParts || "Unknown Author";
-    const year = t.pub_year ?? "";
+    // Use the single author field from backend instead of separate name parts
+    const author = t.author || "Unknown Author";
+    const year = t.year ?? "";
+    // For call number, we'll need to get it from a join or separate call number table
     const callNo = t.call_no || "";
     const accession = t.accession_no || "";
-    const pages =
-      typeof t.pages === "number"
-        ? `${t.pages} pages`
-        : t.pages_note
-        ? t.pages_note
-        : "";
+
+    console.log(callNo);
+    // Get cover image path
+    const coverSrc = t.has_cover
+      ? `/STI-DigiLibrary/theses_covers/${callNo}.webp`
+      : "/STI-DigiLibrary/frontend/assets/owlie_icn_transparent.png";
 
     const article = document.createElement("article");
-    article.className = "card thesis"; // Use 'card' for similar card styles as books
+    article.className = "card thesis";
 
-    // Card structure without image or borrow button
+    // Card structure with cover image
     article.innerHTML = `
-      <h3 class="thesis-title">${escapeHtml(title)}</h3>
-      <p class="thesis-meta"><span class="thesis-author">${escapeHtml(
-        author
-      )}</span>${year ? " • " + escapeHtml(String(year)) : ""}</p>
-      <p class="thesis-call"><strong>Call No:</strong> ${escapeHtml(callNo)}</p>
-      <p class="thesis-accession"><strong>Accession:</strong> ${escapeHtml(
-        accession
-      )}</p>
-      ${
-        pages
-          ? `<p class="thesis-pages"><strong>Pages:</strong> ${escapeHtml(
-              pages
-            )}</p>`
-          : ""
-      }
+      <div class="thesis-image">
+        <img src="${coverSrc}" alt="Thesis Cover"
+          onerror="this.onerror=null;this.src='/STI-DigiLibrary/frontend/assets/owlie_icn_transparent.png';" />
+      </div>
+      <div class="thesis-content">
+        <h3 class="thesis-title">${escapeHtml(title)}</h3>
+        <p class="thesis-meta"><span class="thesis-author">${escapeHtml(
+          author
+        )}</span>${year ? " • " + escapeHtml(String(year)) : ""}</p>
+        <p class="thesis-call"><strong>Call No:</strong> ${escapeHtml(
+          callNo
+        )}</p>
+        <p class="thesis-accession"><strong>Accession:</strong> ${escapeHtml(
+          accession
+        )}</p>
+      </div>
     `;
     container.appendChild(article);
   });

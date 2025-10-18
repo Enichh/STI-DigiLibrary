@@ -5,7 +5,7 @@ export async function fetchTheses(params = {}) {
   const config = await getConfig();
   // Filter out empty or null parameters
   const filteredParams = Object.fromEntries(
-    Object.entries(params).filter(([_, v]) => v !== null && v !== '')
+    Object.entries(params).filter(([_, v]) => v !== null && v !== "")
   );
   const query = new URLSearchParams(filteredParams).toString();
   const endpoint = config.api.endpoints.theses + (query ? `?${query}` : "");
@@ -13,6 +13,20 @@ export async function fetchTheses(params = {}) {
   const res = await fetch(fullUrl, {
     method: "GET",
     credentials: "include",
+  });
+  return res.json();
+}
+
+// Create call number for a thesis
+// body: { thesis_id, shelfnumber, classificationcode, classificationnumber, cutter, year }
+export async function createThesisCallNumber(callNumberData) {
+  const config = await getConfig();
+  const endpoint = config.api.endpoints.thesesCallNumber; // should be '/theses/callnumber.php'
+  const res = await fetch(config.api.baseUrl + endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(callNumberData),
   });
   return res.json();
 }

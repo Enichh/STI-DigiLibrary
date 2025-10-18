@@ -85,17 +85,16 @@ class ThesisService
     public function createThesis(array $data): ?int
     {
         $accessionNo = isset($data['accession_no']) ? trim((string)$data['accession_no']) : '';
-        $callNo      = isset($data['call_no']) ? trim((string)$data['call_no']) : '';
+        $author      = isset($data['author']) ? trim((string)$data['author']) : '';
         $title       = isset($data['title']) ? trim((string)$data['title']) : '';
         $pages       = array_key_exists('pages', $data) ? ($data['pages'] === null ? null : (int)$data['pages']) : null;
-        $pagesNote   = array_key_exists('pages_note', $data) ? (is_null($data['pages_note']) ? null : trim((string)$data['pages_note'])) : null;
-        $pubYear     = isset($data['pub_year']) ? (int)$data['pub_year'] : 0;
+        $year        = isset($data['year']) ? (int)$data['year'] : 0;
 
-        if ($accessionNo === '' || $callNo === '' || $title === '' || $pubYear < 1000 || $pubYear > 9999) {
+        if ($accessionNo === '' || $author === '' || $title === '' || $year < 1000 || $year > 9999) {
             return null;
         }
 
-        return $this->model->createThesis($accessionNo, $callNo, $title, $pages, $pagesNote, $pubYear);
+        return $this->model->createThesis($accessionNo, $author, $title, $pages, $year);
     }
 
     /**
@@ -111,12 +110,19 @@ class ThesisService
         if ($thesisId <= 0) return null;
 
         // Whitelist allowed fields
-        $allowed = ['accession_no', 'call_no', 'title', 'pages', 'pages_note', 'pub_year'];
+        $allowed = ['accession_no', 'author', 'title', 'pages'];
+        $fieldMapping = [
+            'accession_no' => 'accessionno',
+            'author' => 'author',
+            'title' => 'title',
+            'pages' => 'pages',
+        ];
         $payload = [];
         foreach ($allowed as $k) {
             if (!array_key_exists($k, $data)) continue;
-            $payload[$k] = $k === 'pages' ? ($data[$k] === null ? null : (int)$data[$k])
-                : ($k === 'pub_year' ? (int)$data[$k] : (is_null($data[$k]) ? null : trim((string)$data[$k])));
+            $dbField = $fieldMapping[$k];
+            $payload[$dbField] = $k === 'pages' ? ($data[$k] === null ? null : (int)$data[$k])
+                : (is_null($data[$k]) ? null : trim((string)$data[$k]));
         }
 
         if (!$payload) return false;
@@ -124,6 +130,8 @@ class ThesisService
         $this->model->updateThesis($thesisId, $payload);
         return true;
     }
+
+
 
     /**
      * Deletes a thesis.
@@ -145,12 +153,13 @@ class ThesisService
      * @param int $id The ID of the thesis.
      * @return array|null An array of author data, or null if the ID is invalid.
      */
-    public function getThesisAuthors($id): ?array
-    {
-        $thesisId = (int)$id;
-        if ($thesisId <= 0) return null;
-        return $this->model->listAuthorsForThesis($thesisId);
-    }
+    // NOTE: This function is commented out because thesis authors are stored directly in tbl_theses.author field
+    // public function getThesisAuthors($id): ?array
+    // {
+    //     $thesisId = (int)$id;
+    //     if ($thesisId <= 0) return null;
+    //     return $this->model->listAuthorsForThesis($thesisId);
+    // }
 
     /**
      * Adds an author to a thesis.
@@ -161,13 +170,14 @@ class ThesisService
      * @param string $role The role of the author.
      * @return bool|null True on success, or null if IDs are invalid.
      */
-    public function addThesisAuthor($id, int $authorId, int $authorOrder = 1, string $role = 'Author'): ?bool
-    {
-        $thesisId = (int)$id;
-        if ($thesisId <= 0 || $authorId <= 0) return null;
-        $this->model->addAuthorLink($thesisId, $authorId, $authorOrder, $role);
-        return true;
-    }
+    // NOTE: This function is commented out because thesis authors are stored directly in tbl_theses.author field
+    // public function addThesisAuthor($id, int $authorId, int $authorOrder = 1, string $role = 'Author'): ?bool
+    // {
+    //     $thesisId = (int)$id;
+    //     if ($thesisId <= 0 || $authorId <= 0) return null;
+    //     $this->model->addAuthorLink($thesisId, $authorId, $authorOrder, $role);
+    //     return true;
+    // }
 
     /**
      * Updates the order of an author for a thesis.
@@ -177,13 +187,14 @@ class ThesisService
      * @param int $authorOrder The new order of the author.
      * @return bool|null True on success, or null if IDs are invalid.
      */
-    public function updateThesisAuthorOrder($id, int $authorId, int $authorOrder): ?bool
-    {
-        $thesisId = (int)$id;
-        if ($thesisId <= 0 || $authorId <= 0) return null;
-        $this->model->updateAuthorOrder($thesisId, $authorId, $authorOrder);
-        return true;
-    }
+    // NOTE: This function is commented out because thesis authors are stored directly in tbl_theses.author field
+    // public function updateThesisAuthorOrder($id, int $authorId, int $authorOrder): ?bool
+    // {
+    //     $thesisId = (int)$id;
+    //     if ($thesisId <= 0 || $authorId <= 0) return null;
+    //     $this->model->updateAuthorOrder($thesisId, $authorId, $authorOrder);
+    //     return true;
+    // }
 
     /**
      * Removes an author from a thesis.
@@ -192,11 +203,39 @@ class ThesisService
      * @param int $authorId The ID of the author to remove.
      * @return bool|null True on success, or null if IDs are invalid.
      */
-    public function removeThesisAuthor($id, int $authorId): ?bool
+    // NOTE: This function is commented out because thesis authors are stored directly in tbl_theses.author field
+    // public function removeThesisAuthor($id, int $authorId): ?bool
+    // {
+    //     $thesisId = (int)$id;
+    //     if ($thesisId <= 0 || $authorId <= 0) return null;
+    //     $this->model->removeAuthorLink($thesisId, $authorId);
+    //     return true;
+    // }
+
+    /**
+     * Inserts a normalized call number for a thesis.
+     *
+     * @param int $thesisId The ID of the thesis.
+     * @param array $callNumber An array with all required call number parts.
+     *   - shelf_number, classification_code, classification_number, cutter, year
+     * @return int|null The ID of the new call number, or null if validation fails.
+     */
+    public function insertCallNumberForThesis(int $thesisId, array $callNumber): ?int
     {
-        $thesisId = (int)$id;
-        if ($thesisId <= 0 || $authorId <= 0) return null;
-        $this->model->removeAuthorLink($thesisId, $authorId);
-        return true;
+        // Basic validation
+        $required = ['shelf_number', 'classification_code', 'classification_number', 'cutter', 'year'];
+        foreach ($required as $key) {
+            if (!isset($callNumber[$key]) || trim((string)$callNumber[$key]) === '') {
+                return null;
+            }
+        }
+        return $this->model->insertCallNumberForThesis(
+            $thesisId,
+            $callNumber['shelf_number'],
+            $callNumber['classification_code'],
+            $callNumber['classification_number'],
+            $callNumber['cutter'],
+            $callNumber['year']
+        );
     }
 }

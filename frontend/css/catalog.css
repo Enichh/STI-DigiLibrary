@@ -699,13 +699,25 @@ footer {
   border-color: #7fbfff;
 }
 
-.thesis-title {
-  font-size: 1.13rem;
-  font-weight: bold;
-  color: #174486;
-  margin: 0 0 0.45rem 0;
-  line-height: 1.32;
-  letter-spacing: 0.02em;
+.thesis-image {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.thesis-image img {
+  width: 120px;
+  height: 160px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+}
+
+.thesis-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .thesis-meta {

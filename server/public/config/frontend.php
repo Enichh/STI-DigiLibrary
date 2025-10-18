@@ -21,7 +21,8 @@ $config = [
             'verifyCode' => '/auth/verify-code.php',
             'verifyLockedCode' => '/auth/verify-locked-code.php',
             'books' => '/books.php',
-            'theses' => '/theses.php'
+            'theses' => '/theses.php',
+            'thesesCallNumber' => '/theses.php/callnumber.php'
         ],
         'users' => [
             'getUsers' => '/users.php'

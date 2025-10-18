@@ -80,6 +80,7 @@ class ThesisController
             echo json_encode($result);
             return;
         } catch (Throwable $e) {
+            error_log("GET /theses.php ERROR: " . $e->getMessage());
             http_response_code(500);
             echo json_encode(['error' => 'Internal server error']);
             return;
@@ -120,6 +121,7 @@ class ThesisController
             echo json_encode(['thesis_id' => $thesisId]);
             return;
         } catch (Throwable $e) {
+            error_log("POST /theses.php ERROR: " . $e->getMessage());
             http_response_code(500);
             echo json_encode(['error' => 'Internal server error']);
             return;
@@ -202,6 +204,64 @@ class ThesisController
             $ok = $this->service->deleteThesis($id);
             http_response_code(200);
             echo json_encode(['deleted' => (bool)$ok]);
+            return;
+        } catch (Throwable $e) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Internal server error']);
+            return;
+        }
+    }
+
+    /**
+     * Handles POST requests to add a call number for a thesis.
+     *
+     * Expects a JSON body with thesis_id and all call number parts:
+     * - shelfnumber, classificationcode, classificationnumber, cutter, year
+     * @return void
+     */
+    public function addThesisCallNumber(): void
+    {
+        header('Content-Type: application/json');
+
+        $payload = file_get_contents("php://input");
+        if ($payload === false) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid request body']);
+            return;
+        }
+
+        $data = json_decode($payload, true);
+        if (!is_array($data) || !isset($data['thesis_id'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid JSON or missing thesis_id']);
+            return;
+        }
+
+        $thesisId = (int)$data['thesis_id'];
+        if ($thesisId <= 0) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid thesis_id']);
+            return;
+        }
+
+        // All call number parts in one subarray
+        $callNumber = [
+            'shelf_number' => $data['shelf_number'] ?? '',
+            'classification_code' => $data['classification_code'] ?? '',
+            'classification_number' => $data['classification_number'] ?? '',
+            'cutter' => $data['cutter'] ?? '',
+            'year' => $data['year'] ?? ''
+        ];
+
+        try {
+            $callNumberId = $this->service->insertCallNumberForThesis($thesisId, $callNumber);
+            if ($callNumberId === null) {
+                http_response_code(400);
+                echo json_encode(['error' => 'Invalid call number payload']);
+                return;
+            }
+            http_response_code(201);
+            echo json_encode(['call_number_id' => $callNumberId]);
             return;
         } catch (Throwable $e) {
             http_response_code(500);

@@ -12,6 +12,45 @@ class BooksModel
 {
     private $pdo;
 
+    private function smartTitleCase(string $title): string
+    {
+        $smallWords = ['a', 'an', 'the', 'and', 'but', 'or', 'for', 'nor', 'on', 'at', 'to', 'from', 'by', 'of', 'in'];
+        $words = explode(' ', strtolower($title));
+        $wordCount = count($words);
+        foreach ($words as $i => $word) {
+            // Always capitalize first and last words
+            if ($i === 0 || $i === $wordCount - 1 || !in_array($word, $smallWords)) {
+                // Hyphenated: Split and capitalize subwords
+                $words[$i] = implode('-', array_map('ucfirst', explode('-', $word)));
+            }
+        }
+        return implode(' ', $words);
+    }
+
+    private function normalizeTitle(string $title): string
+    {
+        if (class_exists('Normalizer')) {
+            $title = Normalizer::normalize($title, Normalizer::FORM_C);
+        }
+        $title = trim($title);
+        $title = preg_replace('/\s+/', ' ', $title);
+        $title = preg_replace('/[[:cntrl:]]/', '', $title);
+        $title = preg_replace('/(\.|,|\?|!){2,}/', '$1', $title);
+        $title = str_replace(["“", "”", "‘", "’", "–", "—"], ['"', '"', "'", "'", "-", "-"], $title);
+        $title = str_replace("\xC2\xA0", ' ', $title);
+        $title = preg_replace('/\.{3,}/', '...', $title);
+
+        // Preserve acronyms
+        $title = preg_replace_callback('/\b([A-Z]{2,})\b/', fn($m) => strtoupper($m[1]), $title);
+
+        // Apply smart title case
+        $title = $this->smartTitleCase($title);
+
+        return $title;
+    }
+
+
+
     private $availableCovers = [
         '9780070181397',
         '9780070663183',
@@ -281,7 +320,16 @@ class BooksModel
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([...$params, $pageSize, $offset]);
-        return $stmt->fetchAll() ?: [];
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+        // Normalize titles for every row
+        foreach ($rows as &$row) {
+            if (isset($row['title'])) {
+                $row['title'] = $this->normalizeTitle($row['title']);
+            }
+        }
+
+        return $rows;
     }
 
     /**
@@ -375,7 +423,16 @@ class BooksModel
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
-        return $stmt->fetchAll() ?: [];
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+        // Normalize titles for every row
+        foreach ($rows as &$row) {
+            if (isset($row['title'])) {
+                $row['title'] = $this->normalizeTitle($row['title']);
+            }
+        }
+
+        return $rows;
     }
 
     /**
