@@ -1,5 +1,5 @@
 // Session Timeout Logic
-import { getConfig } from "./config.js";
+import { getConfig } from "../config.js";
 let sessionTimer;
 function resetSessionTimer() {
   clearTimeout(sessionTimer);

@@ -92,6 +92,11 @@ class AuthService
         error_log("DEBUG: reCAPTCHA verification successful");
 
         $user = $this->userModel->findByUserName($userName);
+
+        if (!$user) {
+            $user = $this->userModel->findByEmail($userName);
+        }
+
         if (!$user) {
             return ["error" => "Invalid credentials"];
         }

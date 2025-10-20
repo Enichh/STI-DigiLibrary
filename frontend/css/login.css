@@ -1,0 +1,389 @@
+:root {
+  --yellow: #ffc200;
+  --lightyellow: #ffe25c;
+  --darkyellow: #d19d00;
+  --blue: #00315f;
+  --lightblue: #376691;
+  --darkblue: #012244;
+  --mayonnaise: #f3f0e4;
+  --black: #1b1b1b;
+  --palebrown: #271c089c;
+  --lightgray: #dbdbdb;
+  --white: #ffffff;
+  --danger: #e74c3c;
+  --success: #2ecc71;
+  --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  --border-radius: 8px;
+}
+
+/* Password Related Styles */
+.password-container {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.password-container input {
+  width: 100%;
+  padding-right: 35px;
+  box-sizing: border-box;
+}
+
+.togglePassword {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #666;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.togglePassword:hover {
+  color: var(--darkblue);
+}
+
+/* Password Strength Meter */
+.strength-meter {
+  margin-top: 8px;
+}
+
+.strength-bar {
+  background-color: #dcdcdc;
+  height: 10px;
+  border-radius: 5px;
+  display: flex;
+  overflow: hidden;
+}
+
+.strength-segment {
+  height: 100%;
+  flex-grow: 1;
+  transition: background-color 0.3s ease;
+}
+
+/* Password Hints */
+.password-hints {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: var(--palebrown);
+}
+
+.password-hint {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.password-hint.valid {
+  color: var(--success);
+}
+
+.password-hint::before {
+  content: "•";
+  margin-right: 8px;
+  font-weight: bold;
+}
+
+.password-hint.valid::before {
+  content: "✓";
+}
+
+/* Basic Reset & Body Styles */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  background-color: var(--mayonnaise);
+  color: var(--black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 1rem;
+}
+
+/* Main Container Layout */
+.container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  max-width: 1000px;
+  min-height: 600px;
+  background-color: var(--white);
+  box-shadow: var(--shadow);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}
+
+/* Left Informational Panel */
+.info-panel {
+  background-color: var(--blue);
+  color: var(--white);
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.info-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--yellow);
+}
+
+.info-description {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--lightgray);
+}
+
+/* Logo Container */
+.logo-container {
+  text-align: left;
+  margin-bottom: 1.5rem;
+}
+
+.logo-img {
+  max-width: 100px;
+  height: auto;
+  transition: transform 0.3s ease;
+  display: block;
+}
+
+.logo-img:hover {
+  transform: scale(1.05);
+}
+
+/* Right Form Panel */
+.form-panel {
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+}
+
+.form--hidden {
+  display: none;
+}
+
+.form-title {
+  font-size: 2rem;
+  font-weight: 500;
+  margin-bottom: 2rem;
+  text-align: center;
+  color: var(--darkblue);
+}
+
+.form-input-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-input {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-family: "Poppins", sans-serif;
+  border: 1px solid var(--lightgray);
+  border-radius: var(--border-radius);
+  background-color: var(--white);
+  transition: border-color 0.2s;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--blue);
+}
+
+.form-input::placeholder {
+  color: #a0a0a0;
+}
+
+.form-button {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--white);
+  background-color: var(--blue);
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.form-button:hover {
+  background-color: var(--lightblue);
+}
+
+.form-button:active {
+  background-color: var(--darkblue);
+}
+
+.form-text {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.form-link {
+  color: var(--lightblue);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.form-link:hover {
+  text-decoration: underline;
+}
+
+/* Error and Success Messages */
+.form-input-error-message,
+.form-message {
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+.form-input--error {
+  border-color: var(--danger);
+}
+
+.form-input-error-message {
+  color: var(--danger);
+}
+
+/* MODIFICATION: Password constraints list styling */
+.password-constraints-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0 0;
+  font-size: 0.8rem;
+  color: var(--palebrown);
+}
+
+.password-constraints-list li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.3rem;
+  transition: color 0.3s ease;
+}
+
+.password-constraints-list li::before {
+  content: "○";
+  font-weight: bold;
+  margin-right: 0.5rem;
+  color: var(--lightgray);
+  transition: color 0.3s ease;
+}
+
+.password-constraints-list li.valid {
+  color: var(--success);
+}
+
+.password-constraints-list li.valid::before {
+  content: "✓";
+  color: var(--success);
+}
+
+/* Admin Toggle Button */
+.admin-toggle-button {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: none;
+  border: none;
+  color: var(--palebrown);
+  font-family: "Poppins", sans-serif;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.admin-toggle-button:hover {
+  color: var(--black);
+}
+
+/* Container for the dropdown */
+.suggestions {
+  position: absolute;
+  top: 100%; /* directly below the input */
+  left: 0;
+  width: 100%; /* match input width */
+  border-top: none; /* seamless with input border */
+  background: #fff;
+  max-height: 150px; /* scroll if too many results */
+  overflow-y: auto;
+  z-index: 2000; /* above buttons and other UI */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 0 0 4px 4px;
+  font-size: 0.9rem;
+}
+
+/* Each suggestion item */
+.suggestion {
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  line-height: 1.4;
+  white-space: nowrap; /* prevent wrapping */
+  overflow: hidden;
+  text-overflow: ellipsis; /* truncate long names */
+}
+
+/* Hover effect */
+.suggestion:hover {
+  background: #f5f5f5;
+}
+
+.suggestion.active {
+  background: #e0e0e0;
+}
+
+.username-wrapper {
+  position: relative; /* anchor point for .suggestions */
+}
+
+.form-message--error {
+  color: #e53935; /* Vivid red */
+  background: #ffebee; /* Subtle light red background */
+  border: 1px solid #e53935;
+  border-radius: 4px;
+  padding: 0.75em 1em;
+  margin-bottom: 1em;
+  font-size: 1rem;
+  font-weight: 500;
+  display: block;
+  box-sizing: border-box;
+  transition: opacity 0.2s;
+  opacity: 1;
+}
+
+.form-message--error:empty {
+  display: none;
+  opacity: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 850px) {
+  .container {
+    grid-template-columns: 1fr;
+  }
+  .info-panel {
+    display: none; /* Hide the info panel on smaller screens for simplicity */
+  }
+  .form-panel {
+    padding: 2rem;
+  }
+}

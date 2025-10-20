@@ -1,16 +1,16 @@
-import { fetchTheses } from "./theses/thesisApi.js";
+import { fetchTheses } from "./thesisApi.js";
 import {
   renderTheses,
   renderPagination as renderThesesPager,
-} from "./theses/thesisView.js";
-import { setupThesisSearchAndFilter } from "./theses/thesisSearchFilter.js";
+} from "./thesisView.js";
+import { setupThesisSearchAndFilter } from "./thesisSearchFilter.js";
 import {
   thesisState,
   setTheses,
   setThesisPage,
   setThesisPageSize,
-} from "./theses/thesisState.js";
-import { onTabActivated } from "./catalog.js";
+} from "./thesisState.js";
+import { onTabActivated } from "../catalog.js";
 
 let thesesInitialized = false;
 

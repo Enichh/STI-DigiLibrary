@@ -1,4 +1,4 @@
-import { getConfig, configPromise } from "./config.js";
+import { getConfig, configPromise } from "../config.js";
 import {
   openModal,
   verifyModal,
@@ -154,7 +154,10 @@ function sanitizeErrorMessage(error) {
       "Account not found. Please sign up or contact support.",
     "Too many failed attempts":
       "Too many login attempts. Please wait and try again.",
+    "Invalid credentials":
+      "Incorrect username or password. Please check and try again.",
   };
+
   return (
     errorMap[error] ||
     "Login failed. Please contact support if the issue persists."
@@ -163,7 +166,7 @@ function sanitizeErrorMessage(error) {
 
 /**
  * Handles a login request, managing verification, locked accounts, or success.
- * @param {string} userName - The user's username.
+ * @param {string} userName - The user's username or email.
  * @param {string} password - The user's password.
  * @param {string} captchaToken - The reCAPTCHA token.
  * @param {string} expectedRole - The expected role of the user.
@@ -207,7 +210,8 @@ export async function loginUser(
       if (data.email) sessionStorage.setItem("email", data.email);
       openModal(verifyModal, verifyModal.querySelector(".pin"));
       bindVerifyModalEvents(expectedRole, createLoginVerificationHandler());
-      throw new Error("Verification required");
+      // Do NOT throw or catch as error. Handle in caller.
+      return { success: false, requiresVerification: true };
     }
 
     if (!data.role) {
@@ -225,6 +229,7 @@ export async function loginUser(
       email: data.email,
     };
   } catch (err) {
+    // Only true errors go here (invalid credentials, network, etc.)
     console.error("[loginUser] Login failed:", err);
     throw err;
   }
@@ -369,55 +374,4 @@ export async function verifyAdminCode(code) {
   const data = await apiRequest(config.api.endpoints.verifyAdminCode, { code });
   if (!data.success) throw new Error("Invalid or expired admin code");
   return true;
-}
-
-//BOOKS RELATED
-
-/**
- * Fetches books from the API.
- * @param {object} params - The query parameters for the request.
- * @returns {Promise<object>} The response data.
- */
-export async function fetchBooks(params = {}) {
-  if (!config) config = await getConfig();
-  const query = new URLSearchParams(params).toString();
-  const endpoint = config.api.endpoints.books + (query ? `?${query}` : "");
-  const response = await fetch(`${config.api.baseUrl}${endpoint}`, {
-    method: "GET",
-    credentials: "include",
-  });
-  return handleResponse(response);
-}
-
-/**
- * Creates a new book.
- * @param {object} bookData - The data for the new book.
- * @returns {Promise<object>} The response data.
- */
-export async function createBook(bookData) {
-  if (!config) config = await getConfig();
-  return apiRequest(config.api.endpoints.books, bookData);
-}
-
-/**
- * Updates an existing book.
- * @param {number} bookId - The ID of the book to update.
- * @param {object} bookData - The new data for the book.
- * @returns {Promise<object>} The response data.
- */
-export async function updateBook(bookId, bookData) {
-  if (!config) config = await getConfig();
-  const endpoint = `${config.api.endpoints.books}?id=${bookId}`;
-  return apiRequest(endpoint, bookData, { method: "PUT" });
-}
-
-/**
- * Deletes a book.
- * @param {number} bookId - The ID of the book to delete.
- * @returns {Promise<object>} The response data.
- */
-export async function deleteBook(bookId) {
-  if (!config) config = await getConfig();
-  const endpoint = `${config.api.endpoints.books}?id=${bookId}`;
-  return apiRequest(endpoint, {}, { method: "DELETE" });
 }

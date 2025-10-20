@@ -26,7 +26,7 @@ import {
   handleSignupFlow,
   handleLoginFlow,
 } from "./api.js";
-import { getConfig } from "./config.js";
+import { getConfig } from "../config.js";
 
 /**
  * Creates a single instance of the verification handler.
@@ -39,7 +39,54 @@ export const handleVerification = (() => {
 })();
 
 /**
- * Attaches all authentication-related event handlers for login, signup, unlock, forgot/reset, and change password.
+ * Attaches handler for switching between student and admin login modes via toggle button.
+ */
+function setupAdminToggle() {
+  const loginForm = document.getElementById("login");
+  const adminToggleBtn = document.getElementById("adminToggle");
+  const formTitle = loginForm ? loginForm.querySelector(".form-title") : null;
+  const emailInput = loginForm
+    ? loginForm.querySelector('input[type="email"]')
+    : null;
+  const passwordInput = loginForm
+    ? loginForm.querySelector('input[type="password"]')
+    : null;
+  let isAdmin = false;
+
+  if (!adminToggleBtn || !formTitle || !emailInput || !passwordInput) return;
+
+  adminToggleBtn.addEventListener("click", function () {
+    isAdmin = !isAdmin;
+    if (isAdmin) {
+      formTitle.textContent = "Admin Login";
+      emailInput.placeholder = "Admin Email Address";
+      passwordInput.placeholder = "Admin Password";
+      adminToggleBtn.textContent = "Log in as User";
+    } else {
+      formTitle.textContent = "Login";
+      emailInput.placeholder = "Email Address";
+      passwordInput.placeholder = "Password";
+      adminToggleBtn.textContent = "Log in as Admin";
+    }
+    emailInput.value = "";
+    passwordInput.value = "";
+    const errorMsg = loginForm.querySelector(".form-message--error");
+    if (errorMsg) errorMsg.textContent = "";
+    // Optionally, set a variable on window/global for mode tracking
+    window.currentMode = isAdmin ? "admin-login" : "student-login";
+  });
+
+  // Initialize in student mode by default
+  formTitle.textContent = "Login";
+  emailInput.placeholder = "Email Address";
+  passwordInput.placeholder = "Password";
+  adminToggleBtn.textContent = "Log in as Admin";
+  window.currentMode = "student-login";
+}
+
+/**
+ * Attaches all authentication-related event handlers for login, signup,
+ * unlock, forgot/reset, change password, and admin toggle.
  */
 export function attachAuthHandlers() {
   console.log("[Auth] Attaching authentication handlers");
@@ -50,7 +97,7 @@ export function attachAuthHandlers() {
     setupUnlock();
     setupForgotAndReset();
     setupChangePassword();
-
+    setupAdminToggle();
     console.log(
       `[Auth] Handlers attached in ${performance.now() - startTime}ms`
     );
@@ -177,103 +224,103 @@ function createVerificationHandler(pendingSignupRef) {
 }
 
 /**
- * Sets up the login form handler.
+ * Sets up the login form handler to handle Enter key submission.
  */
 function setupLoginHandler() {
-  document.addEventListener("keydown", (e) => {
+  const loginForm = document.getElementById("login");
+  if (!loginForm) return;
+
+  loginForm.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
-      e.preventDefault();
-      const mainBtn = document.getElementById("login_signup_submitter");
-      const isLogin = mainBtn.textContent.trim().toLowerCase() === "login";
-      console.log(
-        `[Auth] Enter key pressed, triggering ${isLogin ? "login" : "signup"}`
-      );
-      mainBtn.click();
+      // Allow default submission for form submit, prevent for other elements
+      // Use the submit event of the form to handle the login logic
+      const activeElement = document.activeElement;
+      // Only prevent default if inside an input; allow buttons/textarea to work normally
+      if (
+        activeElement &&
+        (activeElement.tagName === "INPUT" ||
+          activeElement.tagName === "SELECT")
+      ) {
+        e.preventDefault();
+        loginForm.requestSubmit();
+      }
     }
   });
 }
 
 /**
- * Sets up the signup form handler.
+ * Sets up the signup form handler (show/hide toggle).
  */
 function setupSignupHandler() {
   console.log("[Auth] Setting up signup handler");
 
-  // Handle back to login buttons
-  const backToLoginBtns = document.querySelectorAll("[id$='_back']");
-  backToLoginBtns.forEach((btn) => {
-    btn.addEventListener("click", (e) => {
+  const loginForm = document.getElementById("login");
+  const signupForm = document.getElementById("signup");
+  const linkCreateAccount = document.getElementById("linkCreateAccount");
+  const linkLogin = document.getElementById("linkLogin");
+
+  // Show signup, hide login
+  if (linkCreateAccount && signupForm && loginForm) {
+    linkCreateAccount.addEventListener("click", (e) => {
       e.preventDefault();
-      const form = e.target.closest("form");
-      if (form) {
-        const loginForm = form.querySelector(".form_fields");
-        const signupForm = form.querySelector(".signup_fields");
-        if (loginForm && signupForm) {
-          loginForm.style.display = "block";
-          signupForm.style.display = "none";
-        }
-      }
+      signupForm.classList.remove("form--hidden");
+      loginForm.classList.add("form--hidden");
     });
-  });
+  }
+
+  // Show login, hide signup
+  if (linkLogin && signupForm && loginForm) {
+    linkLogin.addEventListener("click", (e) => {
+      e.preventDefault();
+      signupForm.classList.add("form--hidden");
+      loginForm.classList.remove("form--hidden");
+    });
+  }
 }
 
 /**
- * Sets up the main login/signup button handler.
+ * Sets up the login and signup form handlers for the current UI.
  */
 function setupLoginAndSignup() {
-  console.log("[Auth] Setting up main login/signup handler");
+  console.log("[Auth] Setting up login/signup handler");
   const startTime = performance.now();
 
-  const mainBtn = document.getElementById("login_signup_submitter");
-  if (!mainBtn) {
-    console.warn("[Auth] Main login/signup button not found");
-    return;
+  // Use the forms directly; button logic is handled by browser on submit
+  const loginForm = document.getElementById("login");
+  const signupForm = document.getElementById("signup");
+
+  // Handler for login form submit
+  if (loginForm) {
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      try {
+        await handleLogin(); // Updated to use new reading logic (see handleLogin update)
+      } catch (error) {
+        console.error("[Auth] Error in login handler:", error);
+      }
+    });
   }
 
-  // Single click handler for the main button
-  mainBtn.onclick = async (e) => {
-    e.preventDefault();
-    const isLogin = mainBtn.textContent.trim().toLowerCase() === "login";
-    const isUserSignup = window.currentMode === "student-signup";
-
-    console.log("[Auth] Main button clicked", {
-      mode: window.currentMode,
-      isLogin,
-      isUserSignup,
-    });
-
-    if (!window.currentMode) {
-      console.error("[Auth] Current mode not set");
-      return;
-    }
-
-    try {
-      if (isLogin) {
-        await handleLogin(window.currentMode === "student-login");
-      } else {
-        await handleSignup(isUserSignup);
+  // Handler for signup form submit
+  if (signupForm) {
+    signupForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      try {
+        await handleSignup(); // Updated to use new reading logic (see handleSignup update)
+      } catch (error) {
+        console.error("[Auth] Error in signup handler:", error);
       }
-    } catch (error) {
-      console.error("[Auth] Error in main button handler:", error);
-    }
-  };
+    });
+  }
+
+  // Setup show/hide toggling as an extra, to be robust if skipped in other setup
+  setupSignupHandler();
 
   console.log(
-    `[Auth] Main button handler setup completed in ${
+    `[Auth] Login/signup handler setup completed in ${
       performance.now() - startTime
     }ms`
   );
-
-  // Set up other UI handlers if needed
-  const currentMode = window.currentMode;
-  if (currentMode === "student-login" || currentMode === "admin-login") {
-    setupLoginHandler();
-  } else if (
-    currentMode === "student-signup" ||
-    currentMode === "admin-signup"
-  ) {
-    setupSignupHandler();
-  }
 }
 
 /**
@@ -347,35 +394,43 @@ export function createLoginVerificationHandler() {
 
 /**
  * Handles the login form logic, including reCAPTCHA and form validation.
- * @param {boolean} isUserLogin - Whether the login is for a student or admin.
+ * Uses 'admin mode' variable and reads from the single login form.
  */
-function handleLogin(isUserLogin) {
+function handleLogin(isAdminMode = false) {
   const op = `login-${Date.now()}`;
   const startTime = performance.now();
-  const role = isUserLogin ? "student" : "admin";
+  const role = isAdminMode ? "admin" : "student";
 
   console.log(`[Auth] Starting ${role} login`, {
     timestamp: new Date().toISOString(),
     operation: op,
   });
 
-  const username = document
-    .getElementById(isUserLogin ? "user_username" : "admin_username")
-    ?.value.trim();
-  const password = document.getElementById(
-    isUserLogin ? "user_password" : "admin_password"
-  )?.value;
-  const expectedRole = isUserLogin ? "student" : "admin";
+  const loginForm = document.getElementById("login");
+  if (!loginForm) {
+    alert("Login form not found.");
+    return;
+  }
+  const emailInput = loginForm.querySelector('input[type="email"]');
+  const passwordInput = loginForm.querySelector('input[type="password"]');
+  const identifier = emailInput?.value.trim();
 
-  if (!username || !password) {
-    const errorMsg = "Please enter username and password.";
+  const password = passwordInput?.value;
+  const expectedRole = isAdminMode ? "admin" : "student";
+
+  // This error will show in the UI for failed logins
+  const errorDiv = loginForm.querySelector(".form-message--error");
+  if (errorDiv) errorDiv.innerText = "";
+
+  if (!identifier || !password) {
+    const errorMsg = "Please enter email and password.";
     console.warn(`[Auth] ${op} - ${errorMsg}`);
-    alert(errorMsg);
+    if (errorDiv) errorDiv.innerText = errorMsg;
     return;
   }
 
-  console.log(`[Auth] ${op} - Validating credentials for ${username}`);
-  saveUsername(username);
+  console.log(`[Auth] ${op} - Validating credentials for ${identifier}`);
+  saveUsername(identifier);
 
   executeRecaptcha("login", (captchaToken) => {
     const recaptchaTime = performance.now();
@@ -383,16 +438,32 @@ function handleLogin(isUserLogin) {
       `[Auth] ${op} - reCAPTCHA completed in ${recaptchaTime - startTime}ms`
     );
 
-    console.log(`[Auth] ${op} - Initiating login for ${username}`);
-    loginUser(username, password, captchaToken, expectedRole)
-      .then(() => {
-        console.log(
-          `[Auth] ${op} - Login flow completed successfully in ${
-            performance.now() - startTime
-          }ms`
-        );
+    console.log(`[Auth] ${op} - Initiating login for ${identifier}`);
+    loginUser(identifier, password, captchaToken, expectedRole)
+      .then((result) => {
+        if (result.success) {
+          console.log(
+            `[Auth] ${op} - Login flow completed successfully in ${
+              performance.now() - startTime
+            }ms`
+          );
+          // Handle successful login (redirect, etc)
+          return;
+        }
+        if (result.requiresVerification) {
+          // Modal is already shown by loginUser.
+          return;
+        }
+        // Handle unexpected non-success, non-verification cases
+        if (errorDiv) errorDiv.innerText = "Unexpected state. Try again.";
       })
       .catch((error) => {
+        // Show error message in the login form
+        if (errorDiv) {
+          errorDiv.innerText =
+            error.message || "Login failed. Please try again.";
+          errorDiv.style.display = "block";
+        }
         console.error(
           `[Auth] ${op} - Login failed after ${
             performance.now() - startTime
@@ -405,45 +476,42 @@ function handleLogin(isUserLogin) {
 
 /**
  * Handles the signup form logic, validation, and verification email step.
- * @param {boolean} isUserSignup - Whether the signup is for a student or admin.
+ * Uses active signup form and shows validation hints.
  */
-async function handleSignup(isUserSignup) {
+async function handleSignup(isAdminMode = false) {
   const op = `signup-${Date.now()}`;
-  const role = isUserSignup ? "student" : "admin";
+  const role = isAdminMode ? "admin" : "student";
 
-  const userName = document.getElementById(
-    isUserSignup ? "new_user_username" : "new_admin_username"
-  ).value;
-  const password = document.getElementById(
-    isUserSignup ? "new_user_password" : "new_admin_password"
-  ).value;
-  const email = document.getElementById(
-    isUserSignup ? "new_user_email" : "new_admin_email"
-  ).value;
-  const confirmPassword = document.getElementById(
-    isUserSignup ? "new_user_confirm" : "new_admin_confirm"
-  ).value;
+  // Sign up form selectors (only one form in current UI)
+  const signupForm = document.getElementById("signup");
+  if (!signupForm) {
+    alert("Signup form not found.");
+    return;
+  }
+  const fullName = signupForm
+    .querySelector('input[placeholder="Full Name"]')
+    ?.value?.trim();
+  const email = signupForm.querySelector('input[type="email"]')?.value?.trim();
+  const password = signupForm.querySelector(
+    'input[placeholder="Password"]'
+  )?.value;
+  const confirmPassword = signupForm.querySelector(
+    'input[placeholder="Confirm Password"]'
+  )?.value;
 
+  // Validation hint fields
   const hints = {
-    email: document.getElementById(
-      isUserSignup ? "user_email_hint" : "admin_email_hint"
-    ),
-    password: document.getElementById(
-      isUserSignup ? "user_password_hint" : "admin_password_hint"
-    ),
-    confirm: document.getElementById(
-      isUserSignup ? "user_confirm_hint" : "admin_confirm_hint"
-    ),
-    username: document.getElementById(
-      isUserSignup ? "user_username_hint" : "admin_username_hint"
-    ),
+    email: signupForm.querySelector("#user_email_hint"),
+    password: signupForm.querySelector("#user_password_hint"),
+    confirm: signupForm.querySelector("#user_confirm_hint"),
+    username: signupForm.querySelector("#user_username_hint"),
   };
 
   clearHints(hints);
 
   if (
     !validateSignupFields({
-      userName,
+      userName: fullName,
       email,
       password,
       confirmPassword,
@@ -454,7 +522,7 @@ async function handleSignup(isUserSignup) {
   }
 
   const pendingSignupRef = {
-    current: { op, userName, email, password, confirmPassword, role },
+    current: { op, userName: fullName, email, password, confirmPassword, role },
   };
 
   openModal(verifyModal, verifyModal.querySelector(".pin"));

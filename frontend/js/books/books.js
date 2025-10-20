@@ -1,11 +1,11 @@
-import { fetchBooks } from "./books/booksApi.js";
-import { renderBooks } from "./books/bookView.js";
+import { fetchBooks } from "./booksApi.js";
+import { renderBooks } from "./bookView.js";
 import {
   updatePaginationUI,
   setupSearchAndFilter,
-} from "./books/bookSearchFilter.js";
-import { setBooks, catalogState, setPagination } from "./books/bookState.js";
-import { onTabActivated } from "./catalog.js";
+} from "./bookSearchFilter.js";
+import { setBooks, catalogState, setPagination } from "./bookState.js";
+import { onTabActivated } from "../catalog.js";
 
 let booksInitialized = false;
 
