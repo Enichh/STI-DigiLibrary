@@ -1,187 +1,275 @@
-# STI DigiLibrary - Comprehensive Project Documentation
+# STI DigiLibrary - Library Management System
 
 ## Project Overview
 
-**STI DigiLibrary** is a full-stack web-based library management system created as a course project for the **Application Development** subject. It provides digital library services with user authentication, book catalog management, borrowing workflows, and administrative functions. The system implements a PHP backend with a responsive HTML/CSS/JavaScript frontend, following security best practices and SOLID design principles.
+**STI DigiLibrary** is a full-stack web-based library management system created as a course project for the **Application Development** subject. It provides digital library services with user authentication, book catalog management, borrowing workflows, and administrative functions.
 
-## Architecture & Technology Stack
+## Technology Stack
 
-### Backend Architecture (PHP-based)
+### Backend
 
-#### Core Technologies
+- **PHP 8.0+** with custom MVC architecture
+- **MySQL 5.7+** with PDO for secure database operations
+- **Composer** for dependency management
+- **PHPMailer** for email notifications
 
-- **Framework**: Custom PHP MVC architecture with modular design
-- **Database**: MySQL with PDO for secure operations
-- **Authentication**: Token-based system with reCAPTCHA integration
-- **Environment Management**: Configurable settings for flexibility
-- **Email Services**: Support for notifications
-- **Security Features**:
-  - Bcrypt password hashing
-  - Account lockout mechanisms
-  - Prepared statements (SQL injection prevention)
-  - CSRF token protection
-  - Input validation and sanitization
-  - Session management with secure cookies
+### Frontend
 
-#### SOLID Principles Implementation
+- **HTML5** with semantic markup
+- **CSS3** with responsive design (Grid/Flexbox)
+- **JavaScript (ES6+)** with modular architecture
+- **jQuery 3.6.0+** for DOM manipulation
+- **Bootstrap 5.2.0+** for responsive layout
+- **Font Awesome 6.0+** for icons
 
-- **Single Responsibility**: Each class handles one concern
-- **Open/Closed**: Extensible through interfaces
-- **Liskov Substitution**: Base classes can be substituted with derived classes
-- **Interface Segregation**: Specific interfaces for different functionalities
-- **Dependency Inversion**: Dependencies injected through constructors
+### Security Features
 
-### Frontend Architecture
-
-#### Technologies
-
-- **HTML5**: Semantic markup with accessibility considerations
-- **CSS3**: Responsive design with Grid/Flexbox
-- **JavaScript (ES6+)**: Modular architecture with import/export
-- **Responsive Design**: Mobile-first approach with breakpoints
-
-#### Design System
-
-- Consistent color palette
-- Reusable components
-- Typography scale
-- Spacing system
+- Bcrypt password hashing
+- Token-based authentication with JWT
+- CSRF protection
+- Input validation and sanitization
+- reCAPTCHA integration
+- Role-based access control (RBAC)
+- Secure session management
 
 ## Key Features
 
 ### User Management
 
 - Account registration with email verification
-- Secure login with bcrypt password hashing
-- Password recovery via email
-- Role-based access (User/Admin)
+- Secure login with password recovery
+- Role-based access (Student/Admin/Superadmin)
 - Profile management
 
 ### Book Management
 
-- Browse book catalog
-- Search functionality
-- View book details
-- Category filtering
-- Availability status
+- Browse and search book catalog
+- Book details with availability status
+- Category and advanced filtering
 
 ### Borrowing System
 
-- Request books
-- Borrow duration tracking
+- Book request and checkout
+- Due date tracking
 - Return management
 - Late fee calculation
 - Borrowing history
 
-### Admin Functions
+### Admin Dashboard
 
 - User management (CRUD)
-- Book inventory management (CRUD)
-- Transaction oversight
+- Book inventory management
+- Transaction monitoring
 - Report generation
-- System settings configuration
+- System configuration
 
-## System Workflow Example
+## Quick Start
 
-### Book Borrowing Flow
+### Prerequisites
 
+- PHP 8.0+ with PDO, MySQLi, OpenSSL, cURL extensions
+- MySQL 5.7+ or MariaDB 10.3+
+- Composer (PHP package manager)
+- Web server (Apache/Nginx)
+
+### Installation
+
+1. **Clone the repository**
+
+   ```bash
+   git clone https://github.com/your-username/STI-DigiLibrary.git
+   cd STI-DigiLibrary
+   ```
+
+2. **Install PHP dependencies**
+
+   ```bash
+   composer install
+   ```
+
+3. **Set up the database**
+
+   - Create a new MySQL database named `librarydb`
+   - Import the provided `librarydb.sql` file using one of these methods:
+
+     **Using phpMyAdmin:**
+
+     1. Log in to phpMyAdmin
+     2. Create a new database named `librarydb`
+     3. Select the database
+     4. Click "Import"
+     5. Choose the `librarydb.sql` file
+     6. Click "Go" to import
+
+     **Using MySQL Command Line:**
+
+     ```bash
+     # Create the database
+     mysql -u root -p -e "CREATE DATABASE librarydb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+
+     # Import the SQL file
+     mysql -u root -p librarydb < path/to/your/librarydb.sql
+     ```
+
+4. **Configure environment**
+
+   ```bash
+   cp server/.env.example server/.env
+   ```
+
+   Update `.env` with your database credentials and other settings.
+
+5. **Run the application**
+   - Place the project in your web server's root directory (e.g., `htdocs` or `www`)
+   - Start your web server and MySQL
+   - Access the application at `http://localhost/STI-DigiLibrary/frontend/html/login.html`
+
+## User Roles
+
+### Student
+
+- Browse and search books/theses
+- Manage personal profile
+- View borrowing history
+- Request book checkouts
+
+### Admin
+
+- All student privileges
+- Manage book inventory
+- Process checkouts/returns
+- Generate reports
+- Manage user accounts (except other admins)
+
+## Development
+
+### Code Style
+
+- **PHP**: Follow PSR-12 standards
+- **JavaScript**:
+  - Use ES6+ features
+  - Follow Airbnb style guide
+  - Use JSDoc for documentation
+- **Git**:
+  - Branch naming: `feature/name`, `fix/name`, `docs/name`
+  - Write clear, concise commit messages
+  - Keep commits atomic
+
+### Testing
+
+- Write unit tests for new features
+- Test all user flows
+- Verify cross-browser compatibility
+- Test on mobile devices
+
+### Documentation
+
+- Update README for major changes
+- Document API endpoints
+- Add JSDoc to all functions
+- Keep inline comments clear and concise
+
+## Environment Variables
+
+Required `.env` configuration:
+
+```env
+# Database
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=librarydb
+DB_USER=your_db_user
+DB_PASS=your_db_password
+
+# App
+APP_ENV=development
+SESSION_SECRET=your-secret-key
+
+# Email (SMTP)
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_USER=your-email@example.com
+SMTP_PASS=your-email-password
+
+# reCAPTCHA
+RECAPTCHA_SITE_KEY=your-site-key
+RECAPTCHA_SECRET=your-secret-key
 ```
-User → Frontend → Backend → Database
-1. User selects book
-2. Borrow request sent to backend
-3. Availability check
-4. Create transaction record
-5. Update book status
-6. Send notification
-7. Response to user → Success/Error message
-```
 
-## Security Practices
+## Troubleshooting
 
-- Input validation and sanitization
-- Token-based authentication with expiration
-- Role-based access control (RBAC)
-- Session timeout management
-- HTTPS enforcement (production)
-- XSS and CSRF protection
-- Graceful error handling and logging
+### Common Issues
+
+1. **Database Connection**
+
+   - Verify MySQL service is running
+   - Check `.env` credentials
+   - Ensure database user has proper permissions
+
+2. **File Permissions**
+
+   ```bash
+   chmod -R 755 storage/
+   chmod -R 755 bootstrap/cache/
+   ```
+
+3. **Dependencies**
+
+   ```bash
+   composer install --no-scripts
+   composer update --no-scripts
+   ```
+
+4. **Frontend Assets**
+   - Clear browser cache
+   - Verify web server configuration
+   - Check browser console for errors
 
 ## Database Schema
 
-Typical tables are used to support the system's functionality, including those for **users**, **books**, **borrows**, **admins**, and related supporting entities. These tables handle account management, catalog data, and transaction tracking in a way consistent with standard library management systems.
+### Core Tables
 
-## Setup and Installation
+#### Users & Authentication
 
-1.  **Clone the Repository**
-    ```bash
-    git clone https://github.com/your-username/STI-DigiLibrary.git
-    cd STI-DigiLibrary
-    ```
+- `tbl_users` - User accounts and authentication
+- `tbl_roles` - User roles and permissions
+- `tbl_studentdetails` - Student information
+- `tbl_programs` - Academic programs
 
-2.  **Backend Setup**
-    - Ensure you have **PHP 8.0+** and **Composer** installed.
-    - Navigate to the project root and install PHP dependencies:
-      ```bash
-      composer install
-      ```
-    - Create a `.env` file in the `server/` directory by copying the example file:
-      ```bash
-      cp server/.env.example server/.env
-      ```
-    - Update the `server/.env` file with your database credentials, SMTP server details for email, and Google reCAPTCHA keys.
+#### Book Management
 
-3.  **Database Setup**
-    - Create a MySQL database for the project.
-    - Import the database schema from `database/schema.sql` into your newly created database.
+- `tbl_books` - Book metadata
+- `tbl_authors` - Author information
+- `tbl_publishers` - Publisher details
+- `tbl_book_authors` - Book-author relationships
+- `tbl_book_copies` - Physical book copies
+- `tbl_call_number` - Library classification
 
-4.  **Frontend Setup**
-    - No special build steps are required for the frontend. The application is served directly through a PHP server (like XAMPP, WAMP, or MAMP).
+#### Borrowing System
 
-5.  **Running the Application**
-    - Place the entire project directory in the `htdocs` (for XAMPP) or `www` (for WAMP) folder of your local server.
-    - Start your Apache and MySQL services.
-    - Access the application in your browser, typically at `http://localhost/STI-DigiLibrary/frontend/html/login.html`.
+- `tbl_borrowing_records` - Checkouts/returns
+- `tbl_fines` - Overdue/lost item fines
+- `tbl_fine_payments` - Payment records
 
-## Usage
+#### Theses
 
--   **Student Access**: Students can register, log in, browse the book and thesis catalogs, and manage their profiles.
--   **Admin Access**: Administrators have elevated privileges to manage users, books, and theses. Admin registration requires a special code generated by a superadmin.
--   **Superadmin Access**: The superadmin dashboard provides an overview of all users and includes a tool to generate single-use codes for new admin registrations.
+- `tbl_theses` - Academic theses
 
-## Development Guidelines
+### Key Relationships
 
-- Follow PSR-12 coding standards for PHP.
-- Use JSDoc for documenting JavaScript code.
-- Write clear and meaningful function, variable, and class names.
-- Ensure all new features are thoroughly tested.
-
-## Dependencies
-
-### Backend Dependencies
-
-- **PHP 8.0+** - Server-side scripting language
-- **MySQL 5.7+** - Database management system
-- **Composer** - PHP package manager
-- **dompdf/dompdf (^3.1)** - HTML to PDF converter
-- **vlucas/phpdotenv (^5.6)** - Environment variable loader
-- **phpmailer/phpmailer (^7.0)** - Email sending functionality
-
-### Frontend Dependencies
-
-- **jQuery 3.6.0+** - JavaScript library for DOM manipulation
-- **Bootstrap 5.2.0+** - Frontend framework for responsive design
-- **Font Awesome 6.0+** - Icon toolkit
-- **Google reCAPTCHA** - Bot protection for forms
-
-### Development Dependencies
-
-- **XAMPP/WAMP/MAMP** - Local development environment
-- **Git** - Version control system
+- Books Authors: Many-to-many
+- Books Copies: One-to-many
+- Users Borrowing Records: One-to-many
+- Borrowing Records Fines: One-to-one
 
 ## License
 
-This project is an **academic requirement** for the Application Development subject.
+This project is an academic requirement for the Application Development subject at STI College.
 
-## Contributors
+## Credits
 
-Developed by a student of STI College as part of coursework.
+Developed by Enoch, James, Angelavianca, Princess as part of coursework.
+
+---
+
+_Last updated: October 2025_
