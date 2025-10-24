@@ -9,30 +9,31 @@ function initLoginSwitcher() {
   function switchToAdmin() {
     isAdmin = true;
     loginForm.querySelector(".form-title").textContent = "Admin Login";
-    loginForm.querySelector('input[type="email"]').placeholder =
+    document.getElementById("loginEmail").placeholder =
       "Admin Email Address";
-    loginForm.querySelector('input[type="password"]').placeholder =
+    document.getElementById("loginPassword").placeholder =
       "Admin Password";
     adminToggleBtn.textContent = "Log in as User";
-    // Hide Forgot Password link in admin mode
-    const forgotPasswordLink = document.getElementById('forgotPasswordLink');
-    if (forgotPasswordLink) {
-      forgotPasswordLink.style.display = 'none';
-    }
+    const forgotPasswordLink = document.getElementById("forgotPasswordLink");
+    const signupLink = document.querySelector(".form-text:last-of-type");
+
+    if (forgotPasswordLink) forgotPasswordLink.style.display = "none";
+    if (signupLink) signupLink.style.display = "none";
   }
 
   function switchToUser() {
     isAdmin = false;
     loginForm.querySelector(".form-title").textContent = "Login";
-    loginForm.querySelector('input[type="email"]').placeholder =
+    document.getElementById("loginEmail").placeholder =
       "Email Address";
-    loginForm.querySelector('input[type="password"]').placeholder = "Password";
+    document.getElementById("loginPassword").placeholder = "Password";
     adminToggleBtn.textContent = "Log in as Admin";
-    // Show Forgot Password link in user mode
-    const forgotPasswordLink = document.getElementById('forgotPasswordLink');
-    if (forgotPasswordLink) {
-      forgotPasswordLink.style.display = '';
-    }
+    // Show Forgot Password and Sign Up links in user mode
+    const forgotPasswordLink = document.getElementById("forgotPasswordLink");
+    const signupLink = document.querySelector(".form-text:last-of-type");
+
+    if (forgotPasswordLink) forgotPasswordLink.style.display = "";
+    if (signupLink) signupLink.style.display = "";
   }
 
   adminToggleBtn.addEventListener("click", function () {
@@ -41,9 +42,8 @@ function initLoginSwitcher() {
     } else {
       switchToAdmin();
     }
-    // Optionally clear login fields
-    loginForm.querySelector('input[type="email"]').value = "";
-    loginForm.querySelector('input[type="password"]').value = "";
+    document.getElementById("loginEmail").value = "";
+    document.getElementById("loginPassword").value = "";
     loginForm.querySelector(".form-message--error").textContent = "";
   });
 
@@ -56,11 +56,13 @@ function initLoginSwitcher() {
 function initPasswordToggles() {
   document.querySelectorAll(".togglePassword").forEach((toggle) => {
     toggle.addEventListener("click", () => {
-      const input = toggle.closest('.password-container').querySelector('input');
+      const input = toggle
+        .closest(".password-container")
+        .querySelector("input");
       if (!input) return;
       const show = input.type === "password";
       input.type = show ? "text" : "password";
-      const icon = toggle.querySelector('i');
+      const icon = toggle.querySelector("i");
       icon.classList.remove("fa-eye", "fa-eye-slash");
       icon.classList.add(show ? "fa-eye" : "fa-eye-slash");
     });
@@ -317,9 +319,7 @@ function initPasswordConstraintsLiveList() {
 function initConfirmPasswordLiveFeedback() {
   const passwordInput = document.getElementById("signupPassword");
   // Adjust selector if needed for your "Confirm Password" field
-  const confirmInput = document.querySelector(
-    'input[placeholder="Confirm Password"]'
-  );
+  const confirmInput = document.getElementById("signupConfirmPassword");
   const feedback = document.getElementById("confirm-password-feedback");
 
   if (!passwordInput || !confirmInput || !feedback) return;

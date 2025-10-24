@@ -10,7 +10,10 @@ RewriteEngine On
     Order Allow,Deny
     Deny from all
 </Files>
-
+<Files "*.html">
+    Order Allow,Deny
+    Deny from all
+</Files>
 <Files "*.log">
     Order Allow,Deny
     Deny from all

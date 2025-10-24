@@ -158,10 +158,10 @@ class ThesisModel
     public function getById(int $thesisId): ?array
     {
         $stmt = $this->pdo->prepare("
-            SELECT thesis_id, accession_no, author, title, year, created_at, updated_at
-            FROM `tbl_theses`
-            WHERE thesis_id = ?
-        ");
+                SELECT thesis_id, accession_no, author, title, year, created_at, updated_at
+                FROM `tbl_theses`
+                WHERE thesis_id = ?
+            ");
         $stmt->execute([$thesisId]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row ?: null;

@@ -14,6 +14,14 @@
   <body>
     <div class="container">
       <div class="info-panel">
+        <div class="info-panel-image">
+          <img
+            src="../assets/slideshow1.png"
+            alt="Library Showcase"
+            class="info-panel-bg"
+          />
+        </div>
+
         <div class="info-content">
           <div class="logo-container">
             <img
@@ -38,6 +46,7 @@
             <input
               type="email"
               class="form-input"
+              id="loginEmail"
               autofocus
               placeholder="Email Address"
               required
@@ -49,7 +58,7 @@
               <input
                 type="password"
                 class="form-input"
-                id="password"
+                id="loginPassword"
                 placeholder="Password"
                 required
               />
@@ -70,10 +79,16 @@
             </a>
           </p>
           <p class="form-text">
-            <a href="#" class="form-link" id="linkCreateAccount">
-              Don't have an account? Sign Up
-            </a>
+            Don't have an account?
+            <a href="#" class="form-link" id="linkCreateAccount">Sign Up</a>
           </p>
+          <button
+            class="admin-toggle-button"
+            id="adminToggle"
+            aria-label="Toggle admin login mode"
+          >
+            <span class="button-text">Log in as Admin</span>
+          </button>
         </form>
 
         <form class="form form--hidden" id="signup">
@@ -83,16 +98,17 @@
             <input
               type="text"
               class="form-input"
+              id="signupFullName"
               placeholder="Full Name"
               required
             />
             <div class="form-input-error-message"></div>
           </div>
-          <!-- Student Number Field Removed! -->
           <div class="form-input-group">
             <input
               type="email"
               class="form-input"
+              id="signupEmail"
               placeholder="Email Address"
               required
             />
@@ -118,6 +134,7 @@
             <input
               type="password"
               class="form-input"
+              id="signupConfirmPassword"
               placeholder="Confirm Password"
               required
             />
@@ -133,10 +150,6 @@
             </a>
           </p>
         </form>
-
-        <button class="admin-toggle-button" id="adminToggle">
-          Log in as Admin
-        </button>
       </div>
     </div>
 
@@ -165,7 +178,7 @@
     <!-- Forgot Password Modal -->
     <div id="forgotPasswordModal" class="modal" style="display: none">
       <div class="modal-content">
-        <span class="close-btn" onclick="closeForgotModal()">&times;</span>
+        <span class="close-btn">&times;</span>
         <h2>Reset Your Password</h2>
         <p>Enter your email to receive a reset code:</p>
         <input
@@ -193,7 +206,13 @@
             id="newPasswordInput"
             placeholder="New password"
           />
-          <i class="fa-solid fa-eye-slash togglePassword"></i>
+          <button
+            type="button"
+            class="togglePassword"
+            aria-label="Toggle password visibility"
+          >
+            <i class="fa-solid fa-eye-slash"></i>
+          </button>
         </div>
         <div class="password-container">
           <input
@@ -201,7 +220,13 @@
             id="confirmNewPasswordInput"
             placeholder="Confirm new password"
           />
-          <i class="fa-solid fa-eye-slash togglePassword"></i>
+          <button
+            type="button"
+            class="togglePassword"
+            aria-label="Toggle password visibility"
+          >
+            <i class="fa-solid fa-eye-slash"></i>
+          </button>
         </div>
         <button id="submitPasswordReset">Reset Password</button>
         <button id="closeConfirmResetModal">Cancel</button>

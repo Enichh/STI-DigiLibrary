@@ -45,12 +45,8 @@ function setupAdminToggle() {
   const loginForm = document.getElementById("login");
   const adminToggleBtn = document.getElementById("adminToggle");
   const formTitle = loginForm ? loginForm.querySelector(".form-title") : null;
-  const emailInput = loginForm
-    ? loginForm.querySelector('input[type="email"]')
-    : null;
-  const passwordInput = loginForm
-    ? loginForm.querySelector('input[type="password"]')
-    : null;
+  const emailInput = document.getElementById("loginEmail");
+  const passwordInput = document.getElementById("loginPassword");
   let isAdmin = false;
 
   if (!adminToggleBtn || !formTitle || !emailInput || !passwordInput) return;
@@ -72,7 +68,6 @@ function setupAdminToggle() {
     passwordInput.value = "";
     const errorMsg = loginForm.querySelector(".form-message--error");
     if (errorMsg) errorMsg.textContent = "";
-    // Optionally, set a variable on window/global for mode tracking
     window.currentMode = isAdmin ? "admin-login" : "student-login";
   });
 
@@ -232,10 +227,7 @@ function setupLoginHandler() {
 
   loginForm.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
-      // Allow default submission for form submit, prevent for other elements
-      // Use the submit event of the form to handle the login logic
       const activeElement = document.activeElement;
-      // Only prevent default if inside an input; allow buttons/textarea to work normally
       if (
         activeElement &&
         (activeElement.tagName === "INPUT" ||
@@ -294,7 +286,7 @@ function setupLoginAndSignup() {
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       try {
-        await handleLogin(); // Updated to use new reading logic (see handleLogin update)
+        await handleLogin();
       } catch (error) {
         console.error("[Auth] Error in login handler:", error);
       }
@@ -306,7 +298,7 @@ function setupLoginAndSignup() {
     signupForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       try {
-        await handleSignup(); // Updated to use new reading logic (see handleSignup update)
+        await handleSignup();
       } catch (error) {
         console.error("[Auth] Error in signup handler:", error);
       }
@@ -411,14 +403,16 @@ function handleLogin(isAdminMode = false) {
     alert("Login form not found.");
     return;
   }
-  const emailInput = loginForm.querySelector('input[type="email"]');
-  const passwordInput = loginForm.querySelector('input[type="password"]');
+  const emailInput = document.getElementById("loginEmail");
+  const passwordInput = document.getElementById("loginPassword");
   const identifier = emailInput?.value.trim();
 
   const password = passwordInput?.value;
   const expectedRole = isAdminMode ? "admin" : "student";
 
-  // This error will show in the UI for failed logins
+  // Log email and password values while in scope
+  console.log("Email:", emailInput?.value, "Password:", passwordInput?.value);
+
   const errorDiv = loginForm.querySelector(".form-message--error");
   if (errorDiv) errorDiv.innerText = "";
 
@@ -488,15 +482,11 @@ async function handleSignup(isAdminMode = false) {
     alert("Signup form not found.");
     return;
   }
-  const fullName = signupForm
-    .querySelector('input[placeholder="Full Name"]')
-    ?.value?.trim();
-  const email = signupForm.querySelector('input[type="email"]')?.value?.trim();
-  const password = signupForm.querySelector(
-    'input[placeholder="Password"]'
-  )?.value;
-  const confirmPassword = signupForm.querySelector(
-    'input[placeholder="Confirm Password"]'
+  const fullName = document.getElementById("signupFullName")?.value?.trim();
+  const email = document.getElementById("signupEmail")?.value?.trim();
+  const password = document.getElementById("signupPassword")?.value;
+  const confirmPassword = document.getElementById(
+    "signupConfirmPassword"
   )?.value;
 
   // Validation hint fields
@@ -583,6 +573,9 @@ function setupForgotAndReset() {
   const closeConfirmResetBtn = document.getElementById(
     "closeConfirmResetModal"
   );
+  const closeForgotBtn = document.querySelector(
+    "#forgotPasswordModal .close-btn"
+  );
 
   forgotLink?.addEventListener("click", (e) => {
     e.preventDefault();
@@ -658,6 +651,24 @@ function setupForgotAndReset() {
       submitPasswordResetBtn.textContent = "Reset Password";
     }
   });
+
+  closeForgotBtn?.addEventListener("click", closeForgotModal);
+
+  // Close forgot modal when clicking outside or pressing escape
+  const forgotModal = document.getElementById("forgotPasswordModal");
+  if (forgotModal) {
+    forgotModal.addEventListener("click", (e) => {
+      if (e.target === forgotModal) {
+        closeForgotModal();
+      }
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && forgotModal.style.display === "flex") {
+        closeForgotModal();
+      }
+    });
+  }
 
   closeConfirmResetBtn?.addEventListener("click", closeConfirmResetModal);
 }
