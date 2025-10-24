@@ -268,7 +268,7 @@ This project is an academic requirement for the Application Development subject 
 
 ## Credits
 
-Developed by Enoch, James, Angelavianca, Princess as part of coursework.
+Developed by Enoch, James, Angelavianca, and Princess as part of coursework.
 
 ---
 
