@@ -1,12 +1,4 @@
 <?php
-// ==========================================================
-// STI-DigiLibrary - Unified Entry Point (API + Web Pages)
-// Production-Safe + Enhanced Error Logging
-// ==========================================================
-
-// ==========================================================
-// 1. GLOBAL ERROR LOGGING CONFIGURATION
-// ==========================================================
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 ini_set('log_errors', 1);
@@ -52,9 +44,6 @@ set_exception_handler(function ($exception) use ($logFilePath) {
     echo json_encode(['error' => 'Internal Server Error']);
 });
 
-// ==========================================================
-// 2. SESSION & CORS CONFIGURATION
-// ==========================================================
 ini_set('session.use_only_cookies', 1);
 ini_set('session.cookie_httponly', 1);
 ini_set('session.use_strict_mode', 1);
@@ -85,9 +74,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-// ==========================================================
-// 3. REQUEST NORMALIZATION
-// ==========================================================
 $requestPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/';
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $basePath = '/STI-DigiLibrary/public';
@@ -113,9 +99,6 @@ error_log(json_encode([
 
 $matched = false;
 
-// ==========================================================
-// 4. FRONTEND ROUTING (WEB PAGES)
-// ==========================================================
 if (!$isApiRequest) {
     $views = [
         '/'                 => '/../app/views/pages/login.php',
@@ -137,9 +120,6 @@ if (!$isApiRequest) {
     exit;
 }
 
-// ==========================================================
-// 5. BACKEND ROUTES (API)
-// ==========================================================
 header('Content-Type: application/json');
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -177,9 +157,6 @@ if (!$matched) handleCatalogRoutes($requestPath, $method);
 if (!$matched) handleLibraryIdRoutes($requestPath, $method);
 if (!$matched) handleLoanRoutes($requestPath, $method);
 if (!$matched) handleFineRoutes($requestPath, $method);
-// ==========================================================
-// 6. FALLBACK & LOG COMPLETION
-// ==========================================================
 if (!$matched) {
     http_response_code(404);
     echo json_encode([
