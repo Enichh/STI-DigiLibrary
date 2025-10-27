@@ -164,6 +164,8 @@ require_once __DIR__ . '/../app/routes/thesisRoutes.php';
 require_once __DIR__ . '/../app/routes/userRoutes.php';
 require_once __DIR__ . '/../app/routes/catalogRoutes.php';
 require_once __DIR__ . '/../app/routes/libraryIdRoutes.php';
+require_once __DIR__ . '/../app/routes/loanRoutes.php';
+require_once __DIR__ . '/../app/routes/fineRoutes.php';
 
 // Dispatch routes
 handleConfigRoutes($requestPath, $method);
@@ -173,6 +175,8 @@ if (!$matched) handleThesisRoutes($requestPath, $method);
 if (!$matched) handleUserRoutes($requestPath, $method);
 if (!$matched) handleCatalogRoutes($requestPath, $method);
 if (!$matched) handleLibraryIdRoutes($requestPath, $method);
+if (!$matched) handleLoanRoutes($requestPath, $method);
+if (!$matched) handleFineRoutes($requestPath, $method);
 // ==========================================================
 // 6. FALLBACK & LOG COMPLETION
 // ==========================================================

@@ -24,7 +24,6 @@ function handleConfigRoutes($path, $method)
             'api' => [
                 'baseUrl' => $baseUrl,
                 'endpoints' => [
-                    // Flattened - removed 'auth' nesting
                     'changePassword'       => '/auth/change-password',
                     'confirmResetPassword' => '/auth/confirm-reset-password',
                     'login'                => '/auth/login',
@@ -39,6 +38,9 @@ function handleConfigRoutes($path, $method)
                     'users'                => '/users',
                     'catalog'              => '/catalog',
                     'libraryIds'           => '/library-ids',
+                    'loans'                => '/loans',
+                    'fines'                => '/fines',
+
                 ],
             ],
             'recaptcha' => [
