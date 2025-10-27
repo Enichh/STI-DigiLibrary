@@ -40,6 +40,7 @@ function handleConfigRoutes($path, $method)
                     'libraryIds'           => '/library-ids',
                     'loans'                => '/loans',
                     'fines'                => '/fines',
+                    'payments'             => '/payments',
 
                 ],
             ],
