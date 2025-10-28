@@ -38,7 +38,7 @@
 
 - Account registration with email verification
 - Secure login with password recovery
-- Role-based access (Student/Admin/Superadmin)
+- Role-based access (Student/Admin)
 - Profile management
 
 ### Book Management

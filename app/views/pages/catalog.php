@@ -4,13 +4,6 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Debug: Log session state and headers
-error_log('=== CATALOG.PHP SESSION DEBUG ===');
-error_log('Session ID: ' . session_id());
-error_log('Session Cookie: ' . print_r($_COOKIE, true));
-error_log('Session Data: ' . print_r($_SESSION, true));
-error_log('All Headers: ' . print_r(getallheaders(), true));
-error_log('===============================');
 
 // Ensure user is logged in
 if (!isset($_SESSION['user_id'])) {

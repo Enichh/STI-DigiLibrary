@@ -123,10 +123,12 @@ export async function handleStudentVerification(code, isSignup, signupData) {
 async function verifyCode(endpoint, requestBody) {
   try {
     const data = await apiRequest(endpoint, requestBody);
-    
+
     // First check for success flag, then fall back to message check for backward compatibility
-    const isSuccess = data.success === true || 
-      (data.message && data.message.toLowerCase().includes("verification successful"));
+    const isSuccess =
+      data.success === true ||
+      (data.message &&
+        data.message.toLowerCase().includes("verification successful"));
 
     if (!isSuccess) {
       throw new Error(data.error || "Invalid or expired verification code");
@@ -300,8 +302,7 @@ export async function handleSignupFlow(role, signupData) {
 export function handleLoginFlow(roleFromLogin) {
   const redirects = {
     student: "/catalog",
-    admin: "/admin/dashboard",
-    superadmin: "/admin/superadmin",
+    admin: "/admin",
   };
 
   const redirectUrl = redirects[roleFromLogin];

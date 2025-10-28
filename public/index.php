@@ -104,7 +104,7 @@ if (!$isApiRequest) {
         '/'                 => '/../app/views/pages/login.php',
         '/login'            => '/../app/views/pages/login.php',
         '/catalog'          => '/../app/views/pages/catalog.php',
-        '/admin-dashboard'  => '/../app/views/pages/adminDashboard.php',
+        '/admin'            => '/../app/views/pages/adminDashboard.php',
         '/profile'          => '/../app/views/pages/profile.php',
     ];
 
