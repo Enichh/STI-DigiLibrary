@@ -39,6 +39,17 @@ class LoanController
     }
 
 
+    // PATCH /api/loans/:loanId/cancel
+    public function cancel($loanId)
+    {
+        try {
+            $result = $this->loanService->cancelLoan($loanId);
+            echo json_encode(['success' => $result]);
+        } catch (Exception $ex) {
+            http_response_code(400);
+            echo json_encode(['error' => $ex->getMessage()]);
+        }
+    }
 
     // POST /api/loans/return
     public function return()
@@ -98,6 +109,19 @@ class LoanController
         } catch (Exception $ex) {
             http_response_code(400);
             echo json_encode(['error' => $ex->getMessage()]);
+        }
+    }
+
+    // GET /api/loans/book/:copyId
+    public function getBookDetailsByCopyId($copyId)
+    {
+        $bookDetails = $this->loanService->getBookDetailsByCopyId($copyId);
+        header('Content-Type: application/json');
+        if ($bookDetails) {
+            echo json_encode(['book' => $bookDetails]);
+        } else {
+            http_response_code(404);
+            echo json_encode(['error' => 'Book not found']);
         }
     }
 }

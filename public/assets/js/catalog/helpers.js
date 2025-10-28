@@ -80,9 +80,34 @@ export async function fetchTags(type) {
   }
 }
 /**
- * Fetch a single book by its ID.
- * Uses the same API base as fetchCatalogItems but with individual book endpoint.
+ * Fetch a single book's details by its copyId.
+ * Uses the /loans/book/:copyId endpoint.
  */
+export async function fetchBookByCopyId(copyId) {
+  const config = await configPromise;
+  const baseApi = config.api.baseUrl.replace(/\/$/, "");
+  const endpoint = config.api.endpoints?.loans || "/loans";
+  const url = `${baseApi}${endpoint}/book/${copyId}`;
+
+  const res = await fetch(url);
+
+  let data;
+  try {
+    data = await res.json();
+  } catch (err) {
+    throw new Error("Invalid JSON in backend response");
+  }
+
+  const isSuccess =
+    data.success === true || data.status === "success" || !!data.book;
+
+  if (isSuccess) {
+    return transformBackendItemToFrontend(data.book || data.data || data);
+  }
+
+  throw new Error(data.error || "Failed to fetch book by copyId");
+}
+
 export async function fetchBookById(bookId) {
   const config = await configPromise;
   const baseApi = config.api.baseUrl.replace(/\/$/, "");
@@ -99,7 +124,35 @@ export async function fetchBookById(bookId) {
     // BooksController should still return the book under data.data or data (per your backend shape)
     return transformBackendItemToFrontend(data.data || data.book || data);
   }
-  throw new Error(data.error || "Failed to fetch book");
+
+  throw new Error(data.error || "Failed to fetch book by ID");
+}
+/**
+ * Cancels a pending loan by its loanId.
+ * PATCH /loans/{loanId}/cancel
+ */
+export async function cancelLoan(loanId) {
+  const config = await configPromise;
+  const baseApi = config.api.baseUrl.replace(/\/$/, "");
+  const endpoint = config.api.endpoints?.loans || "/loans";
+  const url = `${baseApi}${endpoint}/${loanId}/cancel`;
+
+  const res = await fetch(url, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+  });
+
+  let data;
+  try {
+    data = await res.json();
+  } catch (err) {
+    throw new Error("Invalid JSON in backend response");
+  }
+
+  if (data.success || data.status === "success") {
+    return data;
+  }
+  throw new Error(data.error || "Failed to cancel loan");
 }
 
 /**
@@ -149,6 +202,24 @@ export function formatDate(isoString) {
     month: "short",
     day: "numeric",
   });
+}
+
+/**
+ * Fetches all pending loans for a user (returns a Set of copy_ids)
+ */
+export async function fetchUserPendingCopyIds(userId) {
+  try {
+    const config = await configPromise;
+    const baseApi = config.api.baseUrl.replace(/\/$/, "");
+    const endpoint = config.api.endpoints?.loans || "/loans";
+    const url = `${baseApi}${endpoint}/user/${userId}?status=pending`;
+    const res = await fetch(url);
+    const data = await res.json();
+    // Return set of copy_id for fast lookup
+    return new Set((data.loans || []).map((loan) => loan.copy_id));
+  } catch {
+    return new Set();
+  }
 }
 
 export function transformBackendItemToFrontend(item, type = "book") {

@@ -7,22 +7,13 @@ import {
   receiptDetails,
   modalOverlay,
 } from "./domSelectors.js";
-import { fetchBookById, createLoan } from "./helpers.js";
+import {
+  fetchBookByCopyId,
+  createLoan,
+  cancelLoan,
+  fetchBookById,
+} from "./helpers.js";
 import { addPendingLoan } from "./stateManager.js";
-
-// Modal management utilities
-function showModal(modalId) {
-  modalOverlay.style.display = "block";
-  document.getElementById(modalId).style.display = "block";
-}
-
-function closeModal(modalId) {
-  document.getElementById(modalId).style.display = "none";
-  const anyOpen = Array.from(document.querySelectorAll(".modal")).some(
-    (m) => m.style.display === "block"
-  );
-  if (!anyOpen) modalOverlay.style.display = "none";
-}
 
 export function setupBorrowFlow() {
   // Step 1: Show confirmation modal when "Borrow" clicked
@@ -108,4 +99,85 @@ export function setupBorrowFlow() {
       closeModal(modalId);
     });
   });
+}
+
+export async function fetchAndShowPendingRequests() {
+  const userId = window.userData?.userId;
+  if (!userId) return;
+
+  const pendingList = document.getElementById("pending-list");
+  if (!pendingList) return;
+
+  // Show loading state
+  pendingList.innerHTML = "<p>Loading pending requests...</p>";
+
+  try {
+    const response = await fetch(`/api/loans/user/${userId}?status=pending`);
+    const data = await response.json();
+
+    if (!data.loans || data.loans.length === 0) {
+      pendingList.innerHTML = "<p>No pending requests.</p>";
+      return;
+    }
+
+    const cardsHtml = await Promise.all(
+      data.loans.map(async (loan) => {
+        let book = {};
+        try {
+          book = await fetchBookByCopyId(loan.copy_id);
+        } catch {
+          book = {};
+        }
+        return `
+          <div class="pending-item">
+            <img src="${
+              book.cover_image
+                ? `/assets/covers/${book.cover_image}`
+                : book.cover || "/assets/images/nocover.png"
+            }" alt="${book.title || "Unknown"}" class="pending-item-cover">
+            <div class="pending-item-details">
+              <h4>${book.title || "Unknown Title"}</h4>
+              <p>${book.author || ""}</p>
+            </div>
+            <button class="cancel-request-btn" data-loan-id="${
+              loan.borrow_id
+            }">Cancel</button>
+          </div>
+        `;
+      })
+    );
+    pendingList.innerHTML = cardsHtml.join("");
+
+    // Enhanced: confirmation before cancel
+    pendingList.querySelectorAll(".cancel-request-btn").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const loanId = btn.dataset.loanId;
+        const confirmed = window.confirm("Are you sure you want to cancel?");
+        if (!confirmed) return;
+
+        try {
+          await cancelLoan(loanId);
+          fetchAndShowPendingRequests();
+        } catch (err) {
+          alert("Failed to cancel loan: " + err.message);
+        }
+      });
+    });
+  } catch (err) {
+    pendingList.innerHTML = "<p>Error loading pending loans.</p>";
+  }
+}
+
+// Modal management utilities
+function showModal(modalId) {
+  modalOverlay.style.display = "block";
+  document.getElementById(modalId).style.display = "block";
+}
+
+function closeModal(modalId) {
+  document.getElementById(modalId).style.display = "none";
+  const anyOpen = Array.from(document.querySelectorAll(".modal")).some(
+    (m) => m.style.display === "block"
+  );
+  if (!anyOpen) modalOverlay.style.display = "none";
 }

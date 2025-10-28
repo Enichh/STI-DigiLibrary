@@ -597,31 +597,75 @@ class BooksModel
 
     public function fetchBookById(int $id): ?array
     {
-        $sql = "
-        SELECT b.*,
-               GROUP_CONCAT(DISTINCT g.name SEPARATOR ', ') AS genre,
-               (
-                   SELECT copy_id FROM tbl_book_copies
-                   WHERE book_id = b.book_id AND status = 'available'
-                   LIMIT 1
-               ) AS copy_id
-        FROM tbl_books b
-        LEFT JOIN tbl_book_genres bg ON b.book_id = bg.book_id
-        LEFT JOIN tbl_genres g ON bg.genre_id = g.genre_id
-        WHERE b.book_id = ?
-        GROUP BY b.book_id
-    ";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$id]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+        try {
+            $sql = "
+                SELECT 
+                    b.*,
+                    GROUP_CONCAT(DISTINCT g.name SEPARATOR ', ') AS genre,
+                    GROUP_CONCAT(
+                        DISTINCT CONCAT(
+                            a.first_name,
+                            IF(a.middle_name IS NOT NULL AND a.middle_name != '', CONCAT(' ', a.middle_name), ''),
+                            ' ',
+                            a.last_name
+                        )
+                        ORDER BY ba.author_order 
+                        SEPARATOR ', '
+                    ) AS authors,
+                    (
+                        SELECT copy_id 
+                        FROM tbl_book_copies
+                        WHERE book_id = b.book_id AND status = 'available'
+                        LIMIT 1
+                    ) AS copy_id
+                FROM tbl_books b
+                LEFT JOIN tbl_book_genres bg ON b.book_id = bg.book_id
+                LEFT JOIN tbl_genres g ON bg.genre_id = g.genre_id
+                LEFT JOIN tbl_book_authors ba ON b.book_id = ba.book_id
+                LEFT JOIN tbl_authors a ON ba.author_id = a.author_id
+                WHERE b.book_id = ?
+                GROUP BY b.book_id
+            ";
 
-        // Apply title normalization if data exists
-        if ($row && isset($row['title'])) {
-            $row['title'] = $this->normalizeTitle($row['title']);
+            $stmt = $this->pdo->prepare($sql);
+            if (!$stmt) {
+                error_log(sprintf(
+                    'Database prepare failed in fetchBookById for book ID %d. Error: %s',
+                    $id,
+                    json_encode($this->pdo->errorInfo())
+                ));
+                return null;
+            }
+
+            $executed = $stmt->execute([$id]);
+            if (!$executed) {
+                error_log(sprintf(
+                    'Database query failed in fetchBookById for book ID %d. Error: %s',
+                    $id,
+                    json_encode($stmt->errorInfo())
+                ));
+                return null;
+            }
+
+            $row = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+
+            // Apply title normalization if data exists
+            if ($row && isset($row['title'])) {
+                $row['title'] = $this->normalizeTitle($row['title']);
+            }
+
+            return $row;
+        } catch (\PDOException $e) {
+            error_log(sprintf(
+                'PDOException in fetchBookById for book ID %d: %s\nStack trace: %s',
+                $id,
+                $e->getMessage(),
+                $e->getTraceAsString()
+            ));
+            return null;
         }
-
-        return $row;
     }
+
 
     public function insertBook(array $data): int
     {

@@ -31,7 +31,7 @@ function handleLoanRoutes(string $requestPath, string $method): void
         // CORS preflight
         if ($method === 'OPTIONS') {
             header('Access-Control-Allow-Origin: *');
-            header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+            header('Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS');
             header('Access-Control-Allow-Headers: Content-Type, Authorization');
             http_response_code(204);
             $matched = true;
@@ -75,6 +75,20 @@ function handleLoanRoutes(string $requestPath, string $method): void
                     $loanController->delete((int)$matches[1]);
                     $matched = true;
                     return;
+
+                    // PATCH /loans/{loanId}/cancel → User cancels a pending loan
+                case (preg_match('#^/(\d+)/cancel$#', $endpoint, $matches) && $method === 'PATCH'):
+                    $loanController->cancel((int)$matches[1]);
+                    $matched = true;
+                    return;
+
+
+                    // GET /loans/book/{copyId}
+                case (preg_match('#^/book/(\d+)$#', $endpoint, $matches) && $method === 'GET'):
+                    $loanController->getBookDetailsByCopyId((int)$matches[1]);
+                    $matched = true;
+                    return;
+
 
                     // Handle unmatched endpoints
                 default:

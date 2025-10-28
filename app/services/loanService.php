@@ -90,4 +90,36 @@ class LoanService
     {
         return $this->loanModel->deleteLoan($loanId);
     }
+
+    public function cancelLoan($loanId)
+    {
+        $loan = $this->loanModel->getLoanById($loanId);
+        if (!$loan) {
+            throw new Exception('Loan record not found.');
+        }
+        if ($loan['status'] !== 'pending') {
+            throw new Exception('Only pending requests can be canceled.');
+        }
+        return $this->loanModel->cancelLoan($loanId);
+    }
+
+
+    /**
+     * Fetch full book details given a copyId.
+     * Returns the same detailed structure as fetchBookById.
+     */
+    public function getBookDetailsByCopyId($copyId): ?array
+    {
+        // First, lookup the book_id from the copy_id
+        $bookId = $this->loanModel->getBookIdByCopyId($copyId); // Reuse existing model function if available
+
+        if (!$bookId) {
+            return null;
+        }
+
+        // Now, fetch the full book details just like fetchBookById
+        $bookDetails = $this->loanModel->fetchBookById($bookId); // Ensure this returns complete details including genre/authors
+
+        return $bookDetails;
+    }
 }

@@ -11,7 +11,12 @@ import {
 import { renderBooks } from "./bookRenderer.js";
 import { renderPagination } from "./pagination.js";
 import { populateTags } from "./tagFilter.js";
-import { getLibraryIdStatus } from "./libraryId.js";
+import {
+  profileMenu,
+  profileDropdown,
+  pendingCheckoutsBtn,
+  notificationDropdown,
+} from "./domSelectors.js";
 
 // Helper: Reload and re-render catalog for given filter changes
 async function reloadCatalog(overrides = {}) {
@@ -24,9 +29,7 @@ async function reloadCatalog(overrides = {}) {
     setPagination(pagination);
     await renderBooks();
     renderPagination();
-    console.info("[DEBUG] Catalog updated with:", filters);
   } catch (err) {
-    console.error("Catalog reload failed", err);
     alert("Catalog reload failed: " + err.message);
   }
 }
@@ -110,9 +113,7 @@ export function setupEventListeners() {
         const tags = await fetchTags(type);
         setTags(tags);
         populateTags();
-      } catch (err) {
-        console.error("[DEBUG] Failed to fetch tags for type:", type, err);
-      }
+      } catch (err) {}
       // Reset filters for new type and rerender
       reloadCatalog({ type, tag: "" });
 
@@ -164,9 +165,6 @@ export function setupEventListeners() {
     catalog.classList.toggle("catalog-grid", isGrid);
     catalog.classList.toggle("catalog-list", !isGrid);
     await renderBooks();
-    console.debug(
-      "[DEBUG] Switched to " + (isGrid ? "grid" : "list") + " view."
-    );
   }
 
   // === Pagination: delegate to parent container ===
@@ -241,7 +239,30 @@ export function setupEventListeners() {
       });
     });
 
-  console.info(
-    "[DEBUG] setupEventListeners: All main catalog listeners attached"
-  );
+  if (pendingCheckoutsBtn) {
+    pendingCheckoutsBtn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      const { fetchAndShowPendingRequests } = await import("./borrowFlow.js");
+      if (typeof fetchAndShowPendingRequests === "function") {
+        await fetchAndShowPendingRequests();
+      }
+      showModal("pending-checkouts-modal");
+    });
+  }
+
+  if (profileMenu && profileDropdown) {
+    profileMenu.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (notificationDropdown) {
+        notificationDropdown.classList.remove("show");
+      }
+      profileDropdown.classList.toggle("show");
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!profileMenu.contains(e.target)) {
+        profileDropdown.classList.remove("show");
+      }
+    });
+  }
 }

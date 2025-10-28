@@ -15,6 +15,36 @@ class LoanModel
         $this->pdo = $pdo;
     }
 
+    private function smartTitleCase(string $title): string
+    {
+        $smallWords = ['a', 'an', 'the', 'and', 'but', 'or', 'for', 'nor', 'on', 'at', 'to', 'from', 'by', 'of', 'in'];
+        $words = explode(' ', strtolower($title));
+        $wordCount = count($words);
+        foreach ($words as $i => $word) {
+            if ($i === 0 || $i === $wordCount - 1 || !in_array($word, $smallWords)) {
+                $words[$i] = implode('-', array_map('ucfirst', explode('-', $word)));
+            }
+        }
+        return implode(' ', $words);
+    }
+
+    private function normalizeTitle(string $title): string
+    {
+        if (class_exists('Normalizer')) {
+            $title = Normalizer::normalize($title, Normalizer::FORM_C);
+        }
+        $title = trim($title);
+        $title = preg_replace('/\s+/', ' ', $title);
+        $title = preg_replace('/[[:cntrl:]]/', '', $title);
+        $title = preg_replace('/(\.|,|\?|!){2,}/', '$1', $title);
+        $title = str_replace(["“", "”", "‘", "’", "–", "—"], ['"', '"', "'", "'", "-", "-"], $title);
+        $title = str_replace("\xC2\xA0", ' ', $title);
+        $title = preg_replace('/\.{3,}/', '...', $title);
+        $title = preg_replace_callback('/\b([A-Z]{2,})\b/', fn($m) => strtoupper($m[1]), $title);
+        $title = $this->smartTitleCase($title);
+        return $title;
+    }
+
     public function createLoan($userId, $copyId, $borrowedDate, $dueDate)
     {
         $sql = "INSERT INTO tbl_borrowing_records
@@ -35,6 +65,16 @@ class LoanModel
 
         return $result;
     }
+
+    public function cancelLoan($loanId)
+    {
+        $sql = "UPDATE tbl_borrowing_records
+            SET status = 'canceled', updated_at = NOW()
+            WHERE borrow_id = :borrow_id AND status = 'pending'";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute([':borrow_id' => $loanId]);
+    }
+
 
     public function approveLoan($loanId)
     {
@@ -184,6 +224,138 @@ class LoanModel
         $stmt->execute([':borrower_id' => $borrowerId, ':book_id' => $bookId]);
         return $stmt->fetchColumn() > 0;
     }
+
+
+
+    public function fetchBookById(int $id): ?array
+    {
+        try {
+            $sql = "
+                SELECT 
+                    b.*,
+                    GROUP_CONCAT(DISTINCT g.name SEPARATOR ', ') AS genre,
+                    GROUP_CONCAT(
+                        DISTINCT CONCAT(
+                            a.first_name,
+                            IF(a.middle_name IS NOT NULL AND a.middle_name != '', CONCAT(' ', a.middle_name), ''),
+                            ' ',
+                            a.last_name
+                        )
+                        ORDER BY ba.author_order 
+                        SEPARATOR ', '
+                    ) AS authors,
+                    (
+                        SELECT copy_id 
+                        FROM tbl_book_copies
+                        WHERE book_id = b.book_id AND status = 'available'
+                        LIMIT 1
+                    ) AS copy_id
+                FROM tbl_books b
+                LEFT JOIN tbl_book_genres bg ON b.book_id = bg.book_id
+                LEFT JOIN tbl_genres g ON bg.genre_id = g.genre_id
+                LEFT JOIN tbl_book_authors ba ON b.book_id = ba.book_id
+                LEFT JOIN tbl_authors a ON ba.author_id = a.author_id
+                WHERE b.book_id = ?
+                GROUP BY b.book_id
+            ";
+
+            $stmt = $this->pdo->prepare($sql);
+            if (!$stmt) {
+                error_log(sprintf(
+                    'Database prepare failed in fetchBookById for book ID %d. Error: %s',
+                    $id,
+                    json_encode($this->pdo->errorInfo())
+                ));
+                return null;
+            }
+
+            $executed = $stmt->execute([$id]);
+            if (!$executed) {
+                error_log(sprintf(
+                    'Database query failed in fetchBookById for book ID %d. Error: %s',
+                    $id,
+                    json_encode($stmt->errorInfo())
+                ));
+                return null;
+            }
+
+            $row = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+
+            // Apply title normalization if data exists
+            if ($row && isset($row['title'])) {
+                $row['title'] = $this->normalizeTitle($row['title']);
+            }
+
+            return $row;
+        } catch (\PDOException $e) {
+            error_log(sprintf(
+                'PDOException in fetchBookById for book ID %d: %s\nStack trace: %s',
+                $id,
+                $e->getMessage(),
+                $e->getTraceAsString()
+            ));
+            return null;
+        }
+    }
+
+
+    /**
+     * Fetch full book details given a copy_id.
+     * Returns the same detailed structure as fetchBookById.
+     */
+    public function getBookDetailsByCopyId($copyId): ?array
+    {
+        // First, lookup the book_id from the copy_id
+        $sql = "SELECT book_id FROM tbl_book_copies WHERE copy_id = :copy_id";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':copy_id' => $copyId]);
+        $bookId = $stmt->fetchColumn();
+
+        if (!$bookId) {
+            return null;
+        }
+
+        // Now, fetch the full book details just like fetchBookById
+        $sql = "
+        SELECT 
+            b.*,
+            GROUP_CONCAT(DISTINCT g.name SEPARATOR ', ') AS genre,
+            GROUP_CONCAT(
+                DISTINCT CONCAT(
+                    a.first_name,
+                    IF(a.middle_name IS NOT NULL AND a.middle_name != '', CONCAT(' ', a.middle_name), ''),
+                    ' ',
+                    a.last_name
+                )
+                ORDER BY ba.author_order 
+                SEPARATOR ', '
+            ) AS authors,
+            (
+                SELECT copy_id 
+                FROM tbl_book_copies
+                WHERE book_id = b.book_id AND status = 'available'
+                LIMIT 1
+            ) AS copy_id
+        FROM tbl_books b
+        LEFT JOIN tbl_book_genres bg ON b.book_id = bg.book_id
+        LEFT JOIN tbl_genres g ON bg.genre_id = g.genre_id
+        LEFT JOIN tbl_book_authors ba ON b.book_id = ba.book_id
+        LEFT JOIN tbl_authors a ON ba.author_id = a.author_id
+        WHERE b.book_id = ?
+        GROUP BY b.book_id
+    ";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$bookId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+
+        // Optionally normalize title if that method exists
+        if ($row && isset($row['title']) && method_exists($this, 'normalizeTitle')) {
+            $row['title'] = $this->normalizeTitle($row['title']);
+        }
+
+        return $row;
+    }
+
 
     // Helper method to get user email by user ID
     private function getUserEmailById($userId): ?string

@@ -288,8 +288,6 @@ $userDataScript = "<script>window.userData = $userDataJson;</script>";
         </div>
     </div>
 
-
-
     <!-- Confirm Borrow Modal -->
     <div class="modal" id="confirm-borrow-modal">
         <button class="modal-close" data-modal-id="confirm-borrow-modal">&times;</button>
