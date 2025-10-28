@@ -1,5 +1,3 @@
-Here’s an enhanced version of your `install.md` guide for the STI DigiLibrary project. This version adds troubleshooting, best practices, and cross-platform notes to increase clarity and help new contributors avoid common setup issues.
-
 ---
 
 ## STI DigiLibrary: Installation Guide
