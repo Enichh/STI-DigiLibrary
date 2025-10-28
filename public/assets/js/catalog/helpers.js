@@ -79,6 +79,68 @@ export async function fetchTags(type) {
     throw err;
   }
 }
+/**
+ * Fetch a single book by its ID.
+ * Uses the same API base as fetchCatalogItems but with individual book endpoint.
+ */
+export async function fetchBookById(bookId) {
+  const config = await configPromise;
+  const baseApi = config.api.baseUrl.replace(/\/$/, "");
+  const endpoint = config.api.endpoints?.books || "/books";
+  const url = `${baseApi}${endpoint}/${bookId}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  console.log(`[fetchBookById] Response from ${url}:`, data);
+
+  // Accept either 'status' or 'success' from backend
+  const isSuccess = data.success === true || data.status === "success";
+
+  if (isSuccess) {
+    // BooksController should still return the book under data.data or data (per your backend shape)
+    return transformBackendItemToFrontend(data.data || data.book || data);
+  }
+  throw new Error(data.error || "Failed to fetch book");
+}
+
+/**
+ * Sends a new loan request to the backend
+ * @param {number} userId
+ * @param {number} copyId
+ * @param {string} borrowedDate (ISO string or yyyy-mm-dd HH:MM:SS)
+ * @param {string} dueDate (yyyy-mm-dd)
+ * @param {string|null} remarks
+ */
+export async function createLoan(userId, copyId, borrowedDate, dueDate) {
+  console.log("[createLoan] Sending:", {
+    user_id: userId,
+    copy_id: copyId,
+    borrowed_date: borrowedDate,
+    due_date: dueDate,
+  });
+
+  const config = await configPromise;
+  const baseApi = config.api.baseUrl.replace(/\/$/, "");
+  const endpoint = "/loans/borrow";
+  const url = `${baseApi}${endpoint}`;
+
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        user_id: userId,
+        copy_id: copyId,
+        borrowed_date: borrowedDate,
+        due_date: dueDate,
+      }),
+    });
+    const data = await res.json();
+    if (data.success) return data;
+    throw new Error(data.error || "Failed to create loan");
+  } catch (err) {
+    throw err;
+  }
+}
 
 export function formatDate(isoString) {
   const date = new Date(isoString);
@@ -108,10 +170,9 @@ export function transformBackendItemToFrontend(item, type = "book") {
             .split(",")
             .map((tag) => tag.trim())
             .filter((tag) => tag.length > 0) || [],
-    cover_image:
-      item.cover || item.cover_image || "/assets/images/nocover.png",
+    cover_image: item.cover || item.cover_image || "/assets/images/nocover.png",
     available: item.available || item.available_copies || 0,
-    copies: item.copies || item.total_copies || 0,
+    copy_id: item.copy_id || 0,
     type: type,
   };
 }

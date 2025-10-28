@@ -12,7 +12,7 @@ class LibraryIdModel
     }
 
 
-    private function generateLibraryIdNumber()
+    public function generateLibraryIdNumber()
     {
         // Get the current year
         $currentYear = date('Y');
@@ -41,7 +41,7 @@ class LibraryIdModel
     }
 
 
-    private function getUserEmailById($userId): ?string
+    public function getUserEmailById($userId): ?string
     {
         $sql = "SELECT email FROM tbl_users WHERE user_id = :user_id LIMIT 1";
         $stmt = $this->pdo->prepare($sql);
@@ -51,7 +51,9 @@ class LibraryIdModel
         return $email ?: null;
     }
 
-    private function getUserNameById($userId): ?string
+
+
+    public function getUserNameById($userId): ?string
     {
         $sql = "SELECT firstName, lastName FROM tbl_studentdetails WHERE user_id = :user_id LIMIT 1";
         $stmt = $this->pdo->prepare($sql);
@@ -62,6 +64,7 @@ class LibraryIdModel
         }
         return null;
     }
+
 
     public function approveLibraryId($libraryIdId, $issueYearMonth = null, $expiryYearMonth = null)
     {

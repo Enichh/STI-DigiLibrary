@@ -241,60 +241,6 @@ export function setupEventListeners() {
       });
     });
 
-  // === Borrow button validation ===
-  document.addEventListener("click", async (e) => {
-    const borrowBtn = e.target.closest(".borrow-btn");
-    if (borrowBtn && !borrowBtn.disabled) {
-      e.preventDefault();
-
-      const userId = window.userData?.userId;
-      const bookId = borrowBtn.dataset.bookId;
-
-      if (!userId) {
-        alert("Please log in to borrow books.");
-        return;
-      }
-
-      if (!bookId) {
-        alert("Error: Book ID not found.");
-        return;
-      }
-
-      try {
-        const { status } = await getLibraryIdStatus(userId);
-
-        if (status === "active") {
-          // User can borrow - proceed with borrowing logic (to be implemented)
-          alert(
-            `Borrowing functionality will be implemented soon!\nBook ID: ${bookId}\nLibrary ID: Active ✅`
-          );
-
-          // TODO: Implement actual borrowing logic here
-          // This would typically open a borrow confirmation modal
-          // showModal("confirm-borrow-modal");
-        } else if (status === "pending") {
-          alert(
-            "Your library ID application is still under review. You cannot borrow books until it is approved."
-          );
-        } else {
-          // No library ID or other status
-          const shouldApply = confirm(
-            "You need an active Library ID to borrow books.\n\nWould you like to apply for a Library ID now?"
-          );
-          if (shouldApply) {
-            // Show the library ID application modal
-            document.getElementById("apply-digital-id-modal").style.display =
-              "block";
-            document.getElementById("modal-overlay").style.display = "block";
-          }
-        }
-      } catch (error) {
-        console.error("Error checking library ID status:", error);
-        alert("Error checking your library ID status. Please try again.");
-      }
-    }
-  });
-
   console.info(
     "[DEBUG] setupEventListeners: All main catalog listeners attached"
   );

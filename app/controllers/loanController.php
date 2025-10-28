@@ -3,6 +3,8 @@
 
 require_once __DIR__ . '/../services/loanService.php';
 
+
+
 class LoanController
 {
     private $loanService;
@@ -16,10 +18,9 @@ class LoanController
     public function borrow()
     {
         try {
-            // Basic input validation
-            $userId = $_POST['user_id'] ?? null;
-            $copyId = $_POST['copy_id'] ?? null;
-            $remarks = $_POST['remarks'] ?? null;
+            $input = json_decode(file_get_contents("php://input"), true);
+            $userId = $input['user_id'] ?? null;
+            $copyId = $input['copy_id'] ?? null;
 
             if (!$userId || !$copyId) {
                 http_response_code(400);
@@ -27,14 +28,17 @@ class LoanController
                 return;
             }
 
-            // Service sets due date & handles logic
-            $result = $this->loanService->borrowBook($userId, $copyId, $remarks);
+            // Create the loan
+            $result = $this->loanService->borrowBook($userId, $copyId);
+
             echo json_encode(['success' => $result]);
         } catch (Exception $ex) {
             http_response_code(400);
             echo json_encode(['error' => $ex->getMessage()]);
         }
     }
+
+
 
     // POST /api/loans/return
     public function return()

@@ -1,1 +1,0 @@
-// public/assets/js/catalog/checkoutModal.js

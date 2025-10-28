@@ -16,6 +16,7 @@ import { updateHeroStats } from "./heroStats.js";
 import { populateTags } from "./tagFilter.js";
 import { setupEventListeners } from "./eventListeners.js";
 import { initLibraryIdUi } from "./libraryId.js";
+import { setupBorrowFlow } from "./borrowFlow.js";
 
 async function init() {
   try {
@@ -39,6 +40,7 @@ async function init() {
     // 4. Render the catalog grid/list and pagination
     renderBooks();
     renderPagination();
+    setupBorrowFlow();
 
     // 5. Set up event listeners (search, filters, etc.)
     setupEventListeners();

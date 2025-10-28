@@ -494,23 +494,57 @@ class EmailService
 
             $greeting = $userName ? "Hi <strong>" . htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') . "</strong>," : "Greetings,";
             $this->mailer->Body = "
-<div style='font-family: DM Sans, sans-serif; padding: 1.5rem; background-color: #f1f8e9; border-radius: 8px;'>
-    <h2 style='color: #388e3c;'>Library ID Activation Notice</h2>
-    <p>$greeting</p>
-    <p>Your Library ID <strong>$libraryId</strong> has been <b>approved</b> and <b>activated</b>.</p>
-    <p>You can now borrow books and view your borrowing history using the STI DigiLibrary system.</p>
-    <hr style='margin: 1.5rem 0;' />
-    <p>Contact us at <a href='mailto:services.stidigilibrary@gmail.com'>services.stidigilibrary@gmail.com</a> for questions.</p>
-    <br>
-    <p>Sincerely,<br><b>STI DigiLibrary Team</b></p>
-</div>
-";
+            <div style='font-family: DM Sans, sans-serif; padding: 1.5rem; background-color: #f1f8e9; border-radius: 8px;'>
+             <h2 style='color: #388e3c;'>Library ID Activation Notice</h2>
+             <p>$greeting</p>
+                 <p>Your Library ID <strong>$libraryId</strong> has been <b>approved</b> and <b>activated</b>.</p>
+                 <p>You can now borrow books and view your borrowing history using the STI DigiLibrary system.</p>
+                 <hr style='margin: 1.5rem 0;' />
+                 <p>Contact us at <a href='mailto:services.stidigilibrary@gmail.com'>services.stidigilibrary@gmail.com</a> for questions.</p>
+                 <br>
+                 <p>Sincerely,<br><b>STI DigiLibrary Team</b></p>
+            </div>";
             $this->mailer->send();
             error_log("Library ID approval email sent to: $to");
         } catch (Exception $e) {
             $error = "Failed to send Library ID approval email: {$this->mailer->ErrorInfo}";
             error_log($error);
             throw new Exception($error);
+        }
+    }
+
+
+
+    public function sendLoanPendingApprovalEmail(string $to, string $bookTitle): void
+    {
+        try {
+            $this->mailer->clearAddresses();
+            $this->mailer->addAddress($to);
+            $this->mailer->isHTML(true);
+            $this->mailer->Subject = 'Your Book Borrow Request Is Pending Approval';
+            $this->mailer->Body = "
+            <div style='font-family: DM Sans, sans-serif; padding: 1.5rem;'>
+                <h2 style='color: #00315f;'>Request Received - Pending Approval</h2>
+                <p>
+                    Your request to borrow <strong>" . htmlspecialchars($bookTitle, ENT_QUOTES, 'UTF-8') . "</strong> has been received.
+                </p>
+                <p>
+                    Please wait for the librarian to review your request. You will receive another email with pickup instructions once your request is approved.
+                </p>
+                <hr style='margin: 1.5rem 0;' />
+                <p>
+                    For questions, contact <a href='mailto:services.stidigilibrary@gmail.com'>services.stidigilibrary@gmail.com</a>.
+                </p>
+                <br>
+                <p>Sincerely,<br><b>STI DigiLibrary</b></p>
+            </div>
+        ";
+            $this->mailer->send();
+            error_log("Pending approval email sent to: $to for $bookTitle");
+        } catch (Exception $e) {
+            $msg = "Failed to send loan pending approval email: {$this->mailer->ErrorInfo}";
+            error_log($msg);
+            throw new Exception($msg);
         }
     }
 }

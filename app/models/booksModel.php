@@ -597,15 +597,30 @@ class BooksModel
 
     public function fetchBookById(int $id): ?array
     {
-        $sql = "SELECT b.*, GROUP_CONCAT(DISTINCT g.name SEPARATOR ', ') AS genre
-            FROM tbl_books b
-            LEFT JOIN tbl_book_genres bg ON b.book_id = bg.book_id
-            LEFT JOIN tbl_genres g ON bg.genre_id = g.genre_id
-            WHERE b.book_id = ?
-            GROUP BY b.book_id";
+        $sql = "
+        SELECT b.*,
+               GROUP_CONCAT(DISTINCT g.name SEPARATOR ', ') AS genre,
+               (
+                   SELECT copy_id FROM tbl_book_copies
+                   WHERE book_id = b.book_id AND status = 'available'
+                   LIMIT 1
+               ) AS copy_id
+        FROM tbl_books b
+        LEFT JOIN tbl_book_genres bg ON b.book_id = bg.book_id
+        LEFT JOIN tbl_genres g ON bg.genre_id = g.genre_id
+        WHERE b.book_id = ?
+        GROUP BY b.book_id
+    ";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([$id]);
-        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+        $row = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+
+        // Apply title normalization if data exists
+        if ($row && isset($row['title'])) {
+            $row['title'] = $this->normalizeTitle($row['title']);
+        }
+
+        return $row;
     }
 
     public function insertBook(array $data): int
@@ -671,5 +686,18 @@ class BooksModel
     {
         $stmt = $this->pdo->prepare("DELETE FROM tbl_books WHERE book_id = ?");
         return $stmt->execute([$id]);
+    }
+
+    public function getBookTitleByCopyId(int $copyId): ?string
+    {
+        $sql = "SELECT b.title
+              FROM tbl_book_copies c
+              JOIN tbl_books b ON c.book_id = b.book_id
+             WHERE c.copy_id = :copy_id
+             LIMIT 1";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':copy_id' => $copyId]);
+        $title = $stmt->fetchColumn();
+        return $title ? $this->normalizeTitle($title) : null;
     }
 }
