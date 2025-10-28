@@ -103,6 +103,10 @@ class LoanService
         return $this->loanModel->cancelLoan($loanId);
     }
 
+    public function getUserCopyLoanStatuses(int $userId): array
+    {
+        return $this->loanModel->getUserCopyLoanStatuses($userId);
+    }
 
     /**
      * Fetch full book details given a copyId.

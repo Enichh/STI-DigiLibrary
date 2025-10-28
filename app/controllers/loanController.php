@@ -112,6 +112,13 @@ class LoanController
         }
     }
 
+    // GET /api/loans/user/:userId
+    public function getUserCopyLoanStatuses($userId)
+    {
+        $statusMap = $this->loanService->getUserCopyLoanStatuses($userId);
+        echo json_encode(['status_map' => $statusMap]);
+    }
+
     // GET /api/loans/book/:copyId
     public function getBookDetailsByCopyId($copyId)
     {

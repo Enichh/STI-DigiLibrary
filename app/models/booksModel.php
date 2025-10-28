@@ -407,14 +407,13 @@ class BooksModel
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
         $stmt->execute();
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        $bookIds = [];
         foreach ($rows as &$row) {
             if (isset($row['title'])) {
                 $row['title'] = $this->normalizeTitle($row['title']);
             }
             $isbn = $row['isbn'] ?? '';
             $coverFilename = $isbn . '.webp';
-
-            // If available cover images list contains this ISBN, use the generated path
             if (in_array($isbn, $this->availableCovers)) {
                 $row['cover_image'] = '/assets/covers/' . $coverFilename;
             } elseif (!empty($row['cover_image'])) {
@@ -422,7 +421,49 @@ class BooksModel
             } else {
                 $row['cover_image'] = '/assets/images/nocover.png';
             }
+            if (isset($row['book_id'])) {
+                $bookIds[] = (int)$row['book_id'];
+            }
         }
+
+        if (empty($bookIds)) {
+            return $rows;
+        }
+
+        $placeholders = implode(',', array_fill(0, count($bookIds), '?'));
+        $copiesSql = "SELECT copy_id, book_id, accession_no, call_no, status, edition
+                      FROM tbl_book_copies
+                      WHERE book_id IN ($placeholders)";
+        $copiesParams = $bookIds;
+        if ($availableOnly) {
+            $copiesSql .= " AND status = 'available'";
+        }
+        $copiesSql .= " ORDER BY book_id ASC, status = 'available' DESC, accession_no ASC";
+
+        $copiesStmt = $this->pdo->prepare($copiesSql);
+        $copiesStmt->execute($copiesParams);
+        $copiesRows = $copiesStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+        $copiesByBook = [];
+        foreach ($copiesRows as $c) {
+            $bid = (int)$c['book_id'];
+            if (!isset($copiesByBook[$bid])) {
+                $copiesByBook[$bid] = [];
+            }
+            $copiesByBook[$bid][] = [
+                'copy_id' => (int)$c['copy_id'],
+                'accession_no' => $c['accession_no'],
+                'call_no' => $c['call_no'],
+                'status' => $c['status'],
+                'edition' => $c['edition'],
+            ];
+        }
+
+        foreach ($rows as &$row) {
+            $bid = (int)($row['book_id'] ?? 0);
+            $row['copies'] = $copiesByBook[$bid] ?? [];
+        }
+
         return $rows;
     }
 

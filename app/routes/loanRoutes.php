@@ -89,6 +89,11 @@ function handleLoanRoutes(string $requestPath, string $method): void
                     $matched = true;
                     return;
 
+                case (preg_match('#^/user/(\d+)$#', $endpoint, $matches) && $method === 'GET'):
+                    $loanController->getUserCopyLoanStatuses((int)$matches[1]);
+                    $matched = true;
+                    return;
+
 
                     // Handle unmatched endpoints
                 default:

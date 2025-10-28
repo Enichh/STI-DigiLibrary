@@ -398,4 +398,28 @@ class LoanModel
             error_log("Failed to send loan pending approval email: " . $e->getMessage());
         }
     }
+
+    public function getUserCopyLoanStatuses(int $userId): array
+    {
+        $sql = "
+        SELECT 
+            bc.copy_id,
+            br.status AS loan_status
+        FROM tbl_book_copies bc
+        LEFT JOIN tbl_borrowing_records br 
+            ON bc.copy_id = br.copy_id AND br.borrower_id = :user_id
+    ";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        $statusMap = [];
+        foreach ($rows as $row) {
+            // Only set the status if there is an actual loan record (not just null)
+            if (!empty($row['loan_status'])) {
+                $statusMap[$row['copy_id']] = $row['loan_status'];
+            }
+        }
+        return $statusMap;
+    }
 }

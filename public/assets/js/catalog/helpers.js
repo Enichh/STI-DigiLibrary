@@ -1,4 +1,5 @@
 import { configPromise } from "../config.js";
+//public/assets/js/catalog/helpers.js
 
 function buildQuery(params = {}) {
   const query = Object.entries(params)
@@ -50,6 +51,7 @@ export async function fetchCatalogItems(params = {}) {
     const res = await fetch(url);
     const data = await res.json();
     if (data.success) {
+      console.log("[fetchCatalogItems] Raw API response:", data);
       const transformedData = data.data.map((item) =>
         transformBackendItemToFrontend(item, params.type)
       );
@@ -222,13 +224,42 @@ export async function fetchUserPendingCopyIds(userId) {
   }
 }
 
+export async function fetchUserCopyLoanStatuses(userId) {
+  try {
+    console.log(
+      "[fetchUserCopyLoanStatuses] Requesting loan statuses for user:",
+      userId
+    );
+    const res = await fetch(`/api/loans/user/${userId}`);
+    const data = await res.json();
+    console.log("[fetchUserCopyLoanStatuses] Raw API response:", data);
+
+    if (data && Array.isArray(data.loans)) {
+      const statusMap = {};
+      data.loans.forEach((loan) => {
+        statusMap[loan.copy_id] = loan.status; // or loan.loan_status, based on your field!
+      });
+      console.log("[fetchUserCopyLoanStatuses] Built statusMap:", statusMap);
+      return statusMap;
+    }
+
+    console.warn(
+      "[fetchUserCopyLoanStatuses] No loans array found, returning empty object"
+    );
+    return {};
+  } catch (err) {
+    console.error("Failed to fetch user copy loan statuses:", err);
+    return {};
+  }
+}
+
 export function transformBackendItemToFrontend(item, type = "book") {
   return {
-    id: item.book_id || item.thesis_id || item.id || null,
-    title: item.title || "",
-    author: item.author || item.authors || "Unknown",
-    year: item.year || item.publication_year || undefined,
-    desc: item.desc || item.description || "",
+    id: item.book_id ?? item.thesis_id ?? null,
+    title: item.title ?? "",
+    author: item.author ?? item.authors ?? "Unknown",
+    year: item.year ?? item.publication_year ?? undefined,
+    desc: item.desc ?? item.description ?? "",
     tags:
       type === "thesis"
         ? []
@@ -241,9 +272,10 @@ export function transformBackendItemToFrontend(item, type = "book") {
             .split(",")
             .map((tag) => tag.trim())
             .filter((tag) => tag.length > 0) || [],
-    cover_image: item.cover || item.cover_image || "/assets/images/nocover.png",
-    available: item.available || item.available_copies || 0,
-    copy_id: item.copy_id || 0,
+    cover_image: item.cover ?? item.cover_image ?? "/assets/images/nocover.png",
+    available: item.available ?? item.available_copies ?? 0,
+    copy_id: item.copy_id ?? null,
+    copies: item.copies ?? [],
     type: type,
   };
 }
