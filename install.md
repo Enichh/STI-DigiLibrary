@@ -1,7 +1,3 @@
----
-title: STI DigiLibrary - Installation Guide
----
-
 ## STI DigiLibrary: Installation Guide
 
 ### Prerequisites
