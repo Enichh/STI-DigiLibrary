@@ -1,4 +1,6 @@
 ---
+title: STI DigiLibrary - Installation Guide
+---
 
 ## STI DigiLibrary: Installation Guide
 
@@ -6,7 +8,7 @@
 
 1. **Server Stack**:
 
-   - XAMPP (includes Apache, MySQL/MariaDB, PHP) – [Download XAMPP](https://www.apachefriends.org/download.html)[1]
+   - XAMPP (includes Apache, MySQL/MariaDB, PHP) – [Download XAMPP](https://www.apachefriends.org/download.html)
    - PHP 8.0+ (Recommended: 8.1 or 8.2 for best compatibility)
      - Enable extensions: PDO, MySQLi, OpenSSL, cURL
    - MySQL 5.7+ or MariaDB 10.3+ (included in XAMPP)
@@ -16,7 +18,7 @@
    - Git – [Download Git](https://git-scm.com/downloads)
    - Composer (PHP dependency manager) – [Download Composer](https://getcomposer.org/download/)
 
-3. **Recommended:**
+3. **Recommended**:
    - Text editor (VSCode, Sublime Text, PhpStorm, etc.)
    - Latest Chrome/Firefox browser (for local project testing)
 
@@ -26,14 +28,14 @@
 
 1. **Download and Install XAMPP**
 
-   - Choose the correct XAMPP version for your OS and PHP requirements.[1]
-   - Run the installer and launch the XAMPP Control Panel.
-   - Start Apache and MySQL services (they should turn green if successful).
+   - Choose the correct XAMPP version for your OS and PHP requirements
+   - Run the installer and launch the XAMPP Control Panel
+   - Start Apache and MySQL services (they should turn green if successful)
 
 2. **Clone the Repository**
 
    ```bash
-   git clone https://github.com/Enichh/STI-DigiLibrary.git
+   git clone [https://github.com/Enichh/STI-DigiLibrary.git](https://github.com/Enichh/STI-DigiLibrary.git)
    cd STI-DigiLibrary
    ```
 
