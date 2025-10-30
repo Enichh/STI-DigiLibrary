@@ -147,6 +147,7 @@ require_once __DIR__ . '/../app/routes/libraryIdRoutes.php';
 require_once __DIR__ . '/../app/routes/loanRoutes.php';
 require_once __DIR__ . '/../app/routes/fineRoutes.php';
 require_once __DIR__ . '/../app/routes/paymentRoutes.php';
+require_once __DIR__ . '/../app/routes/notificationRoutes.php';
 
 // Dispatch routes
 handleConfigRoutes($requestPath, $method);
@@ -159,6 +160,7 @@ if (!$matched) handleLibraryIdRoutes($requestPath, $method);
 if (!$matched) handleLoanRoutes($requestPath, $method);
 if (!$matched) handleFineRoutes($requestPath, $method);
 if (!$matched) handlePaymentRoutes($requestPath, $method);
+if (!$matched) handleNotificationRoutes($requestPath, $method);
 if (!$matched) {
     http_response_code(404);
     echo json_encode([

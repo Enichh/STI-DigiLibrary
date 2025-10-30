@@ -162,4 +162,9 @@ class UserService
             throw new RuntimeException("Failed to fetch student profile: " . $e->getMessage());
         }
     }
+
+    public function getBorrowerCount(): int
+    {
+        return $this->userModel->getBorrowerCount();
+    }
 }

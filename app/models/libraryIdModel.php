@@ -51,6 +51,14 @@ class LibraryIdModel
         return $email ?: null;
     }
 
+    public function getLibraryIdCount(): int
+    {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM tbl_library_ids WHERE status = 'active'");
+        $stmt->execute();
+        return (int)$stmt->fetchColumn();
+    }
+
+
 
 
     public function getUserNameById($userId): ?string

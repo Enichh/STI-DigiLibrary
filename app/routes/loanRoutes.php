@@ -94,6 +94,22 @@ function handleLoanRoutes(string $requestPath, string $method): void
                     $matched = true;
                     return;
 
+                case ($endpoint === '/recent' && $method === 'GET'):
+                    $loanController->getRecentActivity();
+                    $matched = true;
+                    return;
+
+                case ($endpoint === '/upcoming-due' && $method === 'GET'):
+                    $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 3;
+                    $loanController->getUpcomingDueDates($limit);
+                    $matched = true;
+                    return;
+
+                case ($endpoint === '/action-items' && $method === 'GET'):
+                    $loanController->getActionItems();
+                    $matched = true;
+                    return;
+
 
                     // Handle unmatched endpoints
                 default:

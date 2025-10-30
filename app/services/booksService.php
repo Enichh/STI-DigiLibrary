@@ -152,4 +152,14 @@ class BooksService
         }
         return $refactored;
     }
+
+    public function countAllBookCopies(): int
+    {
+        return $this->model->countAllBookCopies();
+    }
+
+    public function countBookCopies(?string $status = null): int
+    {
+        return $this->model->countBookCopies($status);
+    }
 }

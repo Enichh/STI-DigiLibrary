@@ -45,6 +45,58 @@ class LoanModel
         return $title;
     }
 
+    public function getUpcomingDueDates(int $limit = 3): array
+    {
+        $sql = "SELECT br.borrow_id, br.due_date, u.userName, b.title AS bookTitle
+            FROM tbl_borrowing_records br
+            JOIN tbl_book_copies c ON br.copy_id = c.copy_id
+            JOIN tbl_books b ON c.book_id = b.book_id
+            JOIN tbl_users u ON br.borrower_id = u.user_id
+            WHERE br.status = 'borrowed'
+            ORDER BY br.due_date ASC
+            LIMIT :limit";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+
+    /**
+     * Returns counts for admin action items:
+     * - Pending ID applications
+     * - Pending ID renewals
+     * - Pending borrow requests
+     * - Overdue books
+     *
+     * @return array
+     */
+    public function getActionItems(): array
+    {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM tbl_library_ids WHERE status = :status");
+        $stmt->execute([':status' => 'pending']);
+        $pendingIds = (int)$stmt->fetchColumn();
+
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM tbl_borrowing_records WHERE status = :status");
+        $stmt->execute([':status' => 'pending']);
+        $pendingBorrows = (int)$stmt->fetchColumn();
+
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) 
+                                 FROM tbl_borrowing_records 
+                                 WHERE status = :status 
+                                   AND due_date < CURDATE() 
+                                   AND return_date IS NULL");
+        $stmt->execute([':status' => 'borrowed']);
+        $overdueBooks = (int)$stmt->fetchColumn();
+
+        return [
+            'pendingLibraryIds' => $pendingIds,
+            'pendingBorrows'    => $pendingBorrows,
+            'overdueBooks'      => $overdueBooks,
+        ];
+    }
+
+
+
     public function createLoan($userId, $copyId, $borrowedDate, $dueDate)
     {
         $sql = "INSERT INTO tbl_borrowing_records
@@ -196,6 +248,37 @@ class LoanModel
         return $stmt->fetchColumn() > 0;
     }
 
+    /**
+     * Fetch recent borrowing activity for dashboard display.
+     *
+     * @param int $limit
+     * @return array
+     */
+    public function fetchRecentActivity(int $limit = 5): array
+    {
+        $sql = "
+        SELECT br.borrow_id,
+               br.copy_id,
+               br.borrower_id,
+               br.borrowed_date,
+               br.due_date,
+               br.status,
+               b.title,
+               u.userName
+        FROM tbl_borrowing_records br
+        JOIN tbl_book_copies c ON br.copy_id = c.copy_id
+        JOIN tbl_books b ON c.book_id = b.book_id
+        JOIN tbl_users u ON br.borrower_id = u.user_id
+        ORDER BY br.borrowed_date DESC
+        LIMIT :limit
+    ";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+
+
     // Get count of currently borrowed books by user
     public function getCurrentBorrowedCount($borrowerId)
     {
@@ -315,17 +398,18 @@ class LoanModel
             return null;
         }
 
-        // Now, fetch the full book details just like fetchBookById
+        // Now, fetch the full book details
         $sql = "
         SELECT 
             b.*,
             GROUP_CONCAT(DISTINCT g.name SEPARATOR ', ') AS genre,
             GROUP_CONCAT(
-                DISTINCT CONCAT(
-                    a.first_name,
-                    IF(a.middle_name IS NOT NULL AND a.middle_name != '', CONCAT(' ', a.middle_name), ''),
-                    ' ',
-                    a.last_name
+                DISTINCT TRIM(
+                    CONCAT(
+                        COALESCE(NULLIF(a.first_name, ''), ''), 
+                        IF(a.middle_name IS NOT NULL AND a.middle_name != '', CONCAT(' ', a.middle_name), ''), 
+                        IF(a.last_name IS NOT NULL AND a.last_name != '', CONCAT(' ', a.last_name), '')
+                    )
                 )
                 ORDER BY ba.author_order 
                 SEPARATOR ', '
@@ -348,13 +432,13 @@ class LoanModel
         $stmt->execute([$bookId]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
 
-        // Optionally normalize title if that method exists
         if ($row && isset($row['title']) && method_exists($this, 'normalizeTitle')) {
             $row['title'] = $this->normalizeTitle($row['title']);
         }
 
         return $row;
     }
+
 
 
     // Helper method to get user email by user ID

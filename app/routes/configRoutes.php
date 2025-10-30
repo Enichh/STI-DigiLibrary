@@ -41,6 +41,11 @@ function handleConfigRoutes($path, $method)
                     'loans'                => '/loans',
                     'fines'                => '/fines',
                     'payments'             => '/payments',
+                    'notifications'        => '/notifications',
+                    'action-items'         => '/action-items',
+                    'borrower-count'       => '/borrower-count',
+                    'library-id-count'     => '/library-id-count',
+
 
                 ],
             ],

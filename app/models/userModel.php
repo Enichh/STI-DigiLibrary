@@ -32,6 +32,15 @@ class UserModel
         return $stmt->fetch() ?: null;
     }
 
+    public function getBorrowerCount(): int
+    {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM tbl_users WHERE role_id = (SELECT role_id FROM tbl_roles WHERE role_name='student')");
+        $stmt->execute();
+        return (int)$stmt->fetchColumn();
+    }
+
+
+
     // ==================================================
     // USER CREATION
     // ==================================================
@@ -49,7 +58,7 @@ class UserModel
     ): int {
         try {
             $stmt = $this->pdo->prepare("
-                INSERT INTO TBL_USERS 
+                INSERT INTO tbl_users 
                 (userName, email, password_hash, role_id, created_at, updated_at)
                 VALUES (?, ?, ?, ?, NOW(), NOW())
             ");

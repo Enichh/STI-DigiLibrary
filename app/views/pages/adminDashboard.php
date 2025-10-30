@@ -4,12 +4,11 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Check if user is logged in and is an admin
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    // Redirect to login if not authenticated or not an admin
-    header('Location: /login?error=unauthorized');
-    exit;
-}
+// Check if user is logged in and is an admin to be implemented still in development
+//if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+//    header('Location: /login?error=unauthorized');
+//    exit;
+//}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -18,7 +17,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Dashboard - STI DigiLibrary</title>
-    <link rel="stylesheet" href="css/admin.css" />
+    <link rel="stylesheet" href="/assets/css/admin.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -29,7 +28,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     <div class="dashboard-container">
         <aside class="sidebar">
             <div class="sidebar-header">
-                <img src="assets/logo.png" alt="STI Logo" class="logo" />
+                <img src="/assets/images/logo.png" alt="STI Logo" class="logo" />
                 <h2>Admin Panel</h2>
             </div>
             <nav class="sidebar-nav">
@@ -45,11 +44,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
                 </ul>
             </nav>
             <div class="sidebar-footer">
-                <!-- RESET BUTTON -->
-                <a href="#" id="reset-cache-btn" style="background-color: var(--danger); margin-bottom: 10px;">
-                    <i class="fas fa-exclamation-triangle"></i> Clear Cache & Reset
-                </a>
-                <a href="index.html" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+
+                <a href="/login" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
             </div>
         </aside>
 

@@ -8,47 +8,37 @@ function handleThesisRoutes(string $requestPath, string $method): void
 {
     global $matched;
 
-    // Create PDO connection and pass to controller
     $pdo = getPDO();
     $controller = new ThesisController($pdo);
     $basePath = '/theses';
 
-    // Match /theses or any sub-route
     if (strpos($requestPath, $basePath) === 0) {
-        \App\Utils\Logger::debug('Thesis route matched', [
-            'path' => $requestPath,
-            'method' => $method
-        ]);
-
-        // Handle OPTIONS for preflight requests
-        if ($method === 'OPTIONS') {
-            header('Access-Control-Allow-Origin: *');
-            header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-            header('Access-Control-Allow-Headers: Content-Type, Authorization');
-            http_response_code(204);
-            $matched = true;
-            return;
-        }
+        $endpoint = substr($requestPath, strlen($basePath));
+        // e.g. "/count" if requestPath = "/theses/count"
 
         try {
-            switch ($method) {
-                case 'GET':
+            switch (true) {
+                case ($endpoint === '' && $method === 'GET'):
                     $controller->getTheses();
                     break;
 
-                case 'POST':
-                    if ($requestPath === '/theses/callnumber') {
-                        $controller->addThesisCallNumber();
-                    } else {
-                        $controller->createThesis();
-                    }
+                case ($endpoint === '/count' && $method === 'GET'):
+                    $controller->getTotalThesis();
                     break;
 
-                case 'PUT':
+                case ($endpoint === '/callnumber' && $method === 'POST'):
+                    $controller->addThesisCallNumber();
+                    break;
+
+                case ($endpoint === '' && $method === 'POST'):
+                    $controller->createThesis();
+                    break;
+
+                case ($endpoint === '' && $method === 'PUT'):
                     $controller->updateThesis();
                     break;
 
-                case 'DELETE':
+                case ($endpoint === '' && $method === 'DELETE'):
                     $controller->deleteThesis();
                     break;
 

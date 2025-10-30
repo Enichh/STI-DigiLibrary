@@ -69,6 +69,13 @@ function handleUserRoutes(string $requestPath, string $method): void
                 return;
             }
 
+            // /users/borrower-count → Get borrower count
+            if ($requestPath === $basePath . '/borrower-count' && $method === 'GET') {
+                $controller->getBorrowerCount();
+                $matched = true;
+                return;
+            }
+
             // =========================================================
             // No route matched
             // =========================================================

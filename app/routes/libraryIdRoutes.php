@@ -87,6 +87,12 @@ function handleLibraryIdRoutes(string $requestPath, string $method): void
                     $matched = true;
                     return;
 
+                    // GET /library-ids/count → Admin: get library ID count
+                case ($endpoint === '/count' && $method === 'GET'):
+                    echo json_encode($libraryIdController->getLibraryIdCount());
+                    $matched = true;
+                    return;
+
                     // Handle unmatched routes
                 default:
                     http_response_code(404);

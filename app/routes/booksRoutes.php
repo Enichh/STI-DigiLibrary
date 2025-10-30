@@ -81,6 +81,25 @@ function handleBooksRoutes(string $requestPath, string $method): void
                     $matched = true;
                     return;
 
+                case ($endpoint === '/count' && $method === 'GET'):
+                    $booksController->getTotalCount();
+                    $matched = true;
+                    return;
+
+                case ($endpoint === '/copies/count' && $method === 'GET'):
+                    $status = $_GET['status'] ?? null;
+
+                    if ($status === null) {
+                        $booksController->countAllBookCopies();
+                    } else {
+                        $booksController->countBookCopies($status);
+                    }
+
+                    $matched = true;
+                    return;
+
+
+
                     // Handle unmatched routes
                 default:
                     \App\Utils\Logger::warning('Books route, no match found', [

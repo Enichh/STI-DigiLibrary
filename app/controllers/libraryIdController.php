@@ -90,6 +90,13 @@ class LibraryIdController
         return ['success' => true, 'items' => $result];
     }
 
+    public function getLibraryIdCount()
+    {
+        $count = $this->libraryIdService->getLibraryIdCount();
+        http_response_code(200);
+        return ['success' => true, 'count' => $count];
+    }
+
     // Endpoint: DELETE /library-ids/{id} (admin: delete library ID record)
     public function deleteLibraryId($libraryIdId)
     {

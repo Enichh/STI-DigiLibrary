@@ -197,4 +197,31 @@ class BooksController
             ]);
         }
     }
+
+    public function getTotalCount(): void
+    {
+        header('Content-Type: application/json');
+        echo json_encode([
+            "success" => true,
+            "count"   => $this->service->getTotalCount()
+        ]);
+    }
+
+    public function countAllBookCopies(): void
+    {
+        header('Content-Type: application/json');
+        echo json_encode([
+            "success" => true,
+            "count"   => $this->service->countAllBookCopies()
+        ]);
+    }
+
+    public function countBookCopies(?string $status = null): void
+    {
+        header('Content-Type: application/json');
+        echo json_encode([
+            "success" => true,
+            "count"   => $this->service->countBookCopies($status)
+        ]);
+    }
 }

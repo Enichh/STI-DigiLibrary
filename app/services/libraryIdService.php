@@ -70,6 +70,11 @@ class LibraryIdService
         return $this->libraryIdModel->listLibraryIds($status);
     }
 
+    public function getLibraryIdCount()
+    {
+        return $this->libraryIdModel->getLibraryIdCount();
+    }
+
     // Optionally: delete, cleanup (admin)
     public function deleteLibraryId($libraryIdId)
     {

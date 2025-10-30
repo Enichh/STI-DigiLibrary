@@ -128,6 +128,13 @@ export async function fetchAndShowPendingRequests() {
         } catch {
           book = {};
         }
+
+        const cleanAuthor = (book.author || "")
+          .replace(/No First Name/gi, "")
+          .replace(/No Middle Name/gi, "")
+          .replace(/No Last Name/gi, "")
+          .replace(/\s+/g, " ") // collapse extra spaces
+          .trim();
         return `
           <div class="pending-item">
             <img src="${
@@ -137,7 +144,7 @@ export async function fetchAndShowPendingRequests() {
             }" alt="${book.title || "Unknown"}" class="pending-item-cover">
             <div class="pending-item-details">
               <h4>${book.title || "Unknown Title"}</h4>
-              <p>${book.author || ""}</p>
+              <p>${cleanAuthor}</p>
             </div>
             <button class="cancel-request-btn" data-loan-id="${
               loan.borrow_id

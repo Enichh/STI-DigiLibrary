@@ -181,4 +181,15 @@ class UserController
             ]);
         }
     }
+
+    public function getBorrowerCount(): void
+    {
+        $count = $this->service->getBorrowerCount();
+
+        header('Content-Type: application/json');
+        echo json_encode([
+            "success" => true,
+            "count"   => $count
+        ]);
+    }
 }

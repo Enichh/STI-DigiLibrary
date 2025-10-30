@@ -131,4 +131,42 @@ class LoanController
             echo json_encode(['error' => 'Book not found']);
         }
     }
+
+    // GET /api/loans/recent
+    public function getRecentActivity(): void
+    {
+        $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 5;
+        $activity = $this->loanService->fetchRecentActivity($limit);
+
+        header('Content-Type: application/json');
+        echo json_encode([
+            "success"  => true,
+            "activity" => $activity
+        ]);
+    }
+
+    // GET /api/loans/upcoming
+    public function getUpcomingDueDates(): void
+    {
+        $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 3;
+        $upcoming = $this->loanService->getUpcomingDueDates($limit);
+
+        header('Content-Type: application/json');
+        echo json_encode([
+            "success"  => true,
+            "upcoming" => $upcoming
+        ]);
+    }
+
+    // GET /api/loans/action-items
+    public function getActionItems(): void
+    {
+        $actionItems = $this->loanService->getActionItems();
+
+        header('Content-Type: application/json');
+        echo json_encode([
+            "success"      => true,
+            "action_items" => $actionItems
+        ]);
+    }
 }

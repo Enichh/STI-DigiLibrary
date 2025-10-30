@@ -66,6 +66,16 @@ class LoanService
         return $this->loanModel->completeLoanReturn($loanId, $returnDate, $remarks);
     }
 
+    public function getActionItems(): array
+    {
+        return $this->loanModel->getActionItems();
+    }
+
+    public function getUpcomingDueDates(int $limit = 3): array
+    {
+        return $this->loanModel->getUpcomingDueDates($limit);
+    }
+
     public function getUserLoans($userId, $status = null)
     {
         return $this->loanModel->getLoansForUser($userId, $status);
@@ -125,5 +135,10 @@ class LoanService
         $bookDetails = $this->loanModel->fetchBookById($bookId); // Ensure this returns complete details including genre/authors
 
         return $bookDetails;
+    }
+
+    public function fetchRecentActivity(int $limit = 5): array
+    {
+        return $this->loanModel->fetchRecentActivity($limit);
     }
 }

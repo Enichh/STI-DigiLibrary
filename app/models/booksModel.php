@@ -237,15 +237,16 @@ class BooksModel
     private function authorExpr(string $alias = 'a'): string
     {
         return "
-            TRIM(
-                CONCAT(
-                    IF($alias.first_name IS NULL OR $alias.first_name = 'No First Name', '', CONCAT($alias.first_name, ' ')),
-                    IF($alias.middle_name IS NULL OR $alias.middle_name = 'No Middle Name', '', CONCAT($alias.middle_name, ' ')),
-                    IF($alias.last_name IS NULL OR $alias.last_name = 'No Last Name', '', $alias.last_name)
-                )
+        TRIM(
+            CONCAT(
+                IF($alias.first_name IS NULL OR $alias.first_name = '' OR $alias.first_name = 'No First Name', '', CONCAT($alias.first_name, ' ')),
+                IF($alias.middle_name IS NULL OR $alias.middle_name = '' OR $alias.middle_name = 'No Middle Name', '', CONCAT($alias.middle_name, ' ')),
+                IF($alias.last_name IS NULL OR $alias.last_name = '' OR $alias.last_name = 'No Last Name', '', $alias.last_name)
             )
-        ";
+        )
+    ";
     }
+
 
     private function normalizeIsbn(?string $raw): string
     {
@@ -335,14 +336,43 @@ class BooksModel
 
     public function getAvailableCount(): int
     {
-        $sql = "SELECT COUNT(DISTINCT bc.book_id) as available
-                FROM tbl_book_copies bc
-                WHERE bc.status = 'available'";
+        $sql = "SELECT COUNT(*) as available FROM tbl_book_copies WHERE status = 'available'";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute();
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return (int)($result['available'] ?? 0);
     }
+
+
+    /**
+     * Counts the total number of book copies in the library.
+     * 
+     * @return int Total number of book copies
+     */
+    public function countAllBookCopies(): int
+    {
+        $sql = "SELECT COUNT(*) as total FROM tbl_book_copies";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return (int)($result['total'] ?? 0);
+    }
+
+    public function countBookCopies(?string $status = null): int
+    {
+        $sql = "SELECT COUNT(*) as total FROM tbl_book_copies";
+        $params = [];
+        if ($status !== null) {
+            $sql .= " WHERE status = :status";
+            $params[':status'] = $status;
+        }
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return (int)($result['total'] ?? 0);
+    }
+
+
 
     public function getCatalogItems(array $filters, int $limit, int $offset): array
     {

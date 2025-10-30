@@ -224,6 +224,31 @@ export async function fetchUserPendingCopyIds(userId) {
   }
 }
 
+/**
+ * Fetch the number of pending loan requests for a user.
+ * @param {number} userId
+ * @returns {Promise<number>}
+ */
+export async function fetchUserPendingCount(userId) {
+  try {
+    const config = await configPromise;
+    const baseApi = config.api.baseUrl.replace(/\/$/, "");
+    const endpoint = config.api.endpoints?.loans || "/loans";
+    const url = `${baseApi}${endpoint}/user/${userId}?status=pending`;
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (data && Array.isArray(data.loans)) {
+      return data.loans.length;
+    }
+    return 0;
+  } catch (err) {
+    console.error("Failed to fetch pending loan count:", err);
+    return 0;
+  }
+}
+
 export async function fetchUserCopyLoanStatuses(userId) {
   try {
     console.log(
