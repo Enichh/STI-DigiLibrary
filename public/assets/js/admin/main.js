@@ -2,8 +2,8 @@
 
 import { setupNavigation } from "./navigation.js";
 import { renderOverview } from "./renderOverview.js";
-// import { renderBookManagement } from "./renderBookManagement.js";
-// later: import { renderBorrowManagement } from "./renderBorrowManagement.js";
+import { renderBookManagement } from "./renderBookManagement.js";
+// import { renderBorrowManagement } from "./renderBorrowManagement.js";
 // later: import { renderUserManagement } from "./renderUserManagement.js";
 // etc.
 
@@ -13,7 +13,7 @@ import { renderOverview } from "./renderOverview.js";
  */
 const pageRenderers = {
   overview: renderOverview,
-  // "book-management": renderBookManagement,
+  "book-management": renderBookManagement,
   // "borrow-management": renderBorrowManagement,
   // "user-management": renderUserManagement,
   // add more as you build them
@@ -25,10 +25,13 @@ const pageRenderers = {
  */
 function renderContent(pageId) {
   const renderer = pageRenderers[pageId];
-  if (renderer) {
-    renderer();
+  const container = document.getElementById(pageId);
+  if (renderer && container) {
+    renderer(container);
   } else {
-    console.warn(`No renderer defined for page: ${pageId}`);
+    console.warn(
+      `No renderer defined or container missing for page: ${pageId}`
+    );
   }
 }
 

@@ -204,6 +204,27 @@ class BooksModel
         $this->pdo = $pdo;
     }
 
+
+
+    /**
+     * Sanitizes the provided genre string by decoding HTML entities and trimming whitespace.
+     * @param string|null $genre
+     * @return string|null
+     */
+    public static function sanitizeGenre(?string $genre): ?string
+    {
+        if ($genre === null) {
+            return null;
+        }
+        // Decode all HTML entities (handles &amp;, &amp;amp;, etc.)
+        $sanitized = html_entity_decode($genre, ENT_QUOTES | ENT_HTML5);
+        // Decode repeatedly if necessary (for nested encodings)
+        while ($sanitized !== html_entity_decode($sanitized, ENT_QUOTES | ENT_HTML5)) {
+            $sanitized = html_entity_decode($sanitized, ENT_QUOTES | ENT_HTML5);
+        }
+        return trim($sanitized);
+    }
+
     private function smartTitleCase(string $title): string
     {
         $smallWords = ['a', 'an', 'the', 'and', 'but', 'or', 'for', 'nor', 'on', 'at', 'to', 'from', 'by', 'of', 'in'];
@@ -358,21 +379,6 @@ class BooksModel
         return (int)($result['total'] ?? 0);
     }
 
-    public function countBookCopies(?string $status = null): int
-    {
-        $sql = "SELECT COUNT(*) as total FROM tbl_book_copies";
-        $params = [];
-        if ($status !== null) {
-            $sql .= " WHERE status = :status";
-            $params[':status'] = $status;
-        }
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return (int)($result['total'] ?? 0);
-    }
-
-
 
     public function getCatalogItems(array $filters, int $limit, int $offset): array
     {
@@ -409,19 +415,20 @@ class BooksModel
         $params = [];
         if (!empty($search)) {
             $sql .= " AND (
-                b.title LIKE :search1
-                OR b.isbn LIKE :search2
-                OR (" . $authorExpr . ") LIKE :search3
-                OR g.name LIKE :search4
-            )";
+            b.title LIKE :search1
+            OR b.isbn LIKE :search2
+            OR (" . $authorExpr . ") LIKE :search3
+            OR g.name LIKE :search4
+        )";
             $params[':search1'] = '%' . $search . '%';
             $params[':search2'] = '%' . $search . '%';
             $params[':search3'] = '%' . $search . '%';
             $params[':search4'] = '%' . $search . '%';
         }
         if (!empty($genre) && $genre !== 'all') {
+            $genreSanitized = self::sanitizeGenre($genre);
             $sql .= " AND g.name = :genre";
-            $params[':genre'] = $genre;
+            $params[':genre'] = $genreSanitized;
         }
 
         $sql .= " GROUP BY b.book_id";
@@ -429,12 +436,24 @@ class BooksModel
             $sql .= " HAVING available_copies > 0";
         }
         $sql .= " ORDER BY has_cover DESC, b.title ASC LIMIT :limit OFFSET :offset";
+
+        // Debug logging
+        error_log("SQL Query: " . $sql);
+        error_log("Query Params: " . print_r($params, true));
+        error_log("Limit: " . $limit . ", Offset: " . $offset);
+
         $stmt = $this->pdo->prepare($sql);
         foreach ($params as $key => $value) {
             $stmt->bindValue($key, $value);
         }
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+
+        // Log the final prepared query (for debugging)
+        ob_start();
+        $stmt->debugDumpParams();
+        error_log("Prepared Query: " . ob_get_clean());
+
         $stmt->execute();
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
         $bookIds = [];
@@ -462,8 +481,8 @@ class BooksModel
 
         $placeholders = implode(',', array_fill(0, count($bookIds), '?'));
         $copiesSql = "SELECT copy_id, book_id, accession_no, call_no, status, edition
-                      FROM tbl_book_copies
-                      WHERE book_id IN ($placeholders)";
+                  FROM tbl_book_copies
+                  WHERE book_id IN ($placeholders)";
         $copiesParams = $bookIds;
         if ($availableOnly) {
             $copiesSql .= " AND status = 'available'";
@@ -496,6 +515,7 @@ class BooksModel
 
         return $rows;
     }
+
 
     public function countCatalogItems(array $filters): int
     {
@@ -738,63 +758,445 @@ class BooksModel
     }
 
 
+    // Create book + relations + copies atomically
     public function insertBook(array $data): int
     {
-        $sql = "INSERT INTO tbl_books 
-            (isbn, isbn13, title, subtitle, edition, volume, publication_year, publisher_id, pages, language, description, cover_image, created_at, updated_at)
-            VALUES 
-            (:isbn, :isbn13, :title, :subtitle, :edition, :volume, :publication_year, :publisher_id, :pages, :language, :description, :cover_image, NOW(), NOW())";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
-            ':isbn' => $data['isbn'] ?? null,
-            ':isbn13' => $data['isbn13'] ?? null,
-            ':title' => $data['title'] ?? null,
-            ':subtitle' => $data['subtitle'] ?? null,
-            ':edition' => $data['edition'] ?? null,
-            ':volume' => $data['volume'] ?? null,
-            ':publication_year' => $data['publication_year'] ?? null,
-            ':publisher_id' => $data['publisher_id'] ?? null,
-            ':pages' => $data['pages'] ?? null,
-            ':language' => $data['language'] ?? null,
-            ':description' => $data['description'] ?? null,
-            ':cover_image' => $data['cover_image'] ?? null,
-        ]);
+        $this->pdo->beginTransaction();
+
+        try {
+            $publisherId = $this->resolvePublisherId($data['publisher'] ?? null);
+
+            $stmt = $this->pdo->prepare(
+                "INSERT INTO tbl_books
+             (isbn, title, edition, volume, publication_year, publisher_id, pages, language, description, cover_image, genre, created_at, updated_at)
+             VALUES
+             (:isbn, :title, :edition, :volume, :publication_year, :publisher_id, :pages, :language, :description, :cover_image, :genre, NOW(), NOW())"
+            );
+
+            $stmt->execute([
+                ':isbn'             => $data['isbn'] ?? null,
+                ':title'            => $data['title'], // required
+                ':edition'          => $data['edition'] ?? null,
+                ':volume'           => $data['volume'] ?? null,
+                ':publication_year' => $data['publication_year'] ?? ($data['year'] ?? null),
+                ':publisher_id'     => $publisherId,
+                ':pages'            => isset($data['pages']) ? (int) $data['pages'] : null,
+                ':language'         => $data['language'] ?? null, // DB default 'English' if null
+                ':description'      => $data['description'] ?? null,
+                ':cover_image'      => $data['cover_image'] ?? ($data['cover'] ?? null),
+                ':genre'            => $data['genre'] ?? null
+            ]);
+
+            $bookId = (int) $this->pdo->lastInsertId();
+
+            // Authors (string to IDs, then link with order)
+            if (!empty($data['author'])) {
+                $authorIds = $this->getOrCreateAuthorIds($data['author']);
+                $this->linkBookAuthors($bookId, $authorIds);
+            }
+
+            // Genre link table (optional single-genre from UI)
+            if (!empty($data['genre'])) {
+                $genreId = $this->getOrCreateGenreId($data['genre']);
+                $this->linkBookGenres($bookId, [$genreId]);
+            }
+
+            // Call number (normalized parts + display string for copies)
+            $cn = $this->normalizeCallNumber($data);
+            $this->insertCallNumber('book', $bookId, $cn);
+            $callNo = $this->formatCallNo($cn);
+
+            // Physical copies
+            $copies = isset($data['copies']) ? max(0, (int) $data['copies']) : 1;
+            $baseAccession = $data['accessionCode'] ?? ($data['accession_no'] ?? null);
+
+            if ($copies > 0) {
+                $this->insertBookCopies(
+                    $bookId,
+                    $copies,
+                    $baseAccession,
+                    $callNo,
+                    $data['edition'] ?? null
+                );
+            }
+
+            $this->pdo->commit();
+            return $bookId;
+        } catch (Throwable $e) {
+            $this->pdo->rollBack();
+            throw $e;
+        }
+    }
+
+
+    // Edit book + relations atomically (non-destructive to existing copies unless adding)
+    public function updateBook(int $bookId, array $data): void
+    {
+        $this->pdo->beginTransaction();
+        try {
+            $publisherId = $this->resolvePublisherId($data['publisher'] ?? null);
+
+            $stmt = $this->pdo->prepare(
+                "UPDATE tbl_books
+                 SET isbn = :isbn,
+                     title = :title,
+                     edition = :edition,
+                     volume = :volume,
+                     publication_year = :publication_year,
+                     publisher_id = :publisher_id,
+                     pages = :pages,
+                     language = :language,
+                     description = :description,
+                     cover_image = :cover_image,
+                     genre = :genre,
+                     updated_at = NOW()
+                 WHERE book_id = :book_id"
+            );
+
+            $stmt->execute([
+                ':isbn'              => $data['isbn']            ?? null,
+                ':title'             => $data['title'], // required
+                ':edition'           => $data['edition']         ?? null,
+                ':volume'            => $data['volume']          ?? null,
+                ':publication_year'  => $data['publication_year'] ?? ($data['year'] ?? null),
+                ':publisher_id'      => $publisherId,
+                ':pages'             => isset($data['pages']) ? (int)$data['pages'] : null,
+                ':language'          => $data['language']        ?? null,
+                ':description'       => $data['description']     ?? null,
+                ':cover_image'       => $data['cover_image']     ?? ($data['cover'] ?? null),
+                ':genre'             => $data['genre']           ?? null,
+                ':book_id'           => $bookId,
+            ]);
+
+            // Replace author links if authors provided
+            if (array_key_exists('author', $data)) {
+                $this->unlinkBookAuthors($bookId);
+                if (!empty($data['author'])) {
+                    $authorIds = $this->getOrCreateAuthorIds($data['author']);
+                    $this->linkBookAuthors($bookId, $authorIds);
+                }
+            }
+
+            // Replace genre link if provided (single-genre UI)
+            if (array_key_exists('genre', $data)) {
+                $this->unlinkBookGenres($bookId);
+                if (!empty($data['genre'])) {
+                    $genreId = $this->getOrCreateGenreId($data['genre']);
+                    $this->linkBookGenres($bookId, [$genreId]);
+                }
+            }
+
+            // Upsert call number and cascade display call_no to copies
+            if ($this->hasCallNumber('book', $bookId)) {
+                $cn = $this->normalizeCallNumber($data, true);
+                $this->updateCallNumber('book', $bookId, $cn);
+                $callNo = $this->formatCallNo($cn);
+                $this->updateCopiesCallNoAndEdition($bookId, $callNo, $data['edition'] ?? null);
+            } else {
+                $cn = $this->normalizeCallNumber($data);
+                $this->insertCallNumber('book', $bookId, $cn);
+                $callNo = $this->formatCallNo($cn);
+                $this->updateCopiesCallNoAndEdition($bookId, $callNo, $data['edition'] ?? null);
+            }
+
+            // If increasing copy count, add new copies (non-destructive)
+            if (isset($data['copies'])) {
+                $target = max(0, (int)$data['copies']);
+                $current = $this->countBookCopies($bookId);
+                if ($target > $current) {
+                    $baseAccession = $data['accessionCode'] ?? ($data['accession_no'] ?? null);
+                    $callNo = $callNo ?? $this->formatCallNo($this->loadCallNumber('book', $bookId));
+                    $this->insertBookCopies($bookId, $target - $current, $baseAccession, $callNo, $data['edition'] ?? null, $current);
+                }
+            }
+
+            $this->pdo->commit();
+        } catch (Throwable $e) {
+            $this->pdo->rollBack();
+            throw $e;
+        }
+    }
+
+    // ---------- Helpers (single-responsibility, reused) ----------
+
+    private function resolvePublisherId(?string $name): ?int
+    {
+        if ($name === null || trim($name) === '') return null;
+        $name = trim($name);
+
+        $find = $this->pdo->prepare("SELECT publisher_id FROM tbl_publishers WHERE name = :name LIMIT 1");
+        $find->execute([':name' => $name]);
+        $row = $find->fetch(PDO::FETCH_ASSOC);
+        if ($row) return (int)$row['publisher_id'];
+
+        $ins = $this->pdo->prepare("INSERT INTO tbl_publishers (name, created_at, updated_at) VALUES (:name, NOW(), NOW())");
+        $ins->execute([':name' => $name]);
         return (int)$this->pdo->lastInsertId();
     }
 
-    public function updateBook(int $id, array $data): bool
+    private function getOrCreateAuthorIds(string $authorString): array
     {
-        $sql = "UPDATE tbl_books SET
-            isbn = :isbn,
-            isbn13 = :isbn13,
-            title = :title,
-            subtitle = :subtitle,
-            edition = :edition,
-            volume = :volume,
-            publication_year = :publication_year,
-            publisher_id = :publisher_id,
-            pages = :pages,
-            language = :language,
-            description = :description,
-            cover_image = :cover_image,
-            updated_at = NOW()
-            WHERE book_id = :book_id";
-        $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute([
-            ':isbn' => $data['isbn'] ?? null,
-            ':isbn13' => $data['isbn13'] ?? null,
-            ':title' => $data['title'] ?? null,
-            ':subtitle' => $data['subtitle'] ?? null,
-            ':edition' => $data['edition'] ?? null,
-            ':volume' => $data['volume'] ?? null,
-            ':publication_year' => $data['publication_year'] ?? null,
-            ':publisher_id' => $data['publisher_id'] ?? null,
-            ':pages' => $data['pages'] ?? null,
-            ':language' => $data['language'] ?? null,
-            ':description' => $data['description'] ?? null,
-            ':cover_image' => $data['cover_image'] ?? null,
-            ':book_id' => $id,
+        // Split on semicolons first, then commas if no semicolons present
+        $parts = str_contains($authorString, ';')
+            ? array_map('trim', explode(';', $authorString))
+            : array_map('trim', explode(',', $authorString));
+
+        $ids = [];
+        foreach ($parts as $i => $full) {
+            if ($full === '') continue;
+            // Naive "first ... last" split; adapt as needed
+            $tokens = preg_split('/\s+/', $full);
+            $last = array_pop($tokens) ?: '';
+            $first = implode(' ', $tokens);
+
+            $sel = $this->pdo->prepare(
+                "SELECT author_id FROM tbl_authors WHERE first_name = :first AND last_name = :last LIMIT 1"
+            );
+            $sel->execute([':first' => $first, ':last' => $last]);
+            $row = $sel->fetch(PDO::FETCH_ASSOC);
+            if ($row) {
+                $ids[] = (int)$row['author_id'];
+                continue;
+            }
+
+            $ins = $this->pdo->prepare(
+                "INSERT INTO tbl_authors (first_name, last_name, created_at, updated_at)
+                 VALUES (:first, :last, NOW(), NOW())"
+            );
+            $ins->execute([':first' => $first, ':last' => $last]);
+            $ids[] = (int)$this->pdo->lastInsertId();
+        }
+        return $ids;
+    }
+
+    private function linkBookAuthors(int $bookId, array $authorIds): void
+    {
+        $stmt = $this->pdo->prepare(
+            "INSERT INTO tbl_book_authors (book_id, author_id, author_order, role, created_at)
+             VALUES (:book_id, :author_id, :author_order, 'Author', NOW())"
+        );
+        $order = 1;
+        foreach ($authorIds as $aid) {
+            $stmt->execute([
+                ':book_id' => $bookId,
+                ':author_id' => $aid,
+                ':author_order' => $order++,
+            ]);
+        }
+    }
+
+    private function unlinkBookAuthors(int $bookId): void
+    {
+        $del = $this->pdo->prepare("DELETE FROM tbl_book_authors WHERE book_id = :book_id");
+        $del->execute([':book_id' => $bookId]);
+    }
+
+    private function getOrCreateGenreId(string $name): int
+    {
+        $name = trim($name);
+        $sel = $this->pdo->prepare("SELECT genre_id FROM tbl_genres WHERE name = :name LIMIT 1");
+        $sel->execute([':name' => $name]);
+        $row = $sel->fetch(PDO::FETCH_ASSOC);
+        if ($row) return (int)$row['genre_id'];
+
+        $ins = $this->pdo->prepare("INSERT INTO tbl_genres (name) VALUES (:name)");
+        $ins->execute([':name' => $name]);
+        return (int)$this->pdo->lastInsertId();
+    }
+
+    private function linkBookGenres(int $bookId, array $genreIds): void
+    {
+        $stmt = $this->pdo->prepare(
+            "INSERT IGNORE INTO tbl_book_genres (book_id, genre_id) VALUES (:book_id, :genre_id)"
+        );
+        foreach ($genreIds as $gid) {
+            $stmt->execute([':book_id' => $bookId, ':genre_id' => $gid]);
+        }
+    }
+
+    private function unlinkBookGenres(int $bookId): void
+    {
+        $del = $this->pdo->prepare("DELETE FROM tbl_book_genres WHERE book_id = :book_id");
+        $del->execute([':book_id' => $bookId]);
+    }
+
+    private function normalizeCallNumber(array $data, bool $partial = false): array
+    {
+        $py = $data['publication_year'] ?? ($data['year'] ?? null);
+        $cn = $data['callNumber'] ?? [];
+
+        $shelf = $cn['shelf'] ?? ($data['shelf'] ?? null);
+        $cc    = $cn['classificationCode'] ?? ($data['classificationCode'] ?? null);
+        $num   = $cn['classificationNumber'] ?? ($data['classificationNumber'] ?? null);
+        $cutter = $cn['cutter'] ?? ($data['cutter'] ?? null);
+        $year  = $cn['year'] ?? $py;
+
+        // In add: require all; in edit: keep provided values
+        if (!$partial && (!$shelf || !$cc || !$num || !$cutter || !$year)) {
+            throw new InvalidArgumentException('Missing call number components.');
+        }
+        return [
+            'shelf_number' => $shelf,
+            'classification_code' => $cc,
+            'classification_number' => $num,
+            'cutter' => $cutter,
+            'year' => $year,
+        ];
+    }
+
+    private function formatCallNo(array $cn): string
+    {
+        $parts = array_filter([
+            $cn['shelf_number'] ?? null,
+            $cn['classification_code'] ?? null,
+            $cn['classification_number'] ?? null,
+            $cn['cutter'] ?? null,
+            $cn['year'] ?? null,
+        ], fn($v) => $v !== null && $v !== '');
+        return implode(' ', $parts);
+    }
+
+    private function insertCallNumber(string $refType, int $refId, array $cn): void
+    {
+        $stmt = $this->pdo->prepare(
+            "INSERT INTO tbl_call_number
+             (shelf_number, classification_code, classification_number, cutter, year, reference_type, reference_id, created_at, updated_at)
+             VALUES (:shelf, :cc, :num, :cutter, :year, :rt, :rid, NOW(), NOW())"
+        );
+        $stmt->execute([
+            ':shelf'  => $cn['shelf_number'],
+            ':cc'     => $cn['classification_code'],
+            ':num'    => $cn['classification_number'],
+            ':cutter' => $cn['cutter'],
+            ':year'   => $cn['year'],
+            ':rt'     => $refType,
+            ':rid'    => $refId,
         ]);
+    }
+
+    private function hasCallNumber(string $refType, int $refId): bool
+    {
+        $q = $this->pdo->prepare(
+            "SELECT 1 FROM tbl_call_number WHERE reference_type = :rt AND reference_id = :rid LIMIT 1"
+        );
+        $q->execute([':rt' => $refType, ':rid' => $refId]);
+        return (bool)$q->fetchColumn();
+    }
+
+    private function loadCallNumber(string $refType, int $refId): array
+    {
+        $q = $this->pdo->prepare(
+            "SELECT shelf_number, classification_code, classification_number, cutter, year
+             FROM tbl_call_number WHERE reference_type = :rt AND reference_id = :rid LIMIT 1"
+        );
+        $q->execute([':rt' => $refType, ':rid' => $refId]);
+        $row = $q->fetch(PDO::FETCH_ASSOC) ?: [];
+        return [
+            'shelf_number' => $row['shelf_number'] ?? null,
+            'classification_code' => $row['classification_code'] ?? null,
+            'classification_number' => $row['classification_number'] ?? null,
+            'cutter' => $row['cutter'] ?? null,
+            'year' => $row['year'] ?? null,
+        ];
+    }
+
+    private function updateCallNumber(string $refType, int $refId, array $cn): void
+    {
+        $stmt = $this->pdo->prepare(
+            "UPDATE tbl_call_number
+             SET shelf_number = :shelf,
+                 classification_code = :cc,
+                 classification_number = :num,
+                 cutter = :cutter,
+                 year = :year,
+                 updated_at = NOW()
+             WHERE reference_type = :rt AND reference_id = :rid"
+        );
+        $stmt->execute([
+            ':shelf'  => $cn['shelf_number'],
+            ':cc'     => $cn['classification_code'],
+            ':num'    => $cn['classification_number'],
+            ':cutter' => $cn['cutter'],
+            ':year'   => $cn['year'],
+            ':rt'     => $refType,
+            ':rid'    => $refId,
+        ]);
+    }
+
+    public function countBookCopies(int $bookId): int
+    {
+        $q = $this->pdo->prepare("SELECT COUNT(*) FROM tbl_book_copies WHERE book_id = :bid");
+        $q->execute([':bid' => $bookId]);
+        return (int)$q->fetchColumn();
+    }
+
+    private function insertBookCopies(
+        int $bookId,
+        int $count,
+        ?string $baseAccession,
+        string $callNo,
+        ?string $edition,
+        int $existingCount = 0
+    ): void {
+        $stmt = $this->pdo->prepare(
+            "INSERT INTO tbl_book_copies
+             (book_id, accession_no, call_no, acquisition_date, `condition`, edition, created_at, updated_at)
+             VALUES (:bid, :acc, :call, NULL, 'good', :edition, NOW(), NOW())"
+        );
+
+        // Determine numbering start
+        $startIndex = $existingCount + 1;
+
+        // If base has trailing digits, continue from that; else append -001..N
+        $pad = 3;
+        $base = $baseAccession;
+
+        // If only 1 new copy and base provided, use base as-is
+        if ($count === 1 && $existingCount === 0 && $base) {
+            $stmt->execute([
+                ':bid' => $bookId,
+                ':acc' => $base,
+                ':call' => $callNo,
+                ':edition' => $edition,
+            ]);
+            return;
+        }
+
+        // Determine suffix strategy
+        $hasNumericSuffix = false;
+        $startNum = 1;
+        if ($base && preg_match('/^(.*?)(\d+)$/', $base, $m)) {
+            $hasNumericSuffix = true;
+            $base = $m[1];
+            $startNum = (int)$m[2];
+            $pad = strlen($m[2]);
+        }
+
+        for ($i = 0; $i < $count; $i++) {
+            if ($base) {
+                if ($hasNumericSuffix) {
+                    $acc = $base . str_pad((string)($startNum + $i), $pad, '0', STR_PAD_LEFT);
+                } else {
+                    $acc = rtrim($base, '-') . '-' . str_pad((string)($startIndex + $i), $pad, '0', STR_PAD_LEFT);
+                }
+            } else {
+                $acc = 'B' . $bookId . '-' . str_pad((string)($startIndex + $i), $pad, '0', STR_PAD_LEFT);
+            }
+
+            $stmt->execute([
+                ':bid' => $bookId,
+                ':acc' => $acc,
+                ':call' => $callNo,
+                ':edition' => $edition,
+            ]);
+        }
+    }
+
+    private function updateCopiesCallNoAndEdition(int $bookId, string $callNo, ?string $edition): void
+    {
+        $sql = "UPDATE tbl_book_copies SET call_no = :call_no, edition = :edition, updated_at = NOW() WHERE book_id = :bid";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':call_no' => $callNo, ':edition' => $edition, ':bid' => $bookId]);
     }
 
     public function deleteBook(int $id): bool
@@ -814,5 +1216,41 @@ class BooksModel
         $stmt->execute([':copy_id' => $copyId]);
         $title = $stmt->fetchColumn();
         return $title ? $this->normalizeTitle($title) : null;
+    }
+
+
+    public function countCopiesByStatus(?string $status = null): int
+    {
+        // Normalize and whitelist status; accept minor variants from UI
+        $normalized = null;
+        if ($status !== null) {
+            $s = strtolower(preg_replace('/[^a-z_]/i', '', $status));
+            // Allow common variants; map to the DB enum
+            $map = [
+                'available'   => 'available',
+                'checkedout'  => 'checked_out',
+                'checked_out' => 'checked_out',
+                'onhold'      => 'on_hold',
+                'on_hold'     => 'on_hold',
+                'intransit'   => 'in_transit',
+                'in_transit'  => 'in_transit',
+                'lost'        => 'lost',
+                'damaged'     => 'damaged',
+                'withdrawn'   => 'withdrawn',
+                'missing'     => 'missing',
+            ];
+            $normalized = $map[$s] ?? null;
+        }
+
+        if ($normalized === null) {
+            $sql = "SELECT COUNT(*) FROM tbl_book_copies";
+            $stmt = $this->pdo->query($sql);
+            return (int)$stmt->fetchColumn();
+        }
+
+        $sql = "SELECT COUNT(*) FROM tbl_book_copies WHERE status = :status";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':status' => $normalized]);
+        return (int)$stmt->fetchColumn();
     }
 }

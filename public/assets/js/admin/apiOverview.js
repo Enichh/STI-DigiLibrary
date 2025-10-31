@@ -10,7 +10,7 @@ import { getConfig } from "../config.js";
 export async function fetchTotalUniqueBooks() {
   const { api } = await getConfig();
   const res = await apiRequest(`${api.baseUrl}${api.endpoints.books}/count`);
-  return res.count;
+  return res.data?.count ?? 0;
 }
 
 /**
@@ -22,7 +22,7 @@ export async function fetchTotalCopies() {
   const res = await apiRequest(
     `${api.baseUrl}${api.endpoints.books}/copies/count`
   );
-  return res.count;
+  return res.data?.count ?? 0;
 }
 
 /**
@@ -34,7 +34,7 @@ export async function fetchCheckedOutCount() {
   const res = await apiRequest(
     `${api.baseUrl}${api.endpoints.books}/copies/count?status=checked_out`
   );
-  return res.count;
+  return res.data?.count ?? 0;
 }
 
 /**
@@ -46,7 +46,7 @@ export async function fetchAvailableCopies() {
   const res = await apiRequest(
     `${api.baseUrl}${api.endpoints.books}/copies/count?status=available`
   );
-  return res.count;
+  return res.data?.count ?? 0;
 }
 
 /**
@@ -59,7 +59,7 @@ export async function fetchRecentActivity(limit = 5) {
   const res = await apiRequest(
     `${api.baseUrl}${api.endpoints.loans}/recent?limit=${limit}`
   );
-  return res;
+  return res.data ?? [];
 }
 
 /**
@@ -72,21 +72,38 @@ export async function fetchAdminNotifications(limit = 5) {
   const res = await apiRequest(
     `${api.baseUrl}${api.endpoints.notifications}/recent?limit=${limit}`
   );
-  return res;
+  return res.data ?? [];
 }
 
+/**
+ * Fetches upcoming due dates for loans.
+ * @param {number} limit - Number of items to fetch.
+ * @returns {Promise<any[]>}
+ */
 export async function fetchUpcomingDueDates(limit = 3) {
   const { api } = await getConfig();
-  return apiRequest(
+  const res = await apiRequest(
     `${api.baseUrl}${api.endpoints.loans}/upcoming-due?limit=${limit}`
   );
+  return res.data ?? [];
 }
 
+/**
+ * Fetches admin action items (pending approvals, overdues, etc.).
+ * @returns {Promise<any>}
+ */
 export async function fetchAdminActionItems() {
   const { api } = await getConfig();
-  return apiRequest(`${api.baseUrl}${api.endpoints.loans}/action-items`);
+  const res = await apiRequest(
+    `${api.baseUrl}${api.endpoints.loans}/action-items`
+  );
+  return res.data ?? {};
 }
 
+/**
+ * Fetches the count of borrowers (users with active library IDs).
+ * @returns {Promise<number>}
+ */
 export async function fetchBorrowerCount() {
   const { api } = await getConfig();
   const res = await apiRequest(
@@ -95,6 +112,10 @@ export async function fetchBorrowerCount() {
   return res.count;
 }
 
+/**
+ * Fetches the count of active library IDs.
+ * @returns {Promise<number>}
+ */
 export async function fetchLibraryIdCount() {
   const { api } = await getConfig();
   const res = await apiRequest(
@@ -103,6 +124,10 @@ export async function fetchLibraryIdCount() {
   return res.count;
 }
 
+/**
+ * Fetches the total count of theses in the collection.
+ * @returns {Promise<number>}
+ */
 export async function fetchTotalTheses() {
   const { api } = await getConfig();
   const res = await apiRequest(`${api.baseUrl}${api.endpoints.theses}/count`);

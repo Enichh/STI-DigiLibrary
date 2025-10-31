@@ -120,7 +120,7 @@ class AuthService
         if ($expectedRole && $user['role_id']) {
             $roleName = $this->userModel->getRoleNameById($user['role_id']);
             if ($roleName !== $expectedRole) {
-                return ["error" => "Invalid credentials"];
+                return ["error" => "Invalid credentials $roleName $expectedRole"];
             }
         }
 

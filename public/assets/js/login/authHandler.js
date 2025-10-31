@@ -286,7 +286,8 @@ function setupLoginAndSignup() {
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       try {
-        await handleLogin();
+        const isAdminMode = window.currentMode === "admin-login";
+        await handleLogin(isAdminMode);
       } catch (error) {
         console.error("[Auth] Error in login handler:", error);
       }

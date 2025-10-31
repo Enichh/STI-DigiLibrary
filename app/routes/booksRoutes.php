@@ -87,16 +87,10 @@ function handleBooksRoutes(string $requestPath, string $method): void
                     return;
 
                 case ($endpoint === '/copies/count' && $method === 'GET'):
-                    $status = $_GET['status'] ?? null;
-
-                    if ($status === null) {
-                        $booksController->countAllBookCopies();
-                    } else {
-                        $booksController->countBookCopies($status);
-                    }
-
+                    $booksController->countBookCopies();
                     $matched = true;
                     return;
+
 
 
 

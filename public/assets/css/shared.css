@@ -1,0 +1,535 @@
+/* =============================================================================
+   SHARED.CSS
+   File Purpose: Reusable UI components for all modules.
+   Contains: Buttons, cards, modals, tables, forms, tabs, stat cards, etc.
+   DOES NOT CONTAIN: Shell layout or module-specific layout styles.
+   ========================================================================== */
+
+/* Ensure :root variables are available */
+:root {
+  --yellow: #ffc200;
+  --lightyellow: #ffe25c;
+  --darkyellow: #d19d00;
+  --blue: #00315f;
+  --lightblue: #376691;
+  --darkblue: #012244;
+  --mayonnaise: #f3f0e4;
+  --black: #1b1b1b;
+  --palebrown: #271c089c;
+  --lightgray: #dbdbdb;
+  --white: #ffffff;
+  --danger: #e74c3c;
+  --success: #2ecc71;
+  --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  --border-radius: 8px;
+  --sidebar-width: 260px;
+}
+
+/* =============================================================================
+   BUTTONS
+   ========================================================================== */
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  /* Accessibility: Ensure minimum tap target size */
+  min-height: 44px;
+}
+
+.btn-primary {
+  background-color: var(--yellow);
+  color: var(--blue);
+  font-weight: 900;
+  font-size: 12px;
+}
+
+.btn-primary:hover {
+  background-color: var(--darkyellow);
+  box-shadow: 0 6px 20px rgba(255, 194, 0, 0.4);
+}
+
+.btn-primary:disabled {
+  background-color: var(--lightgray);
+  color: #888;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Base secondary button style (used for Cancel, Reject confirmation etc.) */
+.btn-secondary {
+  background-color: #6c757d; /* Standard Bootstrap gray */
+  color: var(--white);
+  font-size: 1rem; /* Match .btn */
+}
+.btn-secondary:hover {
+  background-color: #5a6268; /* Darker gray */
+  color: var(--white);
+}
+
+/* Specific style for table reject/disapprove button */
+.data-table .btn-secondary,
+.confirm-modal-content #cancelDisapproveBtn {
+  background-color: #cc2222; /* Original red color */
+  font-size: 10px; /* Keep small size for table consistency */
+}
+.data-table .btn-secondary:hover,
+.confirm-modal-content #cancelDisapproveBtn:hover {
+  background-color: #ba0e0e; /* Darker red */
+}
+
+.btn-danger {
+  background-color: var(--danger);
+  color: var(--white);
+}
+.btn-danger:hover {
+  background-color: #c0392b;
+}
+
+.btn-success {
+  background-color: var(--success);
+  color: white;
+}
+.btn-success:hover {
+  background-color: #27ae60;
+}
+
+.btn-approve {
+  background-color: var(--success); /* Use success color */
+  color: white;
+}
+.btn-approve:hover {
+  background-color: #27ae60; /* Darker green */
+}
+.btn-approve:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.btn-sm {
+  font-size: 0.85em;
+  padding: 6px 12px;
+  margin: 0 2px 4px 0;
+  text-transform: none;
+  min-height: auto; /* Override for small buttons */
+}
+
+/* =============================================================================
+   MODALS
+   ========================================================================== */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.6);
+  animation: fadeIn 0.3s;
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 10% auto;
+  padding: 30px;
+  border: 1px solid #888;
+  width: 80%;
+  max-width: 600px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  position: relative;
+  animation: slideIn 0.4s;
+}
+
+.close-btn {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  position: absolute;
+  top: 10px;
+  right: 20px;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    top: -100px;
+    opacity: 0;
+  }
+  to {
+    top: 0;
+    opacity: 1;
+  }
+}
+
+/* Specific styling for confirmation modal */
+.confirm-modal-content {
+  background-color: var(--mayonnaise);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  max-width: 450px;
+  margin: 10% auto;
+  animation: fadeIn 0.3s;
+  padding: 40px 30px;
+  text-align: center;
+}
+
+.confirm-modal-content .btn {
+  min-width: 120px; /* Enforce minimum width */
+  text-align: center;
+}
+
+/* =============================================================================
+   CARDS (Base Style)
+   ========================================================================== */
+.card {
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(6px);
+  padding: 20px;
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  border-left: 3px solid #ffc200;
+}
+.card h3 {
+  margin-bottom: 15px;
+  color: var(--darkblue);
+}
+.card:hover {
+  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.25); /* glowing hover shadow */
+  border-color: rgba(0, 123, 255, 0.4);
+}
+
+/* =============================================================================
+   STAT CARDS (Reusable Dashboard Component)
+   ========================================================================== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+.stat-card {
+  background-color: var(--white);
+  padding: 20px;
+  border-radius: var(--border-radius);
+  border-color: rgba(0, 123, 255, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border-left: 3px solid #ffc200;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+.stat-card .icon {
+  font-size: 2.5rem;
+  color: var(--blue);
+  padding: 15px;
+  background-color: #e0e8f0;
+  border-radius: 50%;
+}
+.stat-card .info h3 {
+  font-size: 2rem;
+  font-weight: 700;
+}
+.stat-card .info p {
+  color: #666;
+}
+.stat-card:hover {
+  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.25); /* glowing hover shadow */
+  border-color: rgba(0, 123, 255, 0.4);
+}
+
+/* Mobile styles for reusable stat cards */
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =============================================================================
+   FORMS
+   ========================================================================== */
+.form-control {
+  padding: 8px 12px;
+  border: 1px solid var(--lightgray);
+  border-radius: var(--border-radius);
+  font-size: 0.9rem;
+  width: 100%; /* Default to full width */
+  box-sizing: border-box; /* Include padding and border in width */
+}
+
+/* Form inside modal */
+.modal-content form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+.form-group label {
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 10px;
+  border: 1px solid var(--lightgray);
+  border-radius: var(--border-radius);
+  width: 100%;
+  font-size: 0.95rem; /* Ensure form fields are readable */
+  box-sizing: border-box;
+}
+.form-group input:read-only {
+  background-color: #eee;
+  cursor: not-allowed;
+}
+.modal-content form button[type="submit"] {
+  grid-column: 2 / 3; /* Align submit button to the right */
+  justify-self: end;
+  width: auto;
+  margin-top: 10px;
+}
+
+.form-subtitle {
+  grid-column: 1 / -1;
+  margin-top: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--lightgray);
+}
+
+/* =============================================================================
+   TABLES
+   ========================================================================== */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 15px; /* Add space below tables */
+}
+.data-table th,
+.data-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  vertical-align: middle; /* Align content vertically */
+}
+.data-table thead th {
+  background-color: var(--blue);
+  color: white;
+  font-weight: 500;
+}
+.data-table tbody tr:nth-of-type(even) {
+  background-color: #f9f9f9;
+}
+.data-table tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* =============================================================================
+   NEW: RESPONSIVE TABLE WRAPPER
+   ========================================================================== */
+.table-responsive-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  border: 1px solid #ddd;
+  border-radius: var(--border-radius);
+  margin-bottom: 20px;
+}
+/* We put the wrapper on the DIV, not the table, 
+   so the wrapper can provide the scrollbar.
+   We also remove margin from the table when it's inside the wrapper.
+*/
+.table-responsive-wrapper .data-table {
+  margin-bottom: 0;
+  border: none;
+}
+/* ============================================================================= */
+
+/* Table Status Tags */
+.status {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: white;
+  text-transform: capitalize;
+  display: inline-block; /* Ensure background applies correctly */
+  line-height: 1.2;
+}
+.status-pending {
+  background-color: #f39c12;
+}
+.status-waived {
+  background-color: var(--success);
+}
+.status-approved {
+  background-color: var(--success);
+}
+.status-expired {
+  background-color: var(--danger);
+}
+.status-borrowed {
+  background-color: var(--lightblue);
+}
+.status-overdue {
+  background-color: var(--danger);
+}
+.status-returned {
+  background-color: var(--success);
+}
+.status-rejected {
+  background-color: #7f8c8d;
+}
+.status-lost {
+  background-color: var(--black);
+  color: var(--white);
+}
+.status-damaged {
+  background-color: #f39c12;
+}
+.status-active {
+  color: #28a745;
+  background: transparent;
+  padding: 0;
+  font-weight: bold;
+}
+.status-suspended {
+  color: #dc3545;
+  background: transparent;
+  padding: 0;
+  font-weight: bold;
+}
+.status-locked {
+  color: #ff6700;
+  background: transparent;
+  padding: 0;
+  font-weight: bold;
+}
+
+/* =============================================================================
+   TABS
+   ========================================================================== */
+.tab-nav {
+  display: flex;
+  border-bottom: 2px solid var(--lightgray);
+  margin-bottom: 20px;
+}
+
+.tab-link {
+  padding: 10px 20px;
+  cursor: pointer;
+  border: none;
+  background-color: transparent;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--lightblue);
+  position: relative;
+  bottom: -2px; /* Align with border */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s, border-color 0.2s;
+}
+.tab-link:hover {
+  color: var(--blue);
+}
+
+.tab-link.active {
+  color: var(--blue);
+  border-bottom: 2px solid var(--blue);
+}
+
+.tab-content {
+  display: none;
+  animation: fadeIn 0.4s;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* =============================================================================
+   PAGINATION
+   ========================================================================== */
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 25px;
+  padding: 15px 0; /* Add some vertical space */
+  border-top: 1px solid var(--lightgray); /* Separator */
+}
+.pagination-btn {
+  padding: 8px 15px; /* Slightly wider */
+  border: 1px solid var(--blue);
+  background-color: transparent;
+  color: var(--blue);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+.pagination-btn:hover {
+  background-color: var(--blue);
+  color: white;
+}
+.pagination-btn:disabled {
+  background-color: var(--lightgray);
+  color: #888;
+  border-color: var(--lightgray);
+  cursor: not-allowed;
+}
+.pagination-info {
+  font-weight: 500;
+  color: var(--darkblue);
+  padding: 0 10px;
+}
+
+/* =============================================================================
+   MISC UTILITY CLASSES
+   ========================================================================== */
+.dashboard-welcome-text {
+  font-size: 1.1rem;
+  margin-bottom: 18px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  font-weight: 400;
+  color: #0a2240;
+}
+
+.dashboard-separator {
+  border: none;
+  height: 2px;
+  background-color: var(--lightgray);
+  margin: 15px 0 15px 0; /* Increased margin */
+  width: 100%;
+}

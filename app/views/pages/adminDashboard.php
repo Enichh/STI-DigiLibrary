@@ -5,10 +5,10 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Check if user is logged in and is an admin to be implemented still in development
-//if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-//    header('Location: /login?error=unauthorized');
-//    exit;
-//}
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+    header('Location: /login?error=unauthorized');
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -18,6 +18,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Dashboard - STI DigiLibrary</title>
     <link rel="stylesheet" href="/assets/css/admin.css" />
+    <link rel="stylesheet" href="/assets/css/shared.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>

@@ -67,13 +67,26 @@ class BooksService
     {
         return $this->model->insertBook($data);
     }
-
-    public function updateBook($id, array $data): ?bool
+    public function updateBook($id, array $data): ?array
     {
         $bookId = (int)$id;
-        if ($bookId <= 0) return null;
-        return $this->model->updateBook($bookId, $data);
+        if ($bookId <= 0) {
+            return null;
+        }
+
+        // Verify book exists before updating
+        $existingBook = $this->model->fetchBookById($bookId); // Use fetchBookById not getBookById
+        if (!$existingBook) {
+            return null;
+        }
+
+        // Attempt the update
+        $this->model->updateBook($bookId, $data); // Returns void
+
+        // Return the updated book
+        return $this->model->fetchBookById($bookId); // Use fetchBookById
     }
+
 
     public function deleteBook($id): ?bool
     {
@@ -153,6 +166,7 @@ class BooksService
         return $refactored;
     }
 
+
     public function countAllBookCopies(): int
     {
         return $this->model->countAllBookCopies();
@@ -160,6 +174,7 @@ class BooksService
 
     public function countBookCopies(?string $status = null): int
     {
-        return $this->model->countBookCopies($status);
+        // Count copies across all books, optionally filtered by status
+        return $this->model->countCopiesByStatus($status);
     }
 }
