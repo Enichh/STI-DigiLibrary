@@ -198,6 +198,21 @@ export function renderBookManagement(container) {
             text-overflow: ellipsis;
         }
         .bm-book-card-meta { display: flex; justify-content: space-between; font-size: 0.8rem; color: #777; margin-bottom: 10px; padding-top: 10px; border-top: 1px solid var(--lightgray); }
+        .bm-call-number {
+            margin: 0 0 10px 0;
+            font-size: 0.85rem;
+            color: #666;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .bm-call-number strong {
+            color: var(--darkblue);
+            font-weight: 600;
+            margin-right: 5px;
+        }
+
         .bm-book-card-actions { display: flex; gap: 10px; margin-top: auto; }
         /* List View (Table) */
         .bm-list { overflow-x: auto; }
@@ -306,6 +321,9 @@ export function renderBookManagement(container) {
             background-color: var(--blue);
             color: var(--white);
         }
+            
+
+        
         .type-toggle .bm-control-btn:first-child,
         .view-toggle .bm-control-btn:first-child {
             border-top-left-radius: var(--border-radius);
@@ -498,40 +516,50 @@ async function renderCollection() {
 }
 
 function renderBookCard(item) {
-  const defaultCover =
-    item.type === "thesis"
-      ? "assets/images/logo.png"
-      : "assets/images/logo.png";
+  const defaultCover = "assets/images/logo.png";
   let coverUrl = defaultCover;
 
   if (item.cover_image) {
-    if (item.type === "thesis") {
-      coverUrl = item.cover_image.startsWith("http")
-        ? item.cover_image
-        : `assets/theses_covers/${item.cover_image.replace(/^.*[\\/]/, "")}`;
-    } else {
-      coverUrl = item.cover_image.startsWith("http")
-        ? item.cover_image
-        : `assets/covers/${item.cover_image.replace(/^.*[\\/]/, "")}`;
-    }
+    const folder = item.type === "thesis" ? "theses_covers" : "covers";
+    coverUrl = item.cover_image.startsWith("http")
+      ? item.cover_image
+      : `assets/${folder}/${item.cover_image.replace(/^.*[\\/]/, "")}`;
   }
 
+  // Extract call_no from first copy (copies array exists for books)
+  const callNumber = (item.copies && item.copies[0]?.call_no) || "N/A";
+
   return `
-    <div class="bm-book-card" data-id="${item.book_id}">
-      <img src="${coverUrl}" alt="${safeGet(item.title, "Untitled")}"
+    <div class="bm-book-card" data-id="${item.book_id || item.thesis_id}">
+      <img 
+        src="${coverUrl}" 
+        alt="${safeGet(item.title, "Untitled")}"
         onerror="this.onerror=null; this.src='${defaultCover}'; this.style.objectFit='contain'; this.style.padding='10px';">
+      
       <div class="bm-book-card-info">
         <h4>${safeGet(item.title, "Untitled")}</h4>
-        <p>${safeGet(item.authors, "Unknown Author")}</p>
+        <p class="bm-author">${safeGet(
+          item.authors || item.author,
+          "Unknown Author"
+        )}</p>
+        
         <div class="bm-book-card-meta">
-          <span>Total: ${safeGet(item.total_copies, "N/A")}</span>
+          <span>Total: ${safeGet(
+            item.total_copies || item.copies?.length,
+            "N/A"
+          )}</span>
         </div>
+
+        <div class="bm-call-number">
+          <small>Call #:</small> ${callNumber}
+        </div>
+
         <div class="bm-book-card-actions">
           <button class="btn btn-sm edit-btn" data-id="${
-            item.book_id
+            item.book_id || item.thesis_id
           }"><i class="fas fa-edit"></i> Edit</button>
           <button class="btn btn-sm delete-btn" data-id="${
-            item.book_id
+            item.book_id || item.thesis_id
           }"><i class="fas fa-trash"></i> Delete</button>
         </div>
       </div>

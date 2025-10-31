@@ -49,6 +49,9 @@ export async function fetchCatalogItems(filters = {}, page = 1, pageSize = 20) {
   try {
     const response = await apiRequest(endpoint);
 
+    // Log raw API response
+    console.log("Raw API Response:", JSON.parse(JSON.stringify(response)));
+
     console.log("API Response Summary:", {
       success: response.success,
       count: response.data?.length || 0,
