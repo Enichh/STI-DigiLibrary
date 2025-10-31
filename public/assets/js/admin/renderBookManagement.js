@@ -87,6 +87,31 @@ function updateCallNumberPreview(form, prefix) {
   );
 }
 
+/**
+ * Parses call_no string into components
+ * e.g., "TH 207 B37 2017" → {shelf: "TH", classificationCode: "207", classificationNumber: "B37", cutter: "2017"}
+ * e.g., "CIR QA 76.6 D37 2008" → {shelf: "CIR", classificationCode: "QA", classificationNumber: "76.6", cutter: "D37", year: "2008"}
+ */
+function parseCallNumber(callNoString) {
+  if (!callNoString) {
+    return {
+      shelf: "",
+      classificationCode: "",
+      classificationNumber: "",
+      cutter: "",
+    };
+  }
+
+  const parts = callNoString.trim().split(/\s+/);
+
+  return {
+    shelf: parts[0] || "", // TH or CIR
+    classificationCode: parts[1] || "", // 207 or QA
+    classificationNumber: parts[2] || "", // B37 or 76.6
+    cutter: parts[3] || "", // 2017 or D37
+  };
+}
+
 export {
   state,
   SHELF_LOCATIONS,
@@ -95,6 +120,7 @@ export {
   safeGet,
   formatCallNumber,
   updateCallNumberPreview,
+  parseCallNumber,
   generateOptions,
 };
 
@@ -1002,26 +1028,33 @@ function populateFormFields(form, item) {
   console.log("=== POPULATE FORM FIELDS START ===");
   console.log("Item data:", item);
 
+  // Parse call_no if it exists
+  const callNumberParts = item.call_no ? parseCallNumber(item.call_no) : {};
+
   // Map API response keys to form field names (handles both formats)
   const fieldMap = {
     title: item.title,
-    author: item.authors || item.author, // API: authors or author
+    author: item.authors || item.author,
     isbn: item.isbn,
-    genre: item.genres || item.genre, // API: genres or genre
-    year: item.publication_year || item.year, // API: publication_year or year
-    copies: item.total_copies || item.copies, // API: total_copies
+    genre: item.genres || item.genre,
+    year: item.publication_year || item.year,
+    copies: item.total_copies || item.copies,
     pages: item.pages,
     edition: item.edition,
-    publisher: item.publisher_name || item.publisher, // API: publisher_name or publisher
-    accessionCode: item.accession_no || item.accessionCode, // API: accession_no or accessionCode
-    cover: item.cover_image || item.cover, // API: cover_image or cover
+    publisher: item.publisher_name || item.publisher,
+    accessionCode: item.accession_no || item.accessionCode,
+    cover: item.cover_image || item.cover,
     description: item.description,
-    shelf: item.callNumber?.shelf || item.shelf,
+    shelf: callNumberParts.shelf || item.callNumber?.shelf || item.shelf,
     classificationCode:
-      item.callNumber?.classificationCode || item.classificationCode,
+      callNumberParts.classificationCode ||
+      item.callNumber?.classificationCode ||
+      item.classificationCode,
     classificationNumber:
-      item.callNumber?.classificationNumber || item.classificationNumber,
-    cutter: item.callNumber?.cutter || item.cutter,
+      callNumberParts.classificationNumber ||
+      item.callNumber?.classificationNumber ||
+      item.classificationNumber,
+    cutter: callNumberParts.cutter || item.callNumber?.cutter || item.cutter,
   };
 
   console.log("Field map (after API mapping):", fieldMap);
